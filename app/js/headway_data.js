@@ -386,9 +386,9 @@ function drawAlertIcon(count){
 	var svgBox = document.querySelector('.alertImg')
 	if(svgBox.childElementCount){
 		d3.select('.alertImg').select('svg').select('text').text(count)
-	}else
-	{	var width = document.querySelector('.alertImg').clientWidth
-		var height = document.querySelector('.alertImg').clientHeight
+	}else{	
+		var width = document.querySelector('.alertImg').clientWidth;
+		var height = document.querySelector('.alertImg').clientHeight;
 		var svg = d3.select('.alertImg').append('svg')
 			.attr('viewBox','0 0 ' + width*3 +' ' + height*3)
 			.attr('transform','translate(0,'+height/4+')')
