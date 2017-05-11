@@ -23,22 +23,15 @@ app.controller('hdwyCtrl',function($scope, $http, $interval) {
 
 //get all the stations data
 	$scope.getStops = function(){
-		$http.get(stopsurl+"&direction_id=0")
+		$http.get(stopsurl)
 		.then(function(response) {
-			$scope.stops.xbound = response.data.data;
-			angular.forEach($scope.stops.xbound, function(stop, k){
+			$scope.stops = response.data.data;			
+			angular.forEach($scope.stops, function(stop, k){
 			$scope.allStops.push({id:stop.id,name:stop.attributes.name})
 			});
-			drawStation('left',$scope.stops.xbound)//draw left group of stations
-		});
-		
-		$http.get(stopsurl+"&direction_id=1")
-		.then(function(response) {
-			$scope.stops.ybound = response.data.data;			
-			angular.forEach($scope.stops.ybound, function(stop, k){
-			$scope.allStops.push({id:stop.id,name:stop.attributes.name})
-			});
-			drawStation('right',$scope.stops.ybound)//draw right group of stations
+			drawStation('left',$scope.stops)//draw left group of stations
+			drawStation('right',$scope.stops)//draw right group of stations
+
 		});
 	};
 //get all the vehicles data
@@ -58,6 +51,7 @@ app.controller('hdwyCtrl',function($scope, $http, $interval) {
 
 			//draw the vehicles on the main diagram
 			drawVehicles($scope.vehicles)
+			// drawVehicles(test)
 
 			// SEARCH 
 			d3.select('.searchButton').on('click',function(d){
@@ -70,11 +64,11 @@ app.controller('hdwyCtrl',function($scope, $http, $interval) {
 					.then(function(response) {
 						var getServerResult = response.data.data.filter(function(d){return d.attributes.label.includes(searchValue)})
 						if(getServerResult.length == 0){
-							d3.select('#searchRT').html('<hr><p class=\'lead\'>Train '+searchValue+ ' is not listed in Green lines.</p>')
+							d3.select('#searchRT').html('<hr><p class=\'lead\'>Train ' + searchValue +  ' is not listed in Green lines.</p>')
 						}else if(getServerResult.length == 1){
-							d3.select('#searchRT').html('<hr><p class=\'lead\'>Train '+searchValue+' is on '+getServerResult[0].relationships.route.data.id+'.</p>')
+							d3.select('#searchRT').html('<hr><p class=\'lead\'>Train ' + searchValue + ' is on ' + getServerResult[0].relationships.route.data.id + '.</p>')
 						}else{
-							d3.select('#searchRT').html('<hr><p class=\'lead\'>Data error: Train '+searchValue+ ' is listed in more than one place.</p>')
+							d3.select('#searchRT').html('<hr><p class=\'lead\'>Data error: Train ' + searchValue + ' is listed in more than one place.</p>')
 						}
 					})
 				}else{
@@ -125,16 +119,22 @@ app.controller('hdwyCtrl',function($scope, $http, $interval) {
 	$scope.getAlerts = function(){
 		$http.get(alerturl)
 		.then(function(response) {
-			$scope.alerts = response.data.data;
+			$scope.alerts = response.data.data.filter(function(alert){
+				return (alert.attributes.lifecycle != 'Upcomming' && alert.attributes.lifecycle != 'Upcoming-Ongoing') && (alert.attributes.lifecycle == 'Ongoing'? alert.attributes.severity == 'Severe':alert)
+			})
 			//show alert icon only when alerts exist
+			var alert = d3.select('#alerts')
 			if($scope.alerts.length > 0 ){
-				var alert = d3.select('#alerts')
-				alert.classed('hidden', false)
+				if(alert){
+					alert.classed('hidden', false)					
+				}
 				showAlerts($scope.alerts)
 				
 				drawAlertIcon($scope.alerts.length)
 			}else{
-				alert.classed('hidden',true)
+				if(alert){
+					alert.classed('hidden',true)
+				}				
 			}
 		})
 	}
@@ -188,7 +188,7 @@ line.append('rect')
 	.attr('x',location)
 	.attr('width',bindWidth)
 	.attr('y',interval)
-	.attr('height',(length -1) * interval)
+	.attr('height',(length - 1) * interval)
 
 //direction arrows
 var arrows = line.append('g')
@@ -197,18 +197,18 @@ for(i=0;i<(length -1)*count;i++){
 	if(i%count){
 		arrows.append('line')
 			.attr('x1',location)
-			.attr('y1',interval+interval/count*i)
-			.attr('x2',location+bindWidth/2)
-			.attr('y2',interval+interval/count*i+bindWidth/2)
+			.attr('y1',interval + interval / count * i)
+			.attr('x2',location + bindWidth / 2)
+			.attr('y2',interval + interval / count * i + bindWidth/2)
 			.attr('class','triangle')
-			.attr('transform','translate('+(arrowAngle?bindWidth/2:0)+'0)')
+			.attr('transform','translate(' + (arrowAngle?bindWidth/2:0) + '0)')
 		arrows.append('line')
-			.attr('x2',location+bindWidth)
-			.attr('y2',interval+interval/count*i)
-			.attr('x1',location+bindWidth/2)
-			.attr('y1',interval+interval/count*i+bindWidth/2)
+			.attr('x2',location + bindWidth)
+			.attr('y2',interval + interval / count * i)
+			.attr('x1',location + bindWidth / 2)
+			.attr('y1',interval + interval / count * i + bindWidth / 2)
 			.attr('class','triangle')
-			.attr('transform','translate('+(arrowAngle?-bindWidth/2:0)+'0)')
+			.attr('transform','translate(' + (arrowAngle ? -bindWidth / 2 : 0) + '0)')
 	}
 
 }
@@ -218,10 +218,10 @@ var update = line.selectAll('.stop')
 var enter = update.enter()
 	.append('g')
 	.attr('class',function(d){return 'stop '+d.id})
-	.attr('transform',function(d,i){return 'translate('+location + ',' + (i+1)*interval + ')'})
+	.attr('transform',function(d,i){return 'translate('+location + ',' + (i + 1) * interval + ')'})
 enter.append('circle')
-	.attr('r',function(d,i){return i == 0 || i == length - 1?bindWidth - 6:(bindWidth - 6)/2})
-	.attr('class',function(d,i){return i == 0 || i == length - 1?'terminalStop':'middleStop'})
+	.attr('r',function(d,i){return i == 0 || i == length - 1?bindWidth - 6:(bindWidth - 6) / 2})
+	.attr('class',function(d,i){return i == 0 || i == length - 1?'terminalStop' : 'middleStop'})
 	.attr('cx',bindWidth / 2)
 
 //only append station names once
@@ -235,82 +235,85 @@ if(position == 'left'){
 //draw vehicles on main diagram
 function drawVehicles(data){
 	console.log(data)
+vehicles.selectAll('.multiple').remove()
+vehicles.selectAll('.vehicle').classed('hidden',false)
 var update = vehicles.selectAll('.vehicle')
-	.data(data,function(e){return e.id})
+	.data(data,function(d){return d.id})
 var enter = update.enter()
 	.append('g')
 	.attr('class','vehicle')
-	.attr('id',function(e){return 'train' + e.id})
-	.on('click',function(e){var n = [];n[0] = e;return showVehicle(n)})
-	.attr('transform',function(e){return e.attributes.direction_id?('translate('+rightLocation+','+h+')'):('translate('+leftLocation+',0)')})
+	.attr('id',function(d){return 'train' + d.id})
+	.attr('data-location',function(d){return d.attributes.current_status + '-' + d.relationships.stop.data.id + '-' + d.attributes.direction_id})
+	.on('click',function(d){var n = [];n[0] = d;return showVehicle(n)})
+	.attr('transform',function(d){
+		var station = getXYFromTranslate(d3.select('.' + d.parent_station.id)._groups[0][0]);
+		var offsetY,offsetX;
+			offsetY = station[1] + (d.attributes.current_status == 'INCOMING_AT'? (d.attributes.direction_id? 1 : -1) * interval / 2 : 0);
+			offsetX = d.attributes.direction_id? (rightLocation + 2 * bindWidth) : (leftLocation - 1 * bindWidth);
+		return 'translate(' + offsetX + ',' + offsetY + ')';
+	})
 enter.append('svg:image')
 	.attr("xlink:href","images/yellow-train.png")
 	.attr('width', vehicleSize + 'em')
     .attr('height', vehicleSize + 'em')
     .attr('x',-vehicleSize/2 + 'em')
     .attr('y',-vehicleSize/2 + 'em')
-enter.append('text').text(function(e){return e.attributes.label})
+enter.append('text').text(function(d){return d.attributes.label})
 	.attr('class','vehicleNum')
 
 update.merge(enter)
 	.transition()
-	.attr('transform',function(e){
-		var station = getXYFromTranslate(d3.select('.'+e.parent_station.id)._groups[0][0]);
+	.attr('transform',function(d){
+		var station = getXYFromTranslate(d3.select('.'+d.parent_station.id)._groups[0][0]);
 		var offsetY,offsetX;
-		// if(e.attributes.direction_id == e.parent_station.direction){
-			offsetY = station[1] + (e.attributes.current_status == 'INCOMING_AT'? (e.attributes.direction_id? 1 : -1) * interval / 2 : 0);
-			offsetX = e.attributes.direction_id? (rightLocation + 2 * bindWidth) : (leftLocation - 1 * bindWidth);
-		// }else{
-		// 	offsetY = station[1];
-		// 	offsetX = e.parent_station.direction? ((rightLocation - 1) * bindWidth) : (leftLocation + 2 * bindWidth)
-		// }
+			offsetY = station[1] + (d.attributes.current_status == 'INCOMING_AT'? (d.attributes.direction_id? 1 : -1) * interval / 2 : 0);
+			offsetX = d.attributes.direction_id? (rightLocation + 2 * bindWidth) : (leftLocation - 1 * bindWidth);
 		return 'translate(' + offsetX + ',' + offsetY + ')';
 	})
-	.attr('id',function(e){return 'train'+e.id})
+	.attr('id',function(d){return 'train'+d.id})
 	.select('text')
-	.attr('x',function(e){return (e.attributes.direction_id == 0? -1 : 1) * 15})
-	.attr('y',function(e){})
-	.style('text-anchor',function(e){return e.attributes.direction_id == 0?'end':'start'})
+	.attr('x',function(d){return (d.attributes.direction_id == 0? -1 : 1) * 15})
+	.style('text-anchor',function(d){return d.attributes.direction_id == 0?'end':'start'})
 
 update.exit().remove();
 
+data.forEach(function(d){
+	console.log(d.attributes.label + d.attributes.current_status + d.parent_station.id + d.relationships.stop.data.id + d.parent_station.name + d.attributes.direction_id)
+})
 //when multiple trans, hidden them and draw a grouped train 
-data.forEach(function(d){console.log(d.attributes.label+d.attributes.current_status+d.relationships.stop.data.id+d.parent_station.id+d.parent_station.name+d.attributes.direction_id)})
-var vehicleByStation = d3.nest()
-	.key(function(d){return d.relationships.stop.data.id})
-	.key(function(d){return d.attributes.current_status})
-	.entries(data)
-console.log(vehicleByStation,data.length)
-	vehicleByStation.forEach(function(station){
-		station.values.forEach(function(trains){
-			console.log(trains.values.length)
-			var countTrain = trains.values.length;
-			if(countTrain > 1){
-				console.log(trains.values[0].id)
-				console.log(d3.select('#train'+trains.values[0].id))
-				var stop =getXYFromTranslate(d3.select('#train'+trains.values[0].id)._groups[0][0])
-				var multitrain = d3.select('.vehicleContainer')
-					.append('g').attr('class','multitrain'+trains.key)
-					.attr('transform','translate('+stop[0]+','+stop[1]+')')
-					.on('click',showVehicle(trains.values))
-				trains.values.forEach(function(train,i){
-					d3.select('#train'+train.id).classed('hidden',true);
-					var offsetX = train.attributes.direction_id == 0? -1 : 1;
-					multitrain.append('svg:image')
-						.attr("xlink:href","images/yellow-train.png")
-						.attr('width', vehicleSize+'em')
-					    .attr('height', vehicleSize+'em')
-					    .attr('x',(offsetX * vehicleSize * i + vehicleSize/2)+'em')
-					    .attr('y',-vehicleSize/2+'em')
-				})	
-			}
-			else{
-				var selectMulti = d3.select('.multitrain'+trains.key)
-				if(selectMulti){selectMulti.remove};
-				d3.selectAll('.vehicle').classed('hidden',false);
-			}
+var allLocation = d3.set();
+data.forEach(function(vehicle){
+	 if( !allLocation.has(vehicle.attributes.current_status + '-' + vehicle.relationships.stop.data.id + '-' + vehicle.attributes.direction_id) ){
+        allLocation.add(vehicle.attributes.current_status + '-' + vehicle.relationships.stop.data.id + '-' + vehicle.attributes.direction_id);
+    }
+})
+allLocation.values().forEach(function(location){
+	var findMulti = document.querySelectorAll('[data-location=' + location + ']')
+		console.log(findMulti.length)
+	if(findMulti.length > 1){
+		var count = findMulti.length
+		var locationdata = location.split('-')
+		var multidata = data.filter(function(d){return (d.attributes.current_status == locationdata[0]) && (d.relationships.stop.data.id == locationdata[1]) && (d.attributes.direction_id == locationdata[2])})
+		//hidden the multiple trains
+		findMulti.forEach(function(multi){
+			multi.classList.add('hidden')
 		})
-	})
+		//show multiicon
+		var multiIcon = vehicles.append('g')
+			.attr('id',location).attr('class','multiple')
+			.attr('transform','translate(' + getXYFromTranslate(findMulti[0])[0] + ',' + getXYFromTranslate(findMulti[0])[1] + ')')
+			.on('click',function(){showVehicle(multidata)})
+		for(i = 0; i < count; i++){
+			console.log(locationdata[0],locationdata[1],locationdata[2])
+			multiIcon.append('svg:image')
+				.attr("xlink:href","images/yellow-train.png")
+				.attr('width', vehicleSize + 'em')
+			    .attr('height', vehicleSize + 'em')
+			    .attr('x', ((locationdata[2] == 0? -1 : 1) * i * vehicleSize - vehicleSize / 2) + 'em')
+			    .attr('y', -vehicleSize / 2 + 'em')
+		}	
+	}
+})
 }
 //show vehicle's information when click on the icon of it
 function showVehicle(data){
@@ -327,8 +330,6 @@ function showVehicle(data){
 //show the new arrivals' vehicle label and location
 function showArrivalVehicles(data,allStops){
 	if(data!='' && allStops!=''){
-		console.log(data);
-
 		var newarrivals = data.filter(function(d){return d.arrival_time})
 				.sort(function(a,b){
        				return a.arrival_time - b.arrival_time; // sort by arrival time
@@ -347,7 +348,7 @@ function showArrivalVehicles(data,allStops){
 		document.querySelector('#arrivalLocation').innerHTML = 
 			newarrivals.map(function(arrival) {
 			var name = allStops.find(function(d){return d.id == arrival.parent_station.id}).name;
-    		return  '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><p><span class=\"text-darker\">'+(arrival.attributes.current_status == 'INCOMING_AT'?'to ':'at ')+'</span><span>'+name.slice(0, name.indexOf("-"))+'</span></p></div>'
+    		return  '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><p><span class=\"text-darker\">'+(arrival.attributes.current_status == 'INCOMING_AT'?'to ':'at ')+'</span><span>'+name+'</span></p></div>'
     	}).join('');
 	}
 }
@@ -386,9 +387,9 @@ function drawAlertIcon(count){
 	var svgBox = document.querySelector('.alertImg')
 	if(svgBox.childElementCount){
 		d3.select('.alertImg').select('svg').select('text').text(count)
-	}else{	
-		var width = document.querySelector('.alertImg').clientWidth;
-		var height = document.querySelector('.alertImg').clientHeight;
+	}else
+	{	var width = document.querySelector('.alertImg').clientWidth
+		var height = document.querySelector('.alertImg').clientHeight
 		var svg = d3.select('.alertImg').append('svg')
 			.attr('viewBox','0 0 ' + width*3 +' ' + height*3)
 			.attr('transform','translate(0,'+height/4+')')
@@ -409,9 +410,16 @@ function drawAlertIcon(count){
 
 // get the coordinates of stops
 function getXYFromTranslate(element){
-    var split = element.getAttribute('transform').split(',');
-    var x = +split[0].split("(")[1];
-    var y = +split[1].split(")")[0];
+	var x,y;
+	if(element){
+		var split = element.getAttribute('transform').split(',');
+    	x = +split[0].split("(")[1];
+    	y = +split[1].split(")")[0];
+	}else{
+		x = -100;
+		y = -100;
+	}
+
     return [x, y];
 } 
 

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="thirdparty/bootstrap-3.3.5/bootstrap.min.css" >
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" type="text/css" href="css/status.css">
+	<link rel="stylesheet" type="text/css" href="css/headway_dashboard.css">
+	<script src="thirdparty/jquery-1.11.3.min.js"></script>
+	<script src="thirdparty/bootstrap-3.3.5/bootstrap.min.js"></script>
+    <script src="thirdparty/highcharts-4.1.8.js" charset="utf-8"></script>
+    <script src="js/status.js"></script>
+	<script src="js/headway_dashboard_dev.js"></script>
+</head>
+<body>
+
+<div id="headerBar">
+	<div id="headerButtons">
+	
+		<div id="autoRefreshMessage">
+			<div id="autoRefreshTimer">Next refresh in <span id="autoRefreshTimerSeconds">1:00</span></div>
+		</div>
+			
+		<button title="Auto-refresh is off" id="toggleAutoRefreshButton" class="headerButton toggleAutoRefresh off">
+			<i class="fa fa-refresh"></i>
+		</button>
+		
+		<button title="Settings" id="settingsButton" class="headerButton" data-toggle="modal" data-target="#settingsModal">
+			<i class="fa fa-cog"></i>
+		</button>
+		
+	</div>
+	<span class='headerText'>
+		Headways Dashboard
+	</span>
+	
+	<div style="clear:both;">
+	</div>
+</div>
+
+<div id="bigDivider"></div>
+
+<div id="statusContainer"></div>
+
+<div id="routeHeader">
+	<label for="routes" class="selectLabel">Route</label>
+	<select title="Route" id="routes" class="routeHeaderSelect resizeSelect">
+	</select>
+</div>
+
+<div id="stopHeader-0" class="stopHeader">
+	<label id="direction-0-name" for="stops-0" class="selectLabel stopsLabel">Stop</label>
+	<select title="Stop" id="stops-0" class="stopHeaderSelect resizeSelect">
+	</select>
+</div>
+
+<div id="chart-0" class="chart headwayChart">
+</div>
+
+<div id="percentChart-0" class="percentChart">
+</div>
+
+<!--
+<div id="percentages-0" class="percentages">
+	<div class="percentageContainerOntime percentageContainer">
+		<div class="percentageLabel">Under 1 Minute Late</div>
+		<div id="percentOntime-0" class="percentage"></div>
+	</div>
+	<div class="percentageContainerLate1 percentageContainer">	
+		<div class="percentageLabel">1-3 Minutes Late</div>
+		<div id="percentLate1-0" class="percentage"></div>
+	</div>
+	<div class="percentageContainerLate2 percentageContainer">	
+		<div class="percentageLabel">3-6 Minutes Late</div>
+		<div id="percentLate2-0" class="percentage"></div>
+	</div>
+	<div class="percentageContainerLate3 percentageContainer">	
+		<div class="percentageLabel">Over 6 Minutes Late</div>
+		<div id="percentLate3-0" class="percentage"></div>
+	</div>
+</div>
+-->
+
+<div id="divider"></div>
+
+<div id="stopHeader-1" class="stopHeader">
+	<label id="direction-1-name" for="stops-1" class="selectLabel stopsLabel">Stop</label>
+	<select title="Stop" id="stops-1" class="stopHeaderSelect resizeSelect">
+	</select>
+</div>
+
+<div id="chart-1" class="chart">
+</div>
+
+<div id="percentChart-1" class="percentChart">
+</div>
+
+<!--
+<div id="percentages-1" class="percentages">
+	<div class="percentageContainerOntime percentageContainer">
+		<div class="percentageLabel">Under 1 Minute Late</div>
+		<div id="percentOntime-1" class="percentage"></div>
+	</div>
+	<div class="percentageContainerLate1 percentageContainer">	
+		<div class="percentageLabel">1-3 Minutes Late</div>
+		<div id="percentLate1-1" class="percentage"></div>
+	</div>
+	<div class="percentageContainerLate2 percentageContainer">	
+		<div class="percentageLabel">3-6 Minutes Late</div>
+		<div id="percentLate2-1" class="percentage"></div>
+	</div>
+	<div class="percentageContainerLate3 percentageContainer">	
+		<div class="percentageLabel">Over 6 Minutes Late</div>
+		<div id="percentLate3-1" class="percentage"></div>
+	</div>
+</div>
+-->
+
+<!-- Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Settings</h4>
+      </div>
+      <div class="modal-body">
+		<p>When auto-refresh is on, refresh every
+			<select id="autoRefreshIntervalSeconds">
+				<option value=60>1 minute</option>
+				<option value=300>5 minutes</option>
+				<option value=600>10 minutes</option>
+			</select>
+		 for 
+			<select id="autoRefreshTimeoutMinutes">
+				<option value=60>1 hour</option>
+				<option value=240>4 hours</option>
+				<option value=480>8 hours</option>
+			</select>
+		.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" id="settingsSave" class="btn btn-primary" data-dismiss="modal">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

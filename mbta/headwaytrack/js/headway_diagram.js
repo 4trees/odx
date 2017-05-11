@@ -16,15 +16,6 @@ var interval = 100;
 var vehicleSize = 2;
 var windowHeight = document.body.clientHeight;
 
-plot.append('defs')
-	.append('pattern')
-	.attr('id', 'triangle')
-	.attr('width',bindWidth)
-	.attr('height',bindWidth)
-	.append('path')
-	.attr('d','M0 '+bindWidth/2 +' L'+bindWidth/2 + ' ' +bindWidth+' L'+bindWidth+' '+bindWidth/2+' Z')
-	.attr('class','triangle')
-
 
 var bindLine = plot.select('.lineContainer')
 var vehicles = plot.select('.vehicleContainer')
