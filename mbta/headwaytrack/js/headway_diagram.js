@@ -45,7 +45,7 @@ function showDetail(target){
 	detailBox.classList.add('openBox')
 	//get the function content refers to click button
 	var contents = document.querySelectorAll('.content')
-	Array.from(contents).forEach(function(content){
+	contents.forEach(function(content){
 		if(content.id == target.id){
 			content.classList.add('showDetail')
 		}else{
@@ -57,7 +57,7 @@ function showDetail(target){
 //close the search/alerts when click on the main diagram
 dismiss.addEventListener('click',closeDetail)
 //close the search/alerts/vehicle detail when click on the close button
-Array.from(document.querySelectorAll('.close')).forEach(function(e){
+document.querySelectorAll('.close').forEach(function(e){
 	e.addEventListener('click',closeDetail)
 })
 	
