@@ -106,7 +106,7 @@ app.controller('hdwyCtrl',function($scope, $http, $interval) {
 			$scope.arrivalTripId = getTripId($scope.predictions)
 
 			//show first three time on NEW ARRIVALS section
-			$scope.vehicles.forEach(function(vehicle){
+			Array.from($scope.vehicles).forEach(function(vehicle){
 				var arrivalTime = $scope.allPredictions.find(function(d){return d.relationships.trip.data.id == vehicle.relationships.trip.data.id})
 				if(arrivalTime){
 					vehicle.arrival_time = 	new Date(Date.parse(arrivalTime.attributes.arrival_time));
@@ -295,7 +295,7 @@ allLocation.values().forEach(function(location){
 		var locationdata = location.split('-')
 		var multidata = data.filter(function(d){return (d.attributes.current_status == locationdata[0]) && (d.relationships.stop.data.id == locationdata[1]) && (d.attributes.direction_id == locationdata[2])})
 		//hidden the multiple trains
-		findMulti.forEach(function(multi){
+		Array.from(findMulti).forEach(function(multi){
 			multi.classList.add('hidden')
 		})
 		//show multiicon
