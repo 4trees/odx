@@ -339,7 +339,7 @@ function showArrivalVehicles(data,allStops){
 		document.querySelector('#arrivalTime').innerHTML = 
 			newarrivals.map(function(arrival) {
 			var time = getTime(arrival.arrival_time);
-    		return '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><h5>'+time[0]+'<span class=\"ap\">'+time[1]+'</span></h5></div>';
+    		return '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><p class=\"arrivalTime\">'+time[0]+'<span class=\"ap\">'+time[1]+'</span></p></div>';
     	}).join('');
 		document.querySelector('#arrivalVehicle').innerHTML =
 			'<hr class="arrivals">'+newarrivals.map(function(arrival) {

@@ -90,11 +90,14 @@ h1,h2,h3,h4,h5{
     top:0;
     height: 5em;
 }
+.nowTime{
+	font-size: 17px;
+}
 .textIntimerBar{
 	line-height: 5em;
 }
 .nav {
-	font-size: 1.8em;
+	font-size: 1.5em;
 }
 .fixed #timerBar{
 	position: absolute;
@@ -181,6 +184,9 @@ hr.arrivals {
 	border-top: 2px solid #009966; /* Green */
 	position: fixed;
 	width: 100%;
+}
+.arrivalTime{
+	font-size: 14px;
 }
 .vehicleCode{
 	background: #666;
