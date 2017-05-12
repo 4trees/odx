@@ -26,8 +26,6 @@ var alertBt = document.querySelector('#alerts');
 var searchBt = document.querySelector('#search');
 var alertCT = document.querySelector('#alertDetail')
 var searchCT = document.querySelector('#searchDetail')
-var vehicleBox = document.querySelector('#vehicleBox')
-var vehicleCT = document.querySelector('#vehicleDetail')
 var dismiss = document.querySelector('.dismiss')
 
 
@@ -41,9 +39,7 @@ searchBt.addEventListener("click", function(){showDetail(searchCT)} );
 function showDetail(target){
 	//open the dismiss area when open the search/alerts
 	dismiss.classList.remove('hidden');isDismiss = true;
-	//close the detail of vehicle when open search/alerts
-	vehicleBox.classList.remove('openBox')
-	isVehicle = false;
+
 	detailBox.classList.add('openBox')
 	//get the function content refers to click button
 	var contents = document.querySelectorAll('.content')
@@ -67,7 +63,6 @@ function closeDetail(){
 	//close all
 	dismiss.classList.add('hidden');isDismiss = false;
 	detailBox.classList.remove('openBox');isOpen = false;
-	vehicleBox.classList.remove('openBox');isVehicle = false;
 	//cancel the search highlight
 	if(document.querySelector('.highlight')){
 		document.querySelector('.highlight').classList.remove('highlight')

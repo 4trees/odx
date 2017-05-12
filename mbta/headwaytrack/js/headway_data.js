@@ -1,25 +1,18 @@
-//scroll the page to Riverside stop when load the page.
-window.onload = function(){setTimeout(function(){window.scrollTo(0,2500)},10);}
 
 // URL globals
 apikey = "ASOviiaeO0qR9EkRy7WF3A";
-stopsurl = "https://api.mbtace.com/stops?route=Green-D";
+stopsurl = "https://api.mbtace.com/stops?route=Green-E";
 vehiclesurl = "https://api.mbtace.com/vehicles?route=Green-D&include=stop";
-predictionsurl = "https://api.mbtace.com/predictions?route=Green-D";
-tripsurl = "https://api.mbtace.com/trips?route=Green-D";
-alerturl = "https://api.mbtace.com/alerts?route=Green-D";
-allvehicleurl = "https://api.mbtace.com/vehicles?route=Green-B,Green-C,Green-D,Green-E";
+tripsurl = "https://api.mbtace.com/trips?route=Green-E";
+alerturl = "https://api.mbtace.com/alerts?route=Green-E";
+
 
 
 var app = angular.module('hdwyApp', []);
 app.controller('hdwyCtrl',function($scope, $http, $interval) {
 	$scope.stops = [];
-	$scope.predictions = [];
 	$scope.allStops = [];
-	$scope.arrivalTripId = [];
-	$scope.arrivalVehicle = [];
 	$scope.alerts = [];
-	$scope.allPredictions=[];
 
 //get all the stations data
 	$scope.getStops = function(){
@@ -90,31 +83,7 @@ app.controller('hdwyCtrl',function($scope, $http, $interval) {
 			
 		});
 	};
-//get the prediction data
-	$scope.getPrediction = function(){
-		$http.get(predictionsurl)
-		.then(function(response) {
-			//get the current working station id from TOP BAR
-			var stationCode = document.querySelector('[data-station]').dataset.station
-			//get the prediction data related to the working station
-			$scope.allPredictions = response.data.data
-				.filter(function(d){return d.relationships.stop.data.id == stationCode}) 
-			$scope.predictions = $scope.allPredictions.sort(function(a,b){
-       				return b.attributes.arrival_time - a.attributes.arrival_time; // sort by arrival time
-    			})
-    			.slice(0,3);//get first 3 new arrivals
-			$scope.arrivalTripId = getTripId($scope.predictions)
 
-			//show first three time on NEW ARRIVALS section
-			$scope.vehicles.forEach(function(vehicle){
-				var arrivalTime = $scope.allPredictions.find(function(d){return d.relationships.trip.data.id == vehicle.relationships.trip.data.id})
-				if(arrivalTime){
-					vehicle.arrival_time = 	new Date(Date.parse(arrivalTime.attributes.arrival_time));
-				}
-			})
-			showArrivalVehicles($scope.vehicles,$scope.allStops)
-		})
-	}
 //get alerts data
 	$scope.getAlerts = function(){
 		$http.get(alerturl)
@@ -138,35 +107,20 @@ app.controller('hdwyCtrl',function($scope, $http, $interval) {
 			}
 		})
 	}
-//show the clock on TOP BAR section
-	$scope.timeNow = function(){
-		d3.select('#nowTime').html(getTime()[0]);
-		d3.select('#ap').html(getTime()[1]);
-	}
-// Initial
-	$scope.timeNow();
-	$scope.getPrediction();
+
+// Initial	
 	$scope.getStops();
 	$scope.getVehicles();
 	$scope.getAlerts();
 // Update
-	$interval(function(){
-		$scope.timeNow();
-
-	},1000)
 	$interval(function() {    
 		$scope.getVehicles();
-		$scope.getPrediction();
+
 		$scope.getAlerts();
 	}, 10000);
 
 });
-//get the trip id from prediction data
-function getTripId(data){
-	return data.map(function(el){
-		return el.relationships.trip.data.id
-	})
-}
+
 //draw routes and stations on main diagram
 function drawStation(position,data){
 var line, location,arrowAngle;
@@ -234,9 +188,6 @@ if(position == 'left'){
 }
 //draw vehicles on main diagram
 function drawVehicles(data){
-	console.log(data)
-vehicles.selectAll('.multiple').remove()
-vehicles.selectAll('.vehicle').classed('hidden',false)
 var update = vehicles.selectAll('.vehicle')
 	.data(data,function(d){return d.id})
 var enter = update.enter()
@@ -244,7 +195,6 @@ var enter = update.enter()
 	.attr('class','vehicle')
 	.attr('id',function(d){return 'train' + d.id})
 	.attr('data-location',function(d){return d.attributes.current_status + '-' + d.relationships.stop.data.id + '-' + d.attributes.direction_id})
-	.on('click',function(d){var n = [];n[0] = d;return showVehicle(n)})
 	.attr('transform',function(d){
 		var station = getXYFromTranslate(d3.select('.' + d.parent_station.id)._groups[0][0]);
 		var offsetY,offsetX;
@@ -277,81 +227,9 @@ update.merge(enter)
 
 update.exit().remove();
 
-data.forEach(function(d){
-	console.log(d.attributes.label + d.attributes.current_status + d.parent_station.id + d.relationships.stop.data.id + d.parent_station.name + d.attributes.direction_id)
-})
-//when multiple trans, hidden them and draw a grouped train 
-var allLocation = d3.set();
-data.forEach(function(vehicle){
-	 if( !allLocation.has(vehicle.attributes.current_status + '-' + vehicle.relationships.stop.data.id + '-' + vehicle.attributes.direction_id) ){
-        allLocation.add(vehicle.attributes.current_status + '-' + vehicle.relationships.stop.data.id + '-' + vehicle.attributes.direction_id);
-    }
-})
-allLocation.values().forEach(function(location){
-	var findMulti = document.querySelectorAll('[data-location=' + location + ']')
-		console.log(findMulti.length)
-	if(findMulti.length > 1){
-		var count = findMulti.length
-		var locationdata = location.split('-')
-		var multidata = data.filter(function(d){return (d.attributes.current_status == locationdata[0]) && (d.relationships.stop.data.id == locationdata[1]) && (d.attributes.direction_id == locationdata[2])})
-		//hidden the multiple trains
-		Array.from(findMulti).forEach(function(multi){
-			multi.classList.add('hidden')
-		})
-		//show multiicon
-		var multiIcon = vehicles.append('g')
-			.attr('id',location).attr('class','multiple')
-			.attr('transform','translate(' + getXYFromTranslate(findMulti[0])[0] + ',' + getXYFromTranslate(findMulti[0])[1] + ')')
-			.on('click',function(){showVehicle(multidata)})
-		for(i = 0; i < count; i++){
-			console.log(locationdata[0],locationdata[1],locationdata[2])
-			multiIcon.append('svg:image')
-				.attr("xlink:href","images/yellow-train.png")
-				.attr('width', vehicleSize + 'em')
-			    .attr('height', vehicleSize + 'em')
-			    .attr('x', ((locationdata[2] == 0? -1 : 1) * i * vehicleSize - vehicleSize / 2) + 'em')
-			    .attr('y', -vehicleSize / 2 + 'em')
-		}	
-	}
-})
-}
-//show vehicle's information when click on the icon of it
-function showVehicle(data){
-	//open the dismiss area when open the search/alerts
-	dismiss.classList.remove('hidden');isDismiss = true;
-	vehicleBox.classList.add('openBox');
-	vehicleCT.innerHTML = 
-		data.map(function(d){
-			return '<p class=\'lead\'>Train '+ d.attributes.label + (d.arrival_time?(' will arrive at '+getTime(d.arrival_time)[0]+getTime(d.arrival_time)[1]):'')+'.</p>';
-		}).join('')
-	isVehicle = true;
+
 }
 
-//show the new arrivals' vehicle label and location
-function showArrivalVehicles(data,allStops){
-	if(data!='' && allStops!=''){
-		var newarrivals = data.filter(function(d){return d.arrival_time})
-				.sort(function(a,b){
-       				return a.arrival_time - b.arrival_time; // sort by arrival time
-    			})
-    			.slice(0,3);//get first 3 new arrivals
-    	console.log(newarrivals)
-		document.querySelector('#arrivalTime').innerHTML = 
-			newarrivals.map(function(arrival) {
-			var time = getTime(arrival.arrival_time);
-    		return '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><p class=\"arrivalTime\">'+time[0]+'<span class=\"ap\">'+time[1]+'</span></p></div>';
-    	}).join('');
-		document.querySelector('#arrivalVehicle').innerHTML =
-			'<hr class="arrivals">'+newarrivals.map(function(arrival) {
-    		return '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><p><span class=\"vehicleCode\">'+arrival.attributes.label+'</span></p></div>'
-    	}).join('');
-		document.querySelector('#arrivalLocation').innerHTML = 
-			newarrivals.map(function(arrival) {
-			var name = allStops.find(function(d){return d.id == arrival.parent_station.id}).name;
-    		return  '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><p><span class=\"text-darker\">'+(arrival.attributes.current_status == 'INCOMING_AT'?'to ':'at ')+'</span><span>'+name+'</span></p></div>'
-    	}).join('');
-	}
-}
 //show alerts
 function showAlerts(data){
 	document.querySelector('#alertDetail').innerHTML = 
