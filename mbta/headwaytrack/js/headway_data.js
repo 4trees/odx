@@ -295,7 +295,7 @@ allLocation.values().forEach(function(location){
 		var locationdata = location.split('-')
 		var multidata = data.filter(function(d){return (d.attributes.current_status == locationdata[0]) && (d.relationships.stop.data.id == locationdata[1]) && (d.attributes.direction_id == locationdata[2])})
 		//hidden the multiple trains
-		findMulti.forEach(function(multi){
+		Array.from(findMulti).forEach(function(multi){
 			multi.classList.add('hidden')
 		})
 		//show multiicon
@@ -339,7 +339,7 @@ function showArrivalVehicles(data,allStops){
 		document.querySelector('#arrivalTime').innerHTML = 
 			newarrivals.map(function(arrival) {
 			var time = getTime(arrival.arrival_time);
-    		return '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><h4>'+time[0]+'<span class=\"ap\">'+time[1]+'</span></h4></div>';
+    		return '<div class=\"col-xs-4 col-sm-4 col-md-4 col-lg-4\"><h5>'+time[0]+'<span class=\"ap\">'+time[1]+'</span></h5></div>';
     	}).join('');
 		document.querySelector('#arrivalVehicle').innerHTML =
 			'<hr class="arrivals">'+newarrivals.map(function(arrival) {
@@ -361,17 +361,17 @@ function showAlerts(data){
 
 	//when click the detail of X alert, close other details of alerts.
 	var alerts = document.querySelectorAll('.viewMore');
-	alerts.forEach(function(alert){
+	Array.from(alerts).forEach(function(alert){
 		alert.addEventListener('click',function(){
 			var active = this.parentElement.id
-			document.querySelectorAll('.alertDes').forEach(function(d){
+			Array.from(document.querySelectorAll('.alertDes')).forEach(function(d){
 				if(d.parentElement.id == active){
 					d.classList.remove('hidden')
 				}else{
 					d.classList.add('hidden') 
 				}
 			})
-			alerts.forEach(function(d){
+			Array.from(alerts).forEach(function(d){
 				if(d.parentElement.id == active){
 					d.classList.add('hidden')
 				}else{

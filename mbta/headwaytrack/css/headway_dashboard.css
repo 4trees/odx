@@ -15,6 +15,7 @@ body{
 h1,h2,h3,h4,h5{
 	margin-top: 0;
 }
+
 .container-fluid{
 	height: 100%;
 	width: 100%;
@@ -69,7 +70,7 @@ h1,h2,h3,h4,h5{
 #timerBar,#newArrivals,#detailBox,#vehicleBox{
 	width: 100%;
 	background-color:rgba(0,0,0,0.9);
-    position: fixed;
+    position: fixed !important;
 }
 #detailBox,#vehicleBox{
 	top:-300px;
@@ -94,6 +95,10 @@ h1,h2,h3,h4,h5{
 }
 .nav {
 	font-size: 1.8em;
+}
+.fixed #timerBar{
+	position: absolute;
+	/*top:0;*/
 }
 #detailBox.openBox,#vehicleBox.openBox{
 	top :5em ;
@@ -179,7 +184,7 @@ hr.arrivals {
 }
 .vehicleCode{
 	background: #666;
-	padding: 3px 20px;
+	padding: 3px 10px;
 	border-radius: 4px;
 }
 

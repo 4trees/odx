@@ -29,11 +29,13 @@ var searchCT = document.querySelector('#searchDetail')
 var vehicleBox = document.querySelector('#vehicleBox')
 var vehicleCT = document.querySelector('#vehicleDetail')
 var dismiss = document.querySelector('.dismiss')
-// var isOpen = [{box:alertDetail,status:false},{box:searchDetail,status:false}];
+
+
 var isOpen = false;
 var isAlert = false;
 var isVehicle = false;
 var isDismiss = false;
+
 alertBt.addEventListener("click", function(){showDetail(alertCT)} );
 searchBt.addEventListener("click", function(){showDetail(searchCT)} );
 function showDetail(target){
@@ -45,7 +47,7 @@ function showDetail(target){
 	detailBox.classList.add('openBox')
 	//get the function content refers to click button
 	var contents = document.querySelectorAll('.content')
-	contents.forEach(function(content){
+	Array.from(contents).forEach(function(content){
 		if(content.id == target.id){
 			content.classList.add('showDetail')
 		}else{
@@ -57,7 +59,7 @@ function showDetail(target){
 //close the search/alerts when click on the main diagram
 dismiss.addEventListener('click',closeDetail)
 //close the search/alerts/vehicle detail when click on the close button
-document.querySelectorAll('.close').forEach(function(e){
+Array.from(document.querySelectorAll('.close')).forEach(function(e){
 	e.addEventListener('click',closeDetail)
 })
 	

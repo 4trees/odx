@@ -1,19 +1,16 @@
 <!DOCTYPE html>
 
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     <meta charset="utf-8">
     <link rel="stylesheet" type="text/css" href="../../thirdparty/bootstrap-3.3.5/bootstrap.min.css" >
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-	<!-- <link rel="stylesheet" type="text/css" href="css/status.css"> -->
 	<link rel="stylesheet" type="text/css" href="css/headway_dashboard.css">
 	<script src="../../thirdparty/angular-1.4.8/angular.min.js"></script>
-	<script src="js/test.js"></script>
+	<!-- <script src="js/test.js"></script> -->
 	<script src="js/headway_data.js"></script>
 
 </head>
-
-
 <body>
 
 <div class="container-fluid" ng-app="hdwyApp" ng-controller="hdwyCtrl">
@@ -59,8 +56,10 @@
 	<div class="row" id="detailBox">
 		<div class="content scrollbar scroll" id="alertDetail"></div>
 		<div class="content scrollbar scroll" id="searchDetail">
-			<input class="searchInput" type="tel" name="searchPad" placeholder="train #" value="3">
-			<button class="searchButton">Search</button>
+			<form>
+				<input class="searchInput" type="tel" name="searchPad" placeholder="train #" value="3">
+				<button class="searchButton" type="submit">Search</button>
+			</form>
 			<p id="searchRT"></p>
 		</div>
 		<div class="row text-center text-darker close"><i class="fa fa-angle-double-up" aria-hidden="true"></i></div>
