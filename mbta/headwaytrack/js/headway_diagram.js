@@ -23,9 +23,7 @@ var vehicles = plot.select('.vehicleContainer')
 
 var detailBox = document.querySelector('#detailBox')
 var alertBt = document.querySelector('#alerts');
-var searchBt = document.querySelector('#search');
 var alertCT = document.querySelector('#alertDetail')
-var searchCT = document.querySelector('#searchDetail')
 var dismiss = document.querySelector('.dismiss')
 
 
@@ -35,7 +33,6 @@ var isVehicle = false;
 var isDismiss = false;
 
 alertBt.addEventListener("click", function(){showDetail(alertCT)} );
-searchBt.addEventListener("click", function(){showDetail(searchCT)} );
 function showDetail(target){
 	//open the dismiss area when open the search/alerts
 	dismiss.classList.remove('hidden');isDismiss = true;
