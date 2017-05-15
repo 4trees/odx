@@ -2,7 +2,7 @@
 // URL globals
 apikey = "ASOviiaeO0qR9EkRy7WF3A";
 stopsurl = "https://api.mbtace.com/stops?route=Green-E";
-vehiclesurl = "https://api.mbtace.com/vehicles?route=Green-D&include=stop";
+vehiclesurl = "https://api.mbtace.com/vehicles?route=Green-E&include=stop";
 tripsurl = "https://api.mbtace.com/trips?route=Green-E";
 alerturl = "https://api.mbtace.com/alerts?route=Green-E";
 
