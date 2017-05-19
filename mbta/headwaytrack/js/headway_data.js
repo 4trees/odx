@@ -127,11 +127,11 @@ var line, location,arrowAngle;
 //draw station and route based on dirction
 if(position == 'right'){
 	location = rightLocation;
-	data.reverse();
 	arrowAngle = true;
 }
 else{
 	location = leftLocation;
+	data.reverse();
 	arrowAngle = false;
 }
 var length = data.length;
