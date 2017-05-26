@@ -1,0 +1,108 @@
+<html>
+<head>
+  <title>HTML5</title>
+  
+  <!--D3 code stolen from: http://bost.ocks.org/mike/leaflet/#init-->
+  
+  <!--This file used in blog post Spatial data on a diet: tips 
+   for file size reduction using TopoJSON (http://bit.ly/1jvHiqF)-->
+  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=650, user-scalable=yes">
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+  <!-- <script src="http://cdn.leafletjs.com/leaflet-1.0.3/leaflet.js"></script> -->
+  <script src="http://d3js.org/topojson.v1.min.js"></script>
+  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  
+  <style>
+   path {
+    fill: #000;
+    fill-opacity: .2;
+    stroke: #003399;
+    stroke-width: 1.5px;
+  }
+
+  path:hover {
+    fill: brown;
+    fill-opacity: .7;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  
+  #mapcanvas{
+   
+    height:100%;
+  }
+  
+</style>
+</head>
+<body>
+  <div id="mapcanvas">
+  </div>
+<script>
+ 
+   //d3 code stolen from http://bost.ocks.org/mike/leaflet/#init
+   var geoJsonObject;
+   
+   // $(document).ready(function(){
+     
+    map = new L.Map('mapcanvas');
+    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
+    var osm = new L.TileLayer(osmUrl, {attribution: osmAttrib});    
+
+    map.setView(new L.LatLng(42.351486,-71.066829),13);
+    map.addLayer(osm);
+    var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+    g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
+    d3.json("lib/bos_neighborhoods.json", function(collection) {
+      // collection = topojson.feature(collection, collection.objects.township)
+      var transform = d3.geo.transform({point: projectPoint}),
+      path = d3.geo.path().projection(transform);
+
+      var feature = g.selectAll("path")
+      .data(collection.features)
+      .enter().append("path");
+    //d3 code stolen from http://bost.ocks.org/mike/leaflet/#init
+      map.on("viewreset", reset);
+      reset();
+
+      function reset() {
+        var bounds = path.bounds(collection),
+        topLeft = bounds[0],
+        bottomRight = bounds[1];
+
+        svg .attr("width", bottomRight[0] - topLeft[0])
+        .attr("height", bottomRight[1] - topLeft[1])
+        .style("left", topLeft[0] + "px")
+        .style("top", topLeft[1] + "px");
+
+        g   .attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+
+        feature.attr("d", path);
+      }
+
+      function projectPoint(x, y) {
+        var point = map.latLngToLayerPoint(new L.LatLng(y, x));
+        this.stream.point(point.x, point.y);
+      }
+    });
+
+
+  // });
+  //end document ready
+
+
+
+</script>
+
+
+</body>
+
+
+</html>
