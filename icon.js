@@ -1,15 +1,16 @@
 var stopsIcon = L.Icon.extend({
     options: {
         // shadowUrl: 'leaf-shadow.png',
-        iconSize:     [20, 20],
+        iconSize:     [18, 18],
         // shadowSize:   [50, 64],
-        iconAnchor:   [10, 10],
+        iconAnchor:   [9, 9],
         // shadowAnchor: [4, 62],
-        popupAnchor:  [0, -10]
+        // popupAnchor:  [18, -18]
     }
 });
 
-var stop = new stopsIcon({iconUrl: 'images/bus.png'})
-
-
+var stopImg = new stopsIcon({iconUrl: 'images/bus.png'})
+var stationImg = new stopsIcon({iconUrl: 'images/station.png'})
+var stopImgSelected = new stopsIcon({iconUrl: 'images/bus-selected.png'})
+var stationImgSelected = new stopsIcon({iconUrl: 'images/station-selected.png'})
 

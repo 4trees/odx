@@ -15,36 +15,68 @@
     <script src="icon.js"></script>
   	<!-- <script src="lib/d3.min.js"></script> -->
 <style>
-/*   path {
-    fill: #000;
-    fill-opacity: .2;
-    stroke: #003399;
-    stroke-width: 1.5px;
-  }
-
-  path:hover {
-    fill: brown;
-    fill-opacity: .7;
-  }*/
   html, body {
     height: 100%;
     margin: 0;
+    width: 100%;
   }
   
   #mapid{
    
     height:100%;
   }
+  .path{
+  	stroke: #999;
+  	stroke-width:3;
+  	fill:none;
+  }
+  .selected{
+  	stroke: #333;
+  }
+  .inputPanel{
+  	min-width: 200px;
+  	width: 20%;
+  	margin: 0;
+  	padding: 10px;
+  	background: #fff;
+  	opacity: .9;
+  	position: fixed;
+  	top:0;
+  	z-index: 999;
+  }
+  .searchBar{
+  	/*margin:10px;*/
+  }
+  .searchBar input{
+  	padding: 5px;
+  }
+  .leaflet-popup-content-wrapper, .leaflet-popup-tip{
+  	background: #fff;
+  	opacity: .9;
+  	color: #333;
+  }
+  .leaflet-popup-content-wrapper{
+  	border-radius: 4px;
+  }
+  .leaflet-popup-content{
+  	margin: 10px;
+  }
 </style>
 </head>
 
 <body ng-app="spApp">
+<div class="inputPanel">
+	<div class="searchBar">
+		<label for="route"></label>
+		<input type="text" name="route" placeholder="route, stop, station..." ng-model="route" value={{route}}>
+	</div>
+</div>
 <div id="mapid" ng-controller="spAppController"></div>
 
 
 <script type="text/javascript">
-
-
+var searchBar = document.querySelector('.searchBar')
+searchBar.querySelector('[name=route]').addEventListener('input',function(e){console.log(this.value)})
 
 // L.marker([42.351486,-71.066829]).addTo(map);
 
