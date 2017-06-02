@@ -7,6 +7,7 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
   	<link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
   	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="lib/font-awesome-4.4.0/css/font-awesome.min.css">
     <script src="lib/angular-1.4.8/angular.min.js"></script>
 
    	<!-- <script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script> -->
@@ -19,6 +20,7 @@
     height: 100%;
     margin: 0;
     width: 100%;
+    font-family: Helvetica, sans-serif;
   }
   
   #mapid{
@@ -67,24 +69,50 @@
   .leaflet-popup-content{
   	margin: 10px;
   }
+  .routelabel{
+    padding: 3px 5px;
+    margin-right: 5px;
+    border-radius: 3px;
+  }
+  .selectedlist{
+    list-style-type:none;
+    margin: 0;
+    padding: 0;
+  }
+  .delete{
+    border: none;
+    background: none;
+  }
 </style>
 </head>
 
-<body ng-app="spApp">
+<body ng-app="spApp" ng-controller="spAppController">
 <div class="inputPanel">
 	<div class="searchBar">
 		<label for="route"></label>
 		<input type="text" name="route" placeholder="route, stop, station..." ng-model="route" value={{route}}>
 	</div>
+  <div>
+    <h5>Selected stops:</h5>
+    <ul class="selectedlist">
+      <li ng-repeat="selected in selectedList">
+        <p><button class="delete"><i class="fa fa-times" aria-hidden="true"></i></button>{{ selected }}</p>
+      </li>
+    </ul>
+  </div>
 </div>
-<div id="mapid" ng-controller="spAppController"></div>
+<div id="mapid"></div>
 
 
 <script type="text/javascript">
 var searchBar = document.querySelector('.searchBar')
 searchBar.querySelector('[name=route]').addEventListener('input',function(e){console.log(this.value)})
 
-// L.marker([42.351486,-71.066829]).addTo(map);
+Array.from(document.querySelectorAll('.delete')).forEach(function(bt){
+  bt.addEventListener('click',function(){
+
+  })
+})
 
 
 // var svg = d3.select(mymap.getPanes().overlayPane)
