@@ -13,7 +13,7 @@
   	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
     <script src="app.js"></script>
     <script src="icon.js"></script>
-  	<!-- <script src="lib/d3.min.js"></script> -->
+  	<script src="lib/d3.min.js"></script>
 <style>
   html, body {
     height: 100%;
@@ -25,9 +25,14 @@
    
     height:100%;
   }
+  .stop{
+    stroke: #333;
+    stroke-width:.5;
+    fill:#333;
+  }
   .path{
   	stroke: #999;
-  	stroke-width:3;
+  	stroke-width:2;
   	fill:none;
   }
   .selected{
@@ -43,6 +48,7 @@
   	position: fixed;
   	top:0;
   	z-index: 999;
+    height: 100%;
   }
   .searchBar{
   	/*margin:10px;*/
