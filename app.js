@@ -3,13 +3,13 @@ var	stopsUrl = '/data/stops.txt',
 	shapesUrl = '/data/shapes.txt',
 	tripsUrl = '/data/trips.txt',
 	routesUrl = '/data/routes.txt',
-	rssUrl = '/data/route_shape_stop.csv';
+	shapestoprouteUrl = '/data/route_shape_stop.csv';
 // Define the `spApp` module
 var app = angular.module('spApp', []);
 
 // Define the `spAppController` controller on the `spApp` module
 app.controller('spAppController', function spAppController($scope,$http,$q) {
-	var map = L.map('mapid');
+	var map = L.map('mapid',{drawControl: true});
 	map.setView(new L.LatLng(42.351486,-71.066829), 15);
 	L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png').addTo(map);
 	  // possible tile values 
@@ -19,10 +19,11 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 	  // light_only_labels,
 	  // dark_nolabels,
 	  // dark_only_labels
-	map.zoomControl.setPosition('topright')
+	map.zoomControl.setPosition('bottomright')
 
 	//create a popup
     var popup = L.popup({className:'popup',closeButton:false})
+
     // set a selected list
     $scope.selectedList = []
 
@@ -31,24 +32,34 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 		data.forEach(function(stop){
 			//get the routes belong to this stop
 			// console.log(stop)
-			let routeslist = $scope.rss.filter(function(d){return d.stop_id == stop.stop_id}).map(function(d){return d.route_id}).filter(function(d,i,v){return v.indexOf(d) === i})
-			// console.log(routeslist)
+			let routeslist = $scope.shapestoproute
+				.filter(function(d){return d.stop_id == stop.stop_id})
+				.map(function(d){return d.route_id})
+				.filter(function(d,i,v){return v.indexOf(d) === i})
+			// get the routes data
 			let routes = $scope.routes.filter(function(d){return routeslist.includes(d.route_id)})
 			// console.log(routes)
-			//get the shapes belong to these routes
-			let shapeslist = $scope.rss.filter(function(d){return d.stop_id == stop.stop_id}).map(function(d){return d.shape_id}).filter(function(d,i,v){return v.indexOf(d) === i})
+			//get the shapes belong to this stop
+			let shapeslist = $scope.shapestoproute
+				.filter(function(d){return d.stop_id == stop.stop_id})
+				.map(function(d){return d.shape_id})
+				.filter(function(d,i,v){return v.indexOf(d) === i})
 	        // console.log(shapeslist)
 			// here need to do something with parent station
-			L.circle([stop.stop_lat,stop.stop_lon], {radius:6,className:'stop'})
+			L.circle([stop.stop_lat,stop.stop_lon], {radius:8,className:'stop'})
 			.on('mouseover',function(){
-
-	            //set location and content for station/stop popup
+	            //set location and content for stop popup
 	            popup.setLatLng([stop.stop_lat,stop.stop_lon])
-	              .setContent('<h3>' + stop.stop_name + '</h3>' + routes.map(function(route){return '<span class="routelabel" style="color:#' + route.route_text_color + ';background:#' + route.route_color + '">' + (route.route_short_name || route.route_long_name) + '</span>'}).join(''))
+	              .setContent('<h5>' + stop.stop_name + '</h5>' + routes.map(function(route){return '<span class="routelabel" style="color:#' + route.route_text_color + ';background:#' + route.route_color + '">' + (route.route_short_name || route.route_long_name) + '</span>'}).join(''))
 	              .openOn(map);
-	            //highlight the shapes belong to these routes on the map
+	             //highlight the stop
+	             // this._path.classList.add('selected');
+	             this._path.parentNode.appendChild(this._path)
+	            //highlight the shapes belong to this stop on the map, and colored by route 
 	            shapeslist.forEach(function(shape){
-	            	document.querySelector('.id' + shape).style.stroke = routes.find(function(route){return route.route_id = $scope.rss.find(function(d){return d.shape_id == shape}).route_id}).route_color
+	            	const findShape = document.querySelector('.id' + shape)
+	            	findShape.style.stroke = routes.find(function(route){return route.route_id = $scope.shapestoproute.find(function(d){return d.shape_id == shape}).route_id}).route_color
+	            	findShape.parentNode.appendChild(findShape)
 	            })
 	            
 	         })
@@ -57,17 +68,21 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 	            shapeslist.forEach(function(shape){
 	            	document.querySelector('.id' + shape).style.stroke = '#999'
 	            })
+	            // this._path.classList.remove('selected');
 	        })
 	        .on('click',function(){
-
-	        	if(!$scope.selectedList.includes(stop.stop_id)){
+	        	//toggle the stop to selectedlist
+	        	if(!$scope.selectedList.includes(stop.stop_id)){	        		
+	        		this._path.classList.add('selected');
+	        		this._path.parentNode.appendChild(this._path)
 	        		$scope.selectedList.push(stop.stop_id)
 	        		$scope.$apply();
 	        	}else{
+	        		this._path.classList.remove('selected');
 	        		$scope.selectedList.splice($scope.selectedList.indexOf(stop.stop_id), 1)    
 	        		$scope.$apply();    		
 	        	}
-	        	console.log($scope.selectedList)
+	        	// console.log($scope.selectedList)
 	        })
 			.addTo(map);
 
@@ -79,26 +94,26 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 			.key(function(d){return d.shape_id})
 			.sortValues(function(a,b) { return +b.shape_pt_sequence - +a.shape_pt_sequence; })
 			.entries(data)
-		console.log(shapesById)
+		// console.log(shapesById)
 		shapesById.forEach(function(shape){
-			if(!$scope.rss.find(function(d){return d.shape_id == shape.key})){
-				console.log(shape.key)
-			}
-			// var route = $scope.routes.find(function(route){return route.route_id == $scope.rss.find(function(d){return d.shape_id == shape.key}).route_id});
-			var shapepts = []
+			let hasMatchRoute = $scope.shapestoproute.find(function(d){return d.shape_id == shape.key});
+			let route = hasMatchRoute ? $scope.routes.find(function(route){return route.route_id == hasMatchRoute.route_id}) : '';
+			let shapepts = [];
 			shape.values.forEach(function(shapept){
 				shapepts.push([shapept.shape_pt_lat,shapept.shape_pt_lon])
 			})
 			L.polyline(shapepts, {className: 'path id'+ shape.key})
 			.on('mouseover',function(e){
-	        	this._path.classList.add('selected');
-	          	//set location and content for station/stop popup
+				//highlight the shape by route color
+				this._path.style.stroke = route ? route.route_color : '#333';
+				this._path.parentNode.appendChild(this._path)
+	          	//set location and content for stop popup
 	        	popup.setLatLng([e.latlng.lat,e.latlng.lng])
-		            .setContent('<h3>' + (route.route_short_name || route.route_long_name) + '</h3><p>Shape ' + shape.key + '</p>')
+		            .setContent('<h5>' + (route ? (route.route_short_name || route.route_long_name) : 'No match route') + '</h5><p>Shape ' + shape.key + '</p>')
 		            .openOn(map);
 	        })
 	        .on('mouseout',function(){
-	        	this._path.classList.remove('selected');
+	        	this._path.style.stroke = '#999';
 	         	// map.closePopup();
 	        })
 			.addTo(map);
@@ -106,14 +121,14 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 		})
 	}
 
-	$q.all([$http.get(stopsUrl),$http.get(shapesUrl),$http.get(tripsUrl),$http.get(routesUrl),$http.get(rssUrl)]).then(function(allData){ 
-		console.log(allData)
+	$q.all([$http.get(stopsUrl),$http.get(shapesUrl),$http.get(tripsUrl),$http.get(routesUrl),$http.get(shapestoprouteUrl)]).then(function(allData){ 
+		// console.log(allData)
 		$scope.stops = parseData(allData[0].data)
 		$scope.shapes = parseData(allData[1].data)
-		// $scope.trips = parseData(allData[2].data)
+		$scope.trips = parseData(allData[2].data)
 		$scope.routes = parseData(allData[3].data)
-		$scope.rss = parseData(allData[4].data)
-		console.log($scope.rss)
+		$scope.shapestoproute = parseData(allData[4].data)
+		// console.log($scope.shapestoproute)
 		// can't manupulate stoptimes file, it's toooooo large, omg
 		// aggregateData(allData)
 		
@@ -143,33 +158,68 @@ function parseData(data){
 }
 
 function aggregateData(allData){
+
 	const stops = parseData(allData[0].data)
 	const shapes = parseData(allData[1].data)
 	const trips = parseData(allData[2].data)
 	const routes = parseData(allData[3].data)
-	const srr = parseData(allData[4].data)
-	let aggregatedData = [],
-	 	stoplist = [], routelist = [], triplist = [];
-	// stops.forEach(function(stop){
-	// 	if(!stoplist.includes(stop.stop_id)){
-	// 		stoplist.push(stop.stop_id)
-	// 		aggregatedData.push({stop:stop})
-	// 	}
-	// })
-	// var aggregatedsrr = d3.nest()
-	// 	.key(function(d){return d.stop_id})
-	// 	.key(function(d){return d.route_id})
-	// 	.key(function(d){return d.shape_id})
-	// 	.entries(srr)
-	// 	.map(function(d) {
-	// 	    return {
-	// 	      name: d.key,
-	// 	      count: d.values.count,
-	// 	      total: d.values.total,
-	// 	      avg:   d.values.avg
-	// 	    }
-	// 	});
+	const shapestoproute = parseData(allData[4].data)
+	let aggregatedData = [];
+	//aggregate by stops
+	stops.forEach(function(stop){
+		let theroutes = shapestoproute.filter(function(d){return d.route_id == stop})
+		aggregatedData.push({
+			stop_id:stop.stop_id,
+			attributes:{
+				stop_name:stop.stop_name,
+				stop_lat:stop.stop_lat,
+				stop_lon:stop.stop_lon
+			},
+			parent_station:stop.parent_station,
+		})
+	})
+	//populate routes to each stops
+	aggregatedData.forEach(function(row){
+		row.routes = []
+		let thisStop = shapestoproute.filter(function(d){return d.stop_id == row.stop_id})
+		let thisStopByroute = d3.nest()
+			.key(function(d){return d.route_id})
+			.rollup(function(d){
+				return d.map(function(e){
+					if(!e.shape_id)return
+					let thisShape = shapes.find(function(shape){return shape.shape_id == e.shape_id})
+					let theTrips = trips.filter(function(trip){return trip.shape_id == e.shape_id})
+					return {
+						shape_id:e.shape_id,
+						attributes:{
+							shape_pt_lat:thisShape.shape_pt_lat,
+							shape_pt_lon:thisShape.shape_pt_lon,
+							shape_pt_sequence:thisShape.shape_pt_sequence
+						},
+						trip:theTrips
+					}
+				})
+			})
+			.entries(thisStop)
+			console.log(thisStopByroute)
+		thisStopByroute.forEach(function(route){
+			let routedata = routes.filter(function(d){return d.route_id == route.key})
+			row.routes.push({
+				route_id:route.key,
+				attributes:{
+					agency_id:routedata.agency_id,
+					route_short_name:routedata.route_short_name,
+					route_long_name:routedata.route_long_name,
+					route_color:routedata.route_color,
+					route_text_color:routedata.route_text_color
+				},
+				shapes:route.values
+			})
+		})
+		// console.log(row.routes)
+	})
 
-	console.log()
-	console.log(JSON.stringify(aggregatedsrr))
+
+	console.log(aggregatedData)
+	return aggregatedData
 }
