@@ -19,11 +19,16 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 	  // light_only_labels,
 	  // dark_nolabels,
 	  // dark_only_labels
+	//set the zoomcontrol's position
 	map.zoomControl.setPosition('bottomright')
 
 	//create a popup
     var popup = L.popup({className:'popup',closeButton:false})
 
+    //create panes for shapes and stops relatively
+    var stopPanes = map.createPane('stops');
+    	stopPanes.style.zIndex = 450;
+    	stopPanes.style.pointerEvents = 'none';
     // set a selected list
     $scope.selectedList = []
 
@@ -46,45 +51,35 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 				.filter(function(d,i,v){return v.indexOf(d) === i})
 	        // console.log(shapeslist)
 			// here need to do something with parent station
-			L.circle([stop.stop_lat,stop.stop_lon], {radius:8,className:'stop'})
-			.on('mouseover',function(){
-	            //set location and content for stop popup
-	            popup.setLatLng([stop.stop_lat,stop.stop_lon])
-	              .setContent('<h5>' + stop.stop_name + '</h5>' + routes.map(function(route){return '<span class="routelabel" style="color:#' + route.route_text_color + ';background:#' + route.route_color + '">' + (route.route_short_name || route.route_long_name) + '</span>'}).join(''))
-	              .openOn(map);
-	             //highlight the stop
-	             // this._path.classList.add('selected');
-	             this._path.parentNode.appendChild(this._path)
-	            //highlight the shapes belong to this stop on the map, and colored by route 
-	            shapeslist.forEach(function(shape){
-	            	const findShape = document.querySelector('.id' + shape)
-	            	findShape.style.stroke = routes.find(function(route){return route.route_id = $scope.shapestoproute.find(function(d){return d.shape_id == shape}).route_id}).route_color
-	            	findShape.parentNode.appendChild(findShape)
-	            })
-	            
-	         })
-	        .on('mouseout',function(){
-	            // map.closePopup()
-	            shapeslist.forEach(function(shape){
-	            	document.querySelector('.id' + shape).style.stroke = '#999'
-	            })
-	            // this._path.classList.remove('selected');
-	        })
-	        .on('click',function(){
-	        	//toggle the stop to selectedlist
-	        	if(!$scope.selectedList.includes(stop.stop_id)){	        		
-	        		this._path.classList.add('selected');
-	        		this._path.parentNode.appendChild(this._path)
-	        		$scope.selectedList.push(stop.stop_id)
-	        		$scope.$apply();
-	        	}else{
-	        		this._path.classList.remove('selected');
-	        		$scope.selectedList.splice($scope.selectedList.indexOf(stop.stop_id), 1)    
-	        		$scope.$apply();    		
-	        	}
-	        	// console.log($scope.selectedList)
-	        })
-			.addTo(map);
+			L.circle([stop.stop_lat,stop.stop_lon], {radius:8,className:'stop stop' + stop.stop_id, pane:'stops'})
+				.on('mouseover',function(){
+		            //set location and content for stop popup
+		            popup.setLatLng([stop.stop_lat,stop.stop_lon])
+		              .setContent('<h5>' + stop.stop_name + '</h5>' + routes.map(function(route){return '<span class="routelabel" style="color:#' + route.route_text_color + ';background:#' + route.route_color + '">' + (route.route_short_name || route.route_long_name) + '</span>'}).join(''))
+		              .openOn(map);
+		            //highlight the stop
+		             // this._path.classList.add('selected');
+		            this.bringToFront()
+		            //highlight the shapes belong to this stop on the map, and colored by route 
+		            shapeslist.forEach(function(shape){
+		            	const findShape = document.querySelector('.shape' + shape)
+		            	findShape.style.stroke = routes.find(function(route){return route.route_id = $scope.shapestoproute.find(function(d){return d.shape_id == shape}).route_id}).route_color
+		            	findShape.parentNode.appendChild(findShape)
+		            })
+		            
+		         })
+		        .on('mouseout',function(){
+		            // map.closePopup()
+		            shapeslist.forEach(function(shape){
+		            	document.querySelector('.shape' + shape).style.stroke = '#999'
+		            })
+		            // this._path.classList.remove('selected');
+		        })
+		        .on('click',function(){
+
+		        	$scope.populateSelectedStopList(stop.stop_id)
+		        })
+				.addTo(map);
 
 		})
 	}
@@ -102,18 +97,37 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 			shape.values.forEach(function(shapept){
 				shapepts.push([shapept.shape_pt_lat,shapept.shape_pt_lon])
 			})
-			L.polyline(shapepts, {className: 'path id'+ shape.key})
+			L.polyline(shapepts, {className: 'shape shape'+ shape.key + ' route' + route.route_id})
 			.on('mouseover',function(e){
 				//highlight the shape by route color
-				this._path.style.stroke = route ? route.route_color : '#333';
-				this._path.parentNode.appendChild(this._path)
+
+				if(route){
+					document.querySelectorAll('.route' + route.route_id).forEach(function(shape){
+						shape.style.stroke =  route.route_color;
+						// shape.style.opacity = .5;
+						shape.parentNode.appendChild(shape)
+
+					})
+					this.getElement().style.strokeWidth = 8;
+					// this.getElement().style.stroke = route.route_color;
+				}else{
+					this.getElement().style.stroke = '#333';
+					this.bringToFront()
+				}
+				
 	          	//set location and content for stop popup
+	          	let routeName = route ? (route.route_short_name || route.route_long_name) : 'No match route';
+	          	let stops = $scope.shapestoproute.filter(function(d){return d.shape_id == shape.key}).sort(function(a,b){return a.stop_sequence - b.stop_sequence}).map(function(d){return d.stop_id})
 	        	popup.setLatLng([e.latlng.lat,e.latlng.lng])
-		            .setContent('<h5>' + (route ? (route.route_short_name || route.route_long_name) : 'No match route') + '</h5><p>Shape ' + shape.key + '</p>')
+		            .setContent($scope.showShapeDetail(routeName,shape.key,stops))
 		            .openOn(map);
 	        })
 	        .on('mouseout',function(){
-	        	this._path.style.stroke = '#999';
+	        	document.querySelectorAll('.shape').forEach(function(shape){
+	        		shape.style.stroke = '#999';
+	        		shape.style.strokeWidth = 2;
+	        	})
+	        	// this.getElement().style.stroke = '#999';
 	         	// map.closePopup();
 	        })
 			.addTo(map);
@@ -121,6 +135,33 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 		})
 	}
 
+	//toggle the stop to selectedlist
+	$scope.populateSelectedStopList = function(stopId){
+		console.log(stopId)
+		if(!$scope.selectedList.includes(stopId)){	
+			let stop = document.querySelector('.stop' + stopId)        		
+			stop.classList.add('selected');
+			stop.parentNode.appendChild(stop)
+			$scope.selectedList.push(stopId)
+			$scope.$apply();
+		}else{
+			stop.classList.remove('selected');
+			$scope.selectedList.splice($scope.selectedList.indexOf(stopId), 1)    
+			$scope.$apply();    		
+		}	
+	}
+	//display content in pop-up of shpae
+	$scope.showShapeDetail = function(route,shape,stops){
+		let title = '<h5>' + route  + '</h5>';
+		let des = '<p>Shape ' + shape + '</p>';
+		let selection = '<h5>' + stops.length + ' stop(s)</h5><hr><div class=\"checkbox\">' + stops.map(function(stop){
+			let isChecked = $scope.selectedList.includes(stop);
+			return '<label><input type=\"checkbox\" name=\"acrossStop\"' + (isChecked ? 'checked' : '') + ')>' + stop + '</label>'
+		}).join('') + '</div>';
+		//need checked status functionality
+		return title + des + selection
+	}
+	//request data file
 	$q.all([$http.get(stopsUrl),$http.get(shapesUrl),$http.get(tripsUrl),$http.get(routesUrl),$http.get(shapestoprouteUrl)]).then(function(allData){ 
 		// console.log(allData)
 		$scope.stops = parseData(allData[0].data)
@@ -131,6 +172,7 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 		// console.log($scope.shapestoproute)
 		// can't manupulate stoptimes file, it's toooooo large, omg
 		// aggregateData(allData)
+		console.log($scope.routes.length,$scope.shapes.length,$scope.stops.length)
 		
 		$scope.drawShapes($scope.shapes)
 		$scope.drawStops($scope.stops)
