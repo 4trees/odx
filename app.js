@@ -89,7 +89,7 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 			.key(function(d){return d.shape_id})
 			.sortValues(function(a,b) { return +b.shape_pt_sequence - +a.shape_pt_sequence; })
 			.entries(data)
-		// console.log(shapesById)
+		console.log(shapesById.length)
 		shapesById.forEach(function(shape){
 			let hasMatchRoute = $scope.shapestoproute.find(function(d){return d.shape_id == shape.key});
 			let route = hasMatchRoute ? $scope.routes.find(function(route){return route.route_id == hasMatchRoute.route_id}) : '';
@@ -174,8 +174,8 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 		// aggregateData(allData)
 		console.log($scope.routes.length,$scope.shapes.length,$scope.stops.length)
 		
-		$scope.drawShapes($scope.shapes)
-		$scope.drawStops($scope.stops)
+		// $scope.drawShapes($scope.shapes)
+		// $scope.drawStops($scope.stops)
 	});
 
 });
