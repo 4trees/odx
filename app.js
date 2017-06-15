@@ -76,7 +76,7 @@ app.controller('spAppController', function spAppController($scope,$http,$q) {
 		            // this._path.classList.remove('selected');
 		        })
 		        .on('click',function(){
-
+		        	
 		        	$scope.populateSelectedStopList(stop.stop_id)
 		        })
 				.addTo(map);
@@ -199,69 +199,3 @@ function parseData(data){
 	return newData
 }
 
-function aggregateData(allData){
-
-	const stops = parseData(allData[0].data)
-	const shapes = parseData(allData[1].data)
-	const trips = parseData(allData[2].data)
-	const routes = parseData(allData[3].data)
-	const shapestoproute = parseData(allData[4].data)
-	let aggregatedData = [];
-	//aggregate by stops
-	stops.forEach(function(stop){
-		let theroutes = shapestoproute.filter(function(d){return d.route_id == stop})
-		aggregatedData.push({
-			stop_id:stop.stop_id,
-			attributes:{
-				stop_name:stop.stop_name,
-				stop_lat:stop.stop_lat,
-				stop_lon:stop.stop_lon
-			},
-			parent_station:stop.parent_station,
-		})
-	})
-	//populate routes to each stops
-	aggregatedData.forEach(function(row){
-		row.routes = []
-		let thisStop = shapestoproute.filter(function(d){return d.stop_id == row.stop_id})
-		let thisStopByroute = d3.nest()
-			.key(function(d){return d.route_id})
-			.rollup(function(d){
-				return d.map(function(e){
-					if(!e.shape_id)return
-					let thisShape = shapes.find(function(shape){return shape.shape_id == e.shape_id})
-					let theTrips = trips.filter(function(trip){return trip.shape_id == e.shape_id})
-					return {
-						shape_id:e.shape_id,
-						attributes:{
-							shape_pt_lat:thisShape.shape_pt_lat,
-							shape_pt_lon:thisShape.shape_pt_lon,
-							shape_pt_sequence:thisShape.shape_pt_sequence
-						},
-						trip:theTrips
-					}
-				})
-			})
-			.entries(thisStop)
-			console.log(thisStopByroute)
-		thisStopByroute.forEach(function(route){
-			let routedata = routes.filter(function(d){return d.route_id == route.key})
-			row.routes.push({
-				route_id:route.key,
-				attributes:{
-					agency_id:routedata.agency_id,
-					route_short_name:routedata.route_short_name,
-					route_long_name:routedata.route_long_name,
-					route_color:routedata.route_color,
-					route_text_color:routedata.route_text_color
-				},
-				shapes:route.values
-			})
-		})
-		// console.log(row.routes)
-	})
-
-
-	console.log(aggregatedData)
-	return aggregatedData
-}

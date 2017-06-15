@@ -11,47 +11,83 @@
     <link rel="stylesheet" href="lib/font-awesome-4.4.0/css/font-awesome.min.css">
     <script src="lib/angular-1.4.8/angular.min.js"></script>
   	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
-    <script src="app.js"></script>
-    <script src="icon.js"></script>
-  	<script src="lib/d3.min.js"></script>
+    <!-- <script src="app.js"></script> --> 
+    <!-- <script src="icon.js"></script> -->
+
 <style>
   html, body {
     height: 100%;
     font-size:10px;
     font-family: Verdana, Geneva, sans-serif;
   }
+  ul{
+    margin-top: 10px;
+    padding: 0;
+  }
+  li{
+    list-style: none;
+  }
+  p{
+    margin: 0;
+  }
   .container-fluid,#content{
-    height:100%;
+    /*height:100%;*/
   }
-  #content{
-    padding-top: 50px;
+  .navbar{
+    border-radius: 0;
+    padding-top: 10px;
+    padding-left: 20px;
+    height: 50px;
   }
-  .nav{
-    background: #f7f7f7;
-    box-shadow: 0px 1px 1px #999;
-    padding: 10px;
+  .navbar li{
+    margin-right:30px;
+  }
+  nav{
     z-index: 1001;
-    position: fixed;
-    width: 100%;
   }
   #preview{
-    width: 20%;
-    right: 0;
+    width: 300px;
+    left: -500px;
     height: 100%;
     z-index: 1000;
     position: fixed;
+    transition: all 1s;
   }
   .panel{
-    margin:10px 10px 0 0;
+    width: 100%;
     max-height: 100%;
     background: #fff;
+    float:left;
     /*box-shadow: 0px 1px 1px #999;*/
   }
-
+  .collapseBt{
+    width: 18px;
+    height: 30px;
+    position: absolute;
+    left: 300px;
+    margin-top: 40px;
+  }
+  .collapseBt button{
+    background: #fff;
+    padding: 0 5px;
+    border: none;
+  }
+  .collapseBt button:focus{
+    outline: none;
+  }
+  .collapseBt i{
+    line-height: 30px;
+    vertical-align: center;
+    font-size: 120%;
+  }
   #mapid{
     width: 100%;
     height: 100%;
     position: fixed;
+    top:0;
+  }
+  #routesToStop svg{
+    margin-top: 5px;
   }
   .stop{
     stroke: #333;
@@ -59,7 +95,7 @@
     fill:#333;
     fill-rule: nonzero;
   }
-  .path{
+  .shape{
   	stroke: #999;
   	stroke-width:2;
   	fill:none;
@@ -104,14 +140,6 @@
     color:#eee;
     margin:10px 0;
   }
-/*  dt{
-    font-weight: normal;
-    line-height: 300%;
-  }
-  dd{
-    font-size: 120%;
-
-  }*/
   #preview .dl-horizontal dt{
     text-align: left;
   }
@@ -128,33 +156,79 @@
   #preview .checkbox label{
     display: block;
   }
-  #preview .checkbox{
-    /*margin: 0;*/
+  #preview #routesToStop .checkbox p{
+    margin: 0;
+    font-size: 120%;
+  }
+  #preview #routesToStop .checkbox input{
+    /*margin-top: 0;*/
   }
   #preview .dropdown button{
     width: 100%;
   }
   .filters{
-    margin:30px 0;
+    margin:20px -5px;
   }
   .filter{
-    margin-bottom:15px;
+    padding:0 5px;
+  }
+
+/*search*/
+  .suggestions {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    /*perspective:20px;*/
+  }
+  .suggestions li {
+    background:white;
+    list-style: none;
+    border-bottom: 1px solid #D8D8D8;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.14);
+    margin:0;
+    padding:20px;
+    transition:background 0.2s;
+    display:flex;
+    justify-content:space-between;
+    text-transform: capitalize;
+  }
+
+  .suggestions li:nth-child(even) {
+    transform: perspective(100px) rotateX(3deg) translateY(2px) scale(1.001);
+    background: linear-gradient(to bottom,  #ffffff 0%,#EFEFEF 100%);
+  }
+  .suggestions li:nth-child(odd) {
+    transform: perspective(100px) rotateX(-3deg) translateY(3px);
+    background: linear-gradient(to top,  #ffffff 0%,#EFEFEF 100%);
+  }
+  .hl {
+    background:#ffc600;
   }
 </style>
 </head>
-<nav>
-    <div class="nav">
-        <div class="input-group input-group-sm" id="searchBar">
-            <input type="text" class="form-control" name="route" placeholder="stop, route, shape..." ng-model="route" value={{route}}>
-        </div>
-    </div>
+<nav class="navbar navbar-default">
+        <ul class="nav navbar-nav">
+            <li class="input-group input-group-sm" id="searchBar">
+                <input type="text" class="form-control" name="route" placeholder="stop, route..." value="">
+                <ul class="suggestions hidden">
+                </ul>
+            </li>
+            <li class="checkbox">
+              <label>
+                <input type="checkbox" name="showViarants" onchange="toggleViariants()">
+                show all viariants
+              </label>
+            </li>
+        </ul>
+
 </nav>
-<body ng-app="spApp" ng-controller="spAppController">
+<!-- <body ng-app="spApp" ng-controller="spAppController"> -->
+<body>
 <div class="container-fluid">
     <div class="row" id="content">
       <div id="mapid"></div>
       <div id="preview">
-          <div class="panel panel-default">
+          <div class="panel panel-default">   
               <div class="panel-heading">
                 <dl class="dl-horizontal">
                  <dt>Selected<dt><dd class="text-right">1 stop(s)</dd>
@@ -165,19 +239,12 @@
                     <dl class="dl-horizontal">
                       <dt>Stop<dt><dd class="text-right"></dd>
                     </dl>
-                      <p class="stopname">Copley</p>
-                      <div>
-                          <p>Route(s)</p>
-                          <div class="checkbox">
-                            <label>
-                              <input type="checkbox" value="Green Line E" name="route3000" checked>
-                              <p>Green Line E</p>
-                            </label>
-                            <label>
-                              <input type="checkbox" value="39" name="route39" checked>
-                              39
-                            </label>
-                          </div>                          
+                      <p class="stopname"></p>
+                      <div id="routesToStop">
+                          <p></p>
+                          <ul></ul>
+<!--                           <div class="checkbox">
+                          </div>   -->                        
                       </div>
                   </section>
                   <hr>
@@ -188,9 +255,9 @@
                       <dl class="dl-horizontal">
                          <dt>Analysis<dt><dd class="text-right"><a href="">view report</a></dd>
                       </dl>
-                          <div class="filters">
+                          <div class="filters row">
                           <!-- day filter -->
-                            <div class="filter dropdown">
+                            <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
                               <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                 Everyday
                                 <span class="caret"></span>
@@ -204,9 +271,9 @@
                               </ul>
                             </div>
                             <!-- direction filter -->
-                            <div class="filter dropdown">
+                            <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
                               <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                All directions
+                                All direc...
                                 <span class="caret"></span>
                               </button>
                               <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
@@ -216,9 +283,9 @@
                               </ul>
                             </div>
                             <!-- time filter -->
-                            <div class="filter dropdown">
+                            <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
                               <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                Time period
+                                12:00 -...
                                 <span class="caret"></span>
                               </button>
                               <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
@@ -229,73 +296,41 @@
                           </div>
                       <div id="odx">
                           <p>ODX</p>
+                          <svg></svg>
                       </div>
                       <div id="stage">
                           <p>Stage</p>
+                          <svg></svg>
                       </div>
                   </section>
               </div>
           </div>
+          <!-- end panel -->
+          <div class="collapseBt"><button onclick="toggleCollapse()"><i class="fa fa-caret-left" aria-label="Collapse side panel"></i></button> </div>
       </div>
     </div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="lib/bootstrap-3.3.5/bootstrap.min.js"></script>
+<script src="lib/d3.min.js"></script>
+<script src="map.js"></script>
+<script src="script.js"></script>
+<script src="dataload.js"></script>
 <script type="text/javascript">
 
-var odxdata = [{o:12,d:23,x:12}]
-    stagedata = [{1:32,2:3,3:12}]
-    odxKey = Object.keys(odxdata[0])
-    stageKey = Object.keys(stagedata[0])
+var previewPanel = document.querySelector('#preview')
 
 
-var w = d3.select('.panel-body').select('section').node().clientWidth;
+function toggleCollapse(){
+  let offset = previewPanel.getBoundingClientRect().left;
+  if(offset == 0){
+    previewPanel.style.left = '-295px';
+  }else{
+    previewPanel.style.left = 0;
+  }
 
-var fullWidthScale = d3.scaleLinear()
-    .range([0,w])
-  
-var stack = d3.stack()
-    .order(d3.stackOrderNone)
-    .offset(d3.stackOffsetNone);
-
-var colorForODX = d3.scaleOrdinal()
-  .domain(odxKey)
-  .range(['yellow','pink','blue'])
-var colorForstage = d3.scaleOrdinal()
-  .domain(stageKey)
-  .range(['green','orange','red'])
-
-drawStackedChart('odx',odxKey, odxdata,colorForODX)
-drawStackedChart('stage',stageKey, stagedata,colorForstage)
-
-function drawStackedChart(type, key, data, color){
-  var plot = d3.select('#' + type)
-  var svg = plot.append('svg')
-    .attr('height', '50px')
-    .attr('width',w)
-
-  stack.keys(key)
-
-  fullWidthScale
-    .domain([0, d3.sum(Object.values(data[0]))])
-
-  var updateElement = svg.selectAll('element')
-    .data(stack(data))
-  var enterElement = updateElement.enter()
-    .append('g').attr('class','element')
-  enterElement.append('rect')
-    .attr('y', 0)
-    .attr('x', function(d,i){return fullWidthScale(d[0][0])})
-    .attr('width', function(d,i) {return fullWidthScale(d[0][1] - d[0][0])})
-    .attr('height', '25px')
-    .style('fill',function(d){return color(d.key)})
-  enterElement.append('text')
-    .attr('y', '35px')
-    .attr('x', function(d,i){return fullWidthScale((d[0][0] + d[0][1]) / 2)})
-    .text(function(d){return d.key})
 }
-
-
 </script>
+
 </body>
 </html>
