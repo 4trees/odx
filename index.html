@@ -4,15 +4,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=yes">
     <meta charset="utf-8">
     <title>ODX</title>
-    <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="lib/bootstrap-3.3.5/bootstrap.min.css" >
   	<link rel="stylesheet" href="http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
   	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-    <link rel="stylesheet" href="lib/font-awesome-4.4.0/css/font-awesome.min.css">
-    <script src="lib/angular-1.4.8/angular.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
   	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
-    <!-- <script src="app.js"></script> --> 
-    <!-- <script src="icon.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+
 
 <style>
   html, body {
@@ -38,6 +37,7 @@
     padding-top: 10px;
     padding-left: 20px;
     height: 50px;
+    border-bottom: 2px solid rgba(0,0,0,0.2)
   }
   .navbar li{
     margin-right:30px;
@@ -45,6 +45,12 @@
   nav{
     z-index: 1001;
   }
+  /* stop pop up*/
+  .routeList{
+    display: flex;
+    flex-wrap: wrap;
+  }
+
   #preview{
     width: 300px;
     left: -500px;
@@ -58,7 +64,7 @@
     max-height: 100%;
     background: #fff;
     float:left;
-    /*box-shadow: 0px 1px 1px #999;*/
+    box-shadow: 0px 1px 1px #999;
   }
   .collapseBt{
     width: 18px;
@@ -91,18 +97,43 @@
   }
   .stop{
     stroke: #333;
-    stroke-width:.5;
-    fill:#333;
+    fill:#38c0df;
+    stroke-width:1;
     fill-rule: nonzero;
+    transition: stroke-width .5s, stroke 1s;
+  }
+  .shape,.route{
+  	fill:none;
+    opacity: .8;
+    transition: stroke-width .5s, stroke .5s;
+  }
+  .route{
+    stroke: #999;
+    stroke-width:3;
   }
   .shape{
-  	stroke: #999;
-  	stroke-width:2;
-  	fill:none;
+    stroke: #b2b2b2;
+    stroke-width:2;
   }
-  .selected{
-  	fill: #333;
-    stroke-width:10;
+  .hlStop{
+    stroke-width:8;
+  	stroke: #38c0df !important;
+    /*opacity: 1;*/
+  }
+  .selectStop{
+    stroke: #38c0df !important;
+    stroke-width:8;
+  }
+  .selectRoute{
+    stroke: #38c0df !important;
+    stroke-width:6;
+  }
+  .hint{
+    /*font-size: 60%;*/
+    color:#999;
+  }
+  .leaflet-draw{
+    margin-top: 70px !important;
   }
   .leaflet-popup-content-wrapper, .leaflet-popup-tip{
   	background: #fff;
@@ -111,6 +142,7 @@
   }
   .leaflet-popup-content-wrapper{
   	border-radius: 4px;
+    min-width: 280px;
   }
   .leaflet-popup-content{
   	margin: 10px;
@@ -122,6 +154,7 @@
     padding: 3px 5px;
     margin-right: 5px;
     border-radius: 3px;
+    margin-bottom: 5px;
   }
   #selectedlist{
     padding-top: 5px;
@@ -150,7 +183,7 @@
     padding-top: 10px;
   }
   #stopsummary .stopname{
-    font-size: 150%;
+    /*font-size: 150%;*/
     margin:15px 0 20px 0;
   }
   #preview .checkbox label{
@@ -231,21 +264,22 @@
           <div class="panel panel-default">   
               <div class="panel-heading">
                 <dl class="dl-horizontal">
-                 <dt>Selected<dt><dd class="text-right">1 stop(s)</dd>
+                 <dt>Selected<dt><dd class="text-right"><a href="" id="selection"></a></dd>
                 </dl>
               </div>
               <div class="panel-body">
                   <section id="stopsummary">
                     <dl class="dl-horizontal">
-                      <dt>Stop<dt><dd class="text-right"></dd>
+                      <dt>Service<dt><dd class="text-right"></dd>
                     </dl>
-                      <p class="stopname"></p>
+                      <div class="stopname"></div>
+<!--                       <p class="stopname"></p>
                       <div id="routesToStop">
                           <p></p>
-                          <ul></ul>
+                          <ul></ul> -->
 <!--                           <div class="checkbox">
                           </div>   -->                        
-                      </div>
+                      <!-- </div> -->
                   </section>
                   <hr>
                   <section id="routesummary">
@@ -313,9 +347,11 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="lib/bootstrap-3.3.5/bootstrap.min.js"></script>
 <script src="lib/d3.min.js"></script>
+<script src="dataload.js"></script>
 <script src="map.js"></script>
 <script src="script.js"></script>
-<script src="dataload.js"></script>
+<script src="search.js"></script>
+<script src="preview.js"></script>
 <script type="text/javascript">
 
 var previewPanel = document.querySelector('#preview')

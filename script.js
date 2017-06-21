@@ -1,249 +1,18 @@
-//draw stops
-function drawStops() {
-allStops.forEach(function(stop){
-	//get the routes belong to this stop
-	// console.log(stop)
-	let routeslist = shapeStopRoute
-		.filter(function(d){return d.stop_id == stop.stop_id})
-		.map(function(d){return d.route_id})
-		.filter(function(d,i,v){return v.indexOf(d) === i})
-	// get the routes data
-	let routes = allRoutes.filter(function(d){return routeslist.includes(d.route_id)})
-	// console.log(routes)
-	//get the shapes belong to this stop
-	let shapeslist = shapeStopRoute
-		.filter(function(d){return d.stop_id == stop.stop_id})
-		.map(function(d){return d.shape_id})
-		.filter(function(d,i,v){return v.indexOf(d) === i})
-    // console.log(shapeslist)
-	// here need to do something with parent station
-	L.circle([stop.stop_lat,stop.stop_lon], {radius:8,className:'stop stop' + stop.stop_id, pane:'stops'})
-		.on('mouseover',function(){
-            //set location and content for stop popup
-            popup.setLatLng([stop.stop_lat,stop.stop_lon])
-              .setContent('<h5>' + stop.stop_name + '</h5>' + routes.map(function(route){return '<span class="routelabel" style="color:#' + route.route_text_color + ';background:#' + route.route_color + '">' + (route.route_short_name || route.route_long_name) + '</span>'}).join(''))
-              .openOn(map);
-            //highlight the stop
-             // this._path.classList.add('selected');
-            this.bringToFront()
-            //highlight the shapes belong to this stop on the map, and colored by route 
-            shapeslist.forEach(function(shape){
-            	const findShape = document.querySelector('.shape' + shape)
-            	findShape.style.stroke = routes.find(function(route){return route.route_id = shapeStopRoute.find(function(d){return d.shape_id == shape}).route_id}).route_color
-            	findShape.parentNode.appendChild(findShape)
-            })
-            
-         })
-        .on('mouseout',function(){
-            // map.closePopup()
-            shapeslist.forEach(function(shape){
-            	document.querySelector('.shape' + shape).style.stroke = '#999'
-            })
-            // this._path.classList.remove('selected');
-        })
-        .on('click',function(){
-        	preview(stop,routes)
-        	
-        })
-		.addTo(map);
-
-})
-}
-
-// draw routes
-function drawShapes(){
-//get the route and shape menu
-const tripsByshape = d3.nest()
-  .key(function(d){return d.route_id})
-  .key(function(d){return d.shape_id})
-  .rollup(function(d){return d.length})
-  .entries(allTrips)
-  
-//get the top shape of each route
-let routes = [] 
-tripsByshape.forEach(function(route){
-  if(route.key == "553"){console.log(route)}
-  let sortedshape = route.values.sort(function(a,b){return b.value - a.value})
-  routes.push(sortedshape[0].key)
-})
+//set shiftKey actions for draw toolbar
+var drawPolygon = document.querySelector('.leaflet-draw-draw-polygon')
+var drawRectangle = document.querySelector('.leaflet-draw-draw-rectangle')
+drawPolygon.setAttribute('title','Click to draw your new selection; Shift click to draw additional selection')
+drawRectangle.setAttribute('title','Click to draw your new selection; Shift click to draw additional selection')
 
 
-//nest by shape id
-const shapesById = d3.nest()
-	.key(function(d){return d.shape_id})
-	.sortValues(function(a,b) { return (+a.shape_pt_sequence) - (+b.shape_pt_sequence); })
-	.entries(allShapes)
-
-shapesById.forEach(function(shape){
-	let hasMatchRoute = shapeStopRoute.find(function(d){return d.shape_id == shape.key});
-	let route = hasMatchRoute ? allRoutes.find(function(route){return route.route_id == hasMatchRoute.route_id}) : '';
-	let shapepts = [];
-	shape.values.forEach(function(shapept){
-		shapepts.push([shapept.shape_pt_lat,shapept.shape_pt_lon])
-	})
-  // let isMainShape = routes.find(function(shape){return shape.mainShape.key == shape.shape_id}) ? ' mainshape':''
-  let isMainShape = routes.includes(shape.key) ? ' mainshape':''
-	L.polyline(shapepts, {className: 'hidden shape shape'+ shape.key + ' route' + route.route_id + isMainShape})
-	.on('mouseover',function(e){
-		//highlight the shape by route color
-
-		if(route){
-			document.querySelectorAll('.route' + route.route_id).forEach(function(shape){
-				shape.style.stroke =  route.route_color;
-				// shape.style.opacity = .5;
-				shape.parentNode.appendChild(shape)
-
-			})
-			this.getElement().style.strokeWidth = 8;
-			// this.getElement().style.stroke = route.route_color;
-		}else{
-			this.getElement().style.stroke = '#333';
-			this.bringToFront()
-		}
-		
-      	//set location and content for stop popup
-      	let routeName = route ? (route.route_short_name || route.route_long_name) : 'No match route';
-      	let stops = shapeStopRoute.filter(function(d){return d.shape_id == shape.key}).sort(function(a,b){return a.stop_sequence - b.stop_sequence}).map(function(d){return d.stop_id})
-    	popup.setLatLng([e.latlng.lat,e.latlng.lng])
-            .setContent('<h5>' + routeName  + '</h5>' + '<p>Shape ' + shape.key + '</p>')
-            .openOn(map);
-    })
-    .on('mouseout',function(){
-    	document.querySelectorAll('.shape').forEach(function(shape){
-    		shape.style.stroke = '#999';
-    		shape.style.strokeWidth = 2;
-    	})
-    	// this.getElement().style.stroke = '#999';
-     	// map.closePopup();
-    })
-	.addTo(map);
-})	
-toggleViariants()
-}
-function toggleViariants(){
-  if(document.querySelector('input[name=showViarants]').checked){
-    d3.selectAll('.shape').classed('hidden',false)
-  }else{
-    d3.selectAll('.shape').classed('hidden',true)
-    d3.selectAll('.mainshape').classed('hidden',false)
-  }
-  
-}
-
-var odxdata = [{o:12,d:23,x:12}]
-    stagedata = [{1:32,2:3,3:12}]
-    odxKey = Object.keys(odxdata[0])
-    stageKey = Object.keys(stagedata[0])
-// global setting for preview
-var w = d3.select('.panel-body').select('section').node().clientWidth;
-
-var fullWidthScale = d3.scaleLinear()
-    .range([0,w])
-var fullWidthLabelScale = d3.scaleLinear()
-    .range([0,w-30])
-  
-var stack = d3.stack()
-    .order(d3.stackOrderNone)
-    .offset(d3.stackOffsetNone);
-
-var colorForODX = d3.scaleOrdinal()
-  .domain(odxKey)
-  // .range(['#96ceb4','pink','ffcc5c'])
-  .range(['#559e83','#ae6a41','#c3cb71'])
-var colorForstage = d3.scaleOrdinal()
-  .domain(stageKey)
-  .range(['#99d5cf','#66c0b7','#32ab9f','#009688'])
+//GLOBEL VARIABLES
+var selection = [];
+var routeScale =  d3.scaleLinear()
+    .range([0,1])
+    .domain([0,1])
 
 
-
-function preview(stop,routes){
-previewPanel.style.left = 0;
-showStopPreview(stop,routes)
-drawStackedChart('odx',odxKey, odxdata,colorForODX)
-drawStackedChart('stage',stageKey, stagedata,colorForstage)
-
-}
-
-function showStopPreview(stop,routes){
-
-console.log(stop,routes)
-
-const stopName = stop.stop_name || 'Unknown stop'
-d3.select('#stopsummary').select('.stopname').html(stopName)
-
-
-routes.forEach(function(route){
-  //now only show all the trips of the route, should cal by stop as well (need odx data)
-	let getTripsCount = allTrips.filter(function(trip){return trip.route_id == route.route_id}).length
-  	route.trips_count = getTripsCount;
-})
-
-  showRouteTostop(routes)
-
-}
-
-function showRouteTostop(route){
-var routesToStopContainer = d3.select('#routesToStop')
-    routesToStopContainer.select('p').html(route.length + ' route(s)')
-
-fullWidthLabelScale
-  .domain([0, d3.sum(route, function(d){return d.trips_count})])
-var updateroutesToStop = routesToStopContainer.select('ul').selectAll('.routeitem')
-  .data(route.sort(function(a,b){return b.trips_count - a.trips_count}),function(d){return d.route_id})
-updateroutesToStop.exit().remove()
-var enterroutesToStop = updateroutesToStop.enter()
-  .append('li').attr('class','routeitem')
-enterroutesToStop.append('p')
-  .append('span')
-  .attr('class','routelabel')
-  .style('color',function(d){return '#' + d.route_text_color})
-  .style('background',function(d){return '#' + d.route_color})
-  .html(function(d){return d.route_short_name || d.route_long_name})
-var svgInRouteToStop = enterroutesToStop.append('svg')
-  .attr('height','12px')
-  .attr('width',w)
-svgInRouteToStop.append('rect')
-  .attr('x',0)
-  .attr('y',0)
-  .attr('width',function(d){return fullWidthLabelScale(d.trips_count)}) 
-  .attr('height','8px')
-  .style('fill','#ccc')
-svgInRouteToStop.append('text')
-  .attr('x',function(d){return fullWidthLabelScale(d.trips_count) + 5})
-  .attr('y',6)
-  .text(function(d){return numberWithCommas(d.trips_count)})
-  .style('fill','grey')
-  .style('font-size','7px')
-
-}
-
-function drawStackedChart(type, key, data, color){
-  var plot = d3.select('#' + type).select('svg')
-    .attr('width',w)
-    .attr('height','40px')
-
-  stack.keys(key)
-
-  fullWidthScale
-    .domain([0, d3.sum(Object.values(data[0]))])
-
-  var updateElement = plot.selectAll('.element')
-    .data(stack(data))
-  updateElement.exit().remove()
-  var enterElement = updateElement.enter()
-    .append('g').attr('class','element')
-  enterElement.append('rect')
-    .attr('y', 0)
-    .attr('x', function(d,i){return fullWidthScale(d[0][0])})
-    .attr('width', function(d,i) {return fullWidthScale(d[0][1] - d[0][0])})
-    .attr('height', '25px')
-    .style('fill',function(d){return color(d.key)})
-  enterElement.append('text')
-    .attr('y', '35px')
-    .attr('x', function(d,i){return fullWidthScale((d[0][0] + d[0][1]) / 2)})
-    .text(function(d){return d.key})
-}
-
+//GLOBEL FUNCTION
 //trunc the long word: for station name on the top right
 String.prototype.trunc = String.prototype.trunc ||
     function(n){
@@ -254,36 +23,295 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-// search
-const searchInput = document.querySelector('#searchBar').querySelector('input');
-const suggestions = document.querySelector('#searchBar').querySelector('.suggestions');
-searchInput.addEventListener('change', displayMatches);
-searchInput.addEventListener('keyup', displayMatches);
-
-function displayMatches() {
-  if(this.value == ''){
-      suggestions.classList.add('hidden')
-      return
-  }
-  suggestions.classList.remove('hidden')
-  const matchArray = findMatches(this.value, stopAndRoute);
-  const html = matchArray.map(item => {
-    const regex = new RegExp(this.value, 'gi');
-    const itemName = item.name.replace(regex, `<span class="hl">${this.value}</span>`);
-    return `
-      <li>
-        <span class="name">${itemName}</span>
-        <span class="type">${item.type}</span>
-      </li>
-    `;
-  }).join('');
-  suggestions.innerHTML = html;
+function slugStr(str){
+	str = str.replace(/\s+/g, '-').toLowerCase();
+	return str
 }
 
-function findMatches(wordToMatch, stopAndRoute) {
-  return stopAndRoute.filter(item => {
-    // here we need to figure out if the city or state matches what was searched
-    const regex = new RegExp(wordToMatch, 'gi');
-    return item.name.match(regex)
-  });
+// SET DISPLAY
+//set the stop display (second para is a array of stop ids)
+function setStopsDisplay(action,stopIdList){
+	let countstops = stopIdList.length;
+	for(i=0;i<countstops;i++){
+		let stopItem = document.querySelector('.stop' + slugStr(getParentStopId(stopIdList[i])));
+		switch (action){
+			case 'highlight':
+				stopItem.classList.add('hlStop');
+				stopItem.parentNode.appendChild(stopItem)
+				break
+			case 'select':
+				stopItem.classList.add('selectStop');
+				break
+			case 'show':
+				stopItem.classList.remove('hlStop');
+				stopItem.classList.remove('hidden');
+				break
+			case 'hide':
+				stopItem.classList.add('hidden');
+				break
+		}
+	}
 }
+//set the shape display(second para is a array of shape ids)
+function setShapesDisplay(action,shapeIdList){
+	let hasMatchShape = shapeStopRoute.find(function(d){return d.shape_id == shapeIdList[0]});
+	let itsRoute = hasMatchShape ? allData.route.find(function(route){return route.route_id == hasMatchShape.route_id}) : '';
+	let itsRouteColor = itsRoute ? '#' + itsRoute.route_color : '';
+	let countshapes = shapeIdList.length;
+
+	switch (action){
+		case 'highlight':
+			for(i=0;i<countshapes;i++){
+				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
+				shapeItem.classList.remove('hidden');
+				shapeItem.style.stroke = itsRouteColor;
+				shapeItem.style.strokeWidth = 8;
+				shapeItem.parentNode.appendChild(shapeItem)
+
+			}
+			break
+		case 'semihighlight':
+			for(i=0;i<countshapes;i++){
+				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
+				shapeItem.classList.remove('hidden');
+				shapeItem.style.stroke = itsRouteColor;
+				shapeItem.style.strokeWidth = 2;
+				shapeItem.parentNode.appendChild(shapeItem)
+			}
+			break
+		case 'show':
+			for(i=0;i<countshapes;i++){
+				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
+				shapeItem.classList.remove('hidden');
+				shapeItem.style.stroke = '#b2b2b2';
+				shapeItem.style.strokeWidth = 2;
+				shapeItem.style.opacity = .8;
+			}
+			break
+		case 'hide':
+			for(i=0;i<countshapes;i++){
+				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
+				shapeItem.classList.add('hidden');
+			}
+			break
+	}
+}
+//set route display
+function setRoutesDisplay(action,stopIdList){
+	// console.log(stopIdList)
+	let touchingRoutes = shapeStopRoute.filter(function(d){return stopIdList.includes(d.stop_id)})
+	let nestTouchingRoutes = getNest(touchingRoutes,'route','stop')
+	// console.log(nestTouchingRoutes)
+	let countStops = stopIdList.length
+	let countRoutes = nestTouchingRoutes.length
+	switch (action){
+		case 'highlight':
+			for(i=0;i<countRoutes;i++){
+				let route = nestTouchingRoutes[i]
+				let routeColor = allData.route.find(function(d){return d.route_id == route.key}).route_color
+				let routePath = d3.select('.route' + route.key)
+				// console.log(route.key,routePath.node())
+				routePath
+					.style('stroke',routeColor)
+					.style('stroke-width',6)
+					.style('opacity',routeScale(route.values.length / countStops))
+				// routePath.node().parentNode.appendChild(routePath.node())
+			}
+			break
+		case 'select':
+			for(i=0;i<countRoutes;i++){
+				let route = nestTouchingRoutes[i]
+				let routePath = d3.select('.route' + route.key)
+				routePath
+					.classed('selectRoute',true)
+					.style('opacity',routeScale(route.values.length / countStops))
+			}
+			break
+		case 'show':
+			for(i=0;i<countRoutes;i++){
+				let route = nestTouchingRoutes[i]
+				let routePath = d3.select('.route' +route.key)
+				routePath
+					.style('stroke','#999')
+					.style('stroke-width',3)
+					.style('opacity',.8)
+			}
+			break
+	}
+}
+//MAP GLOBAL VIEW OPTION
+var isShowViariants = false;
+function toggleViariants(){
+	if(isShowViariants){
+		console.log(isShowViariants)
+		//hide and set them to false
+		d3.selectAll('.shape').classed('hidden',true)
+		isShowViariants = false;
+	}else{
+		//create or show them 
+		if(document.querySelector('.shape')){
+			d3.selectAll('.shape').classed('hidden',false)
+		}else{
+			drawShapes()
+		}
+		isShowViariants = true;
+	}
+}
+// POPUP
+//update popup for the stop 
+//para is an obeject of the stop, an array of children stop, [a array of touching route ids, a array of touching routes]
+function stopPopup(stop,childrenStops,touchRoutes){
+	let children = stop.location_type == 1 ? '<p>' + childrenStops.map(function(stop){return stop.stop_name}).join(', ') + '</p>' : '';
+	let routes = touchRoutes[1].map(function(route){return `
+		<div class="routelabel" style="color:#${route.route_text_color};background:#${route.route_color}">${route.route_short_name || route.route_long_name}</div>
+		`
+		}).join('')
+	let hint = selection.length == 0? '' : '<p class=\"hint\">Shift click to add to current selection</p>'
+	popup.setLatLng([stop.stop_lat,stop.stop_lon])
+		.setContent(`
+			<h5>${stop.stop_name}</h5> 
+			${children}
+			<hr><div class=\"routeList\">${routes}</div>
+			${hint}
+		`)
+        .openOn(map);
+	
+}
+//update popup for the shape
+function shapePopup(location,shapeId,route,stopLength){
+	let routeName = route ? (route.route_short_name || route.route_long_name) : 'No match route';
+	popup.setLatLng(location)
+        .setContent(`
+    		<h5>${routeName}</h5>
+    		<p>Shape ${shapeId}</p>
+    		<hr>
+    		<p>${stopLength} stop(s)</p>
+        `)
+        .openOn(map);
+}
+//update popup for the route
+function routePopup(location,route,stopLength){
+	let routeName = route.route_short_name || route.route_long_name;
+	let hint = selection.length == 0? '' : '<p class=\"hint\">Shift click to add to current selection</p>'
+	popup.setLatLng(location)
+        .setContent(`
+    		<h5>${routeName}</h5>
+    		<hr>
+    		<p>${stopLength} stop(s)</p>
+    		${hint}
+        `)
+        .openOn(map);
+}
+
+//GET DATA
+//get stops, shapes, routes for a stop
+//para is a object of a stop
+function getStopInfo(stop){
+	let childrenStops = getChildrenStop(stop)
+	let stopsList = getIdlist(childrenStops,'stop');
+	let touchRoutes = getRelationships(stopsList,'stop_route');
+	let touchShapes = getRelationships(stopsList,'stop_shape');
+	return [stopsList,childrenStops,touchRoutes,touchShapes]
+}
+//get stops,routes for a shape
+//para is a shape id
+function getShapeInfo(shapeId){
+	let hasMatchShape = shapeStopRoute.find(function(d){return d.shape_id == shapeId});
+	let touchRoute,touchStops,shapesList
+	if(hasMatchShape){
+		shapesList = getIdlist(shapeStopRoute.filter(function(d){return d.route_id == hasMatchShape.route_id}),'shape');
+		touchRoute = allData.route.find(function(route){return route.route_id == hasMatchShape.route_id});	
+		touchStops = getRelationships([hasMatchShape.route_id],'route_stop');
+	}else{
+		shapesList = [shapeId]
+		touchRoute = '';
+		touchStops = [[],[]];
+	}
+	return [shapesList,touchStops,touchRoute]
+}
+//get trip info for 
+
+//get children stops for stops (para is an object of the stop)
+function getChildrenStop(stop){
+	let childStops = []
+	if(stop.location_type == 0){
+		childStops.push(stop)
+	}else{
+		childStops = allData.stop.filter(function(d){return d.parent_station == stop.stop_id})
+	}
+	return childStops
+}
+//get parent stops for stops (para is a stop id)
+function getParentStopId(stop){
+	stop = allData.stop.find(function(d){return d.stop_id == stop})
+	let parentStopId = stop.parent_station ? stop.parent_station : stop.stop_id;
+	return parentStopId
+}
+
+//get a id list
+// para : 'items' is a array of the stops/routes/shapes/trips
+// 'type' is 'stop' || 'shape' || 'route' || 'trip'
+function getIdlist(items,type){
+	let idList;
+	if(type == 'stop'){
+		let count = items.length;
+		let newitems = [];
+		for(i=0;i<count;i++){
+			let stops = getChildrenStop(items[i]).map(function(d){return d.stop_id})
+			newitems.push(...stops);
+		}
+		idList = newitems
+	}else{
+		idList = items.map(function(d){return d[type + '_id']})
+	}
+	return idList
+}
+
+// get all related stops/routes/shapes for a stop/route/shape
+// para : 'idList' is a array of the stop/route/shape ids
+// 'relationship' is 'stop_shape' || 'stop_route' || 'route_shape'
+function getRelationships(idList,relationship){
+	let relationshipType = relationship.split('_')[1]
+	let istoShape = relationshipType == 'shape'? 'key' : (relationshipType + '_id')
+	let relationshipMenu = allNest[relationship]
+		.filter(function(d){return idList.includes(d.key)})
+		.map(function(d){return d.values})
+
+	let countMenu = relationshipMenu.length
+	let relationshipList = []	
+	for(i=0;i<countMenu;i++){
+		relationshipList.push(...relationshipMenu[i].map(function(d){return d.key}))
+	}
+	relationshipList = relationshipList.filter(function(d,i,v){return v.indexOf(d) === i})
+	let relationships = allData[relationshipType].filter(function(d){return relationshipList.includes(d[istoShape])})
+	return [relationshipList,relationships]
+}
+
+//UPDATE SELECTION
+function populateSelection(key,data){
+//if hold shiftkey to select, add the data to last element of selection, otherwise add to selection as the last element.
+	if(key){
+		if(selection.length == 0){
+			selection.push([data])
+		}else{
+			selection[selection.length - 1].push(data)
+		}
+	}else{
+		selection.push([data])
+	}
+	console.log(key,selection)
+	let display = selection[selection.length-1].reduce(function(a, b){
+     return a.concat(b);
+	});
+	console.log(display)
+	updateSelection(display)
+}
+function updateSelection(data){
+	//highlight the selection stops and routes
+	d3.selectAll('.selectStop').classed('selectStop',false)
+	d3.selectAll('.selectRoute').classed('selectRoute',false).style('opacity',.8).style('stroke','#999').style('stroke-width',3);
+	setStopsDisplay('select',getIdlist(data,'stop'))
+	setRoutesDisplay('select',getIdlist(data,'stop'))
+	updatepreview(data)
+}
+
