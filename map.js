@@ -47,23 +47,26 @@ var stopPanes = map.createPane('shapes');
 	stopPanes.style.pointerEvents = 'none';
 
 //TOOLTIP EDIT
-var drawSelection = []
+
 map.on(L.Draw.Event.CREATED, function (e) {
+	let drawSelection = []
    	let layer = e.layer;   
 	let countMarkers = stopMarkers.length
-	console.log(e)
+	// console.log(e)
 
 	for(i=0;i<countMarkers;i++){
 		let isInside = isMarkerInsidePolygon(stopMarkers[i],layer)
 		if(isInside){
-			console.log('found!'),console.log(stopMarkers[i])
+			// console.log('found!'),console.log(stopMarkers[i])
 			let foundStopId = stopMarkers[i].options.className.split(' ')[1].replace('stop','')
-			drawSelection.push(foundStopId)
-			console.log(drawSelection)
+			let foundStopData = allData.stop.find(function(d){return d.stop_id == foundStopId})
+			drawSelection.push(...getChildrenStop(foundStopData))
+			// console.log(drawSelection)
 		}
 	}
-});
 
+	populateSelection(false,drawSelection)
+});
 
 //DRAW MAP
 var stopMarkers = []
