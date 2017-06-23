@@ -3,7 +3,8 @@ var	stopsUrl = '/data/stops.txt',
 	shapesUrl = '/data/shapes.txt',
 	tripsUrl = '/data/trips.txt',
 	routesUrl = '/data/routes.txt',
-	shapestoprouteUrl = '/data/route_shape_stop.csv';
+	shapestoprouteUrl = '/data/route_shape_stop.csv',
+  shapename = '/data/shape-id_route-variant_lookup_fall16.csv';
 
 d3.queue()
 	.defer(d3.csv,stopsUrl,parseStop)
@@ -11,12 +12,13 @@ d3.queue()
 	.defer(d3.csv,tripsUrl,parseTrip)
 	.defer(d3.csv,routesUrl,parseRoute)
 	.defer(d3.csv,shapestoprouteUrl,parse)
+  .defer(d3.csv,shapename,parseshapeName)
 	.await(dataloaded);
 
 var allShapesData, allShapes, shapeStopRoute, stopAndRoute;
 var allData = {}, allNest = {};
 
-function dataloaded(err, stops, shapes, trips, routes, shapestoproute){
+function dataloaded(err, stops, shapes, trips, routes, shapestoproute,shapename){
 
 //nest shape data by shape id
 allShapes = d3.nest()
@@ -24,24 +26,26 @@ allShapes = d3.nest()
 	.sortValues(function(a,b) { return a.shape_pt_sequence - b.shape_pt_sequence; })
 	.entries(shapes)
 
-//route_type = 0,1,3
+//data filter-out
+//route_type != 0,1,3 | trip has no shape_id | shape has no trip
 let nonRouteList = getIdlist(routes.filter(function(d){return ![0,1,3].includes(+d.route_type)}),'route')
-let nonShapeList = getIdlist(shapestoproute.filter(function(d){return nonRouteList.includes(d.route_id)}),'shape')
+shapeStopRoute = shapestoproute.filter(function(d){return d.shape_id !='' && !nonRouteList.includes(d.route_id)})
+let shapeList = getIdlist(shapestoproute,'shape')
 
 
 allData.stop = stops
-allData.shape = allShapes.filter(function(d){return !nonShapeList.includes(d.key)})
-allData.trip = trips.filter(function(d){return d.shape_id !='' && !nonRouteList.includes(d.route_id)})
-allData.route = routes.filter(function(d){return [0,1,3].includes(+d.route_type)})
-shapeStopRoute = shapestoproute.filter(function(d){return !nonRouteList.includes(d.route_id)})
-
-
+allData.shape = allShapes.filter(function(d){return shapeList.includes(d.key)})
+allData.trip = trips.filter(function(d){return !nonRouteList.includes(d.route_id) && shapeList.includes(d.shape_id) && d.shape_id !=''})
+allData.route = routes.filter(function(d){return !nonRouteList.includes(d.route_id)})
 
 //get a nest list
 allNest.stop_shape = getNest(shapeStopRoute,'stop','shape')
 allNest.stop_route = getNest(shapeStopRoute,'stop','route')
 allNest.route_stop = getNest(shapeStopRoute,'route','stop')
 allNest.route_shape = getNest(allData.trip.filter(function(d){return d.direction_id == 0}),'route','shape')
+
+
+
 //search
 stopAndRoute = allData.stop.map(function(stop){return {type:'stop',id:stop.stop_id,name:stop.stop_name}})
 	.concat(allData.route.map(function(route){return {type:'route',id:route.route_id,name:route.route_short_name || route.route_long_name}}))
@@ -116,4 +120,13 @@ function parseShape(d){
     shape_pt_sequence:+d.shape_pt_sequence,
     }
 
+}
+
+function parseshapeName(d){
+  return{
+    shape_id: d.shape_id,
+    shape_name : d.RouteID,
+    direction_id: d.direction_id,
+    trip_headsign: d.trip_headsign,
+  }
 }

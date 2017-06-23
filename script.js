@@ -275,7 +275,7 @@ function getIdlist(items,type){
 	}else{
 		idList = items.map(function(d){return d[type + '_id']})
 	}
-	return idList
+	return idList.filter(function(d,i,v){return v.indexOf(d) === i})
 }
 
 // get all related stops/routes/shapes for a stop/route/shape

@@ -12,6 +12,24 @@ L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x
 //set the zoomcontrol's position
 map.zoomControl.setPosition('bottomright')
 
+//reset map view
+var resetMap = L.Control.extend({
+  options: {
+    position: 'bottomright' 
+  },
+  onAdd: function (map) {
+  	var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+    container.innerHTML = '<a title = "Back to Boston" role="button"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></a>'
+    container.onclick = function(){
+      map.setView(new L.LatLng(42.351486,-71.066829), 15);
+      
+    }
+    return container;
+  },
+
+});
+map.addControl(new resetMap());
+
 //create a drawable layers
 var drawnItems = new L.FeatureGroup().addTo(map);
 
