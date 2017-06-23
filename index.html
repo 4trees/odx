@@ -100,8 +100,9 @@
     stroke: #333;
     fill:#38c0df;
     stroke-width:1;
-    fill-rule: nonzero;
-    transition: stroke-width .5s, stroke 1s;
+    /*fill-opacity: 1;*/
+    /*transition: stroke-width .5s, stroke 1s;*/
+    transition: fill-opacity .5s;
   }
   .shape,.route{
   	fill:none;
@@ -119,11 +120,15 @@
   .hlStop{
     stroke-width:8;
   	stroke: #38c0df !important;
-    /*opacity: 1;*/
+    fill-opacity: 1;
+    /*stroke-opacity:.4;*/
   }
   .selectStop{
     stroke: #38c0df !important;
     stroke-width:8;
+    fill-opacity: 1 !important;
+    stroke-opacity:.6;
+    fill:#000;
   }
   .selectRoute{
     stroke: #38c0df !important;

@@ -42,6 +42,7 @@ function getMatch(a, b) {
 // SET DISPLAY
 //set the stop display (second para is a array of stop ids)
 function setStopsDisplay(action,stopIdList){
+
 	let countstops = stopIdList.length;
 	for(i=0;i<countstops;i++){
 		let stopItem = document.querySelector('.stop' + slugStr(getParentStopId(stopIdList[i])));

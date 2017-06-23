@@ -22,7 +22,7 @@ var resetMap = L.Control.extend({
     container.innerHTML = '<a title = "Back to Boston" role="button"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></a>'
     container.onclick = function(){
       map.setView(new L.LatLng(42.351486,-71.066829), 15);
-      
+
     }
     return container;
   },
@@ -65,7 +65,6 @@ var stopPanes = map.createPane('shapes');
 	stopPanes.style.pointerEvents = 'none';
 
 //TOOLTIP EDIT
-
 map.on(L.Draw.Event.CREATED, function (e) {
 	let drawSelection = []
    	let layer = e.layer;   
@@ -73,10 +72,10 @@ map.on(L.Draw.Event.CREATED, function (e) {
 	// console.log(e)
 
 	for(i=0;i<countMarkers;i++){
-		let isInside = isMarkerInsidePolygon(stopMarkers[i],layer)
+		let isInside = isMarkerInsidePolygon(stopMarkers[i].marker,layer)
 		if(isInside){
 			// console.log('found!'),console.log(stopMarkers[i])
-			let foundStopId = stopMarkers[i].options.className.split(' ')[1].replace('stop','')
+			let foundStopId = stopMarkers[i].marker.options.className.split(' ')[1].replace('stop','')
 			let foundStopData = allData.stop.find(function(d){return d.stop_id == foundStopId})
 			drawSelection.push(...getChildrenStop(foundStopData))
 			// console.log(drawSelection)
@@ -85,6 +84,9 @@ map.on(L.Draw.Event.CREATED, function (e) {
 
 	populateSelection(false,drawSelection)
 });
+
+//GLOBAL SIZE
+var stopRadius = {default:14,select:28}
 
 //DRAW MAP
 var stopMarkers = []
@@ -96,7 +98,7 @@ function drawStops(){
 	for(i=0; i<countStops; i++){
 		let stop = stops[i]
 
-		let stopMarker = L.circle([stop.stop_lat,stop.stop_lon], {radius:12,className:'stop stop' + slugStr(stop.stop_id), pane:'stops'})
+		let stopMarker = L.circle([stop.stop_lat,stop.stop_lon], {radius:stopRadius.default,className:'stop stop' + slugStr(stop.stop_id), pane:'stops'})
 			.on('mouseover',function(){
 				//get info of the stop
 				let stopinfo = getStopInfo(stop);
@@ -122,7 +124,7 @@ function drawStops(){
 				populateSelection(e.originalEvent.shiftKey,getChildrenStop(stop))
 			})
 			.addTo(map);
-		stopMarkers.push(stopMarker)
+		stopMarkers.push({id:slugStr(stop.stop_id),marker:stopMarker})
 	}
 
 }
