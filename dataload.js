@@ -32,7 +32,7 @@ let nonRouteList = getIdlist(routes.filter(function(d){return ![0,1,3].includes(
 shapeStopRoute = shapestoproute.filter(function(d){return d.shape_id !='' && !nonRouteList.includes(d.route_id)})
 let shapeList = getIdlist(shapestoproute,'shape')
 
-
+//filt data by filter as above
 allData.stop = stops
 allData.shape = allShapes.filter(function(d){return shapeList.includes(d.key)})
 allData.trip = trips.filter(function(d){return !nonRouteList.includes(d.route_id) && shapeList.includes(d.shape_id) && d.shape_id !=''})

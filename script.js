@@ -6,7 +6,7 @@ drawRectangle.setAttribute('title','Click to draw your new selection; Shift clic
 
 
 //GLOBEL VARIABLES
-var selection = [];
+var selection = [], display = {};
 var routeScale =  d3.scaleLinear()
     .range([0,1])
     .domain([0,1])
@@ -24,7 +24,7 @@ function numberWithCommas(x) {
 }
 
 function slugStr(str){
-	str = str.replace(/\s+/g, '-').toLowerCase();
+	str = str.replace(/\s+/g, '-');
 	return str
 }
 
@@ -47,19 +47,15 @@ function setStopsDisplay(action,stopIdList){
 	for(i=0;i<countstops;i++){
 		let stopItem = document.querySelector('.stop' + slugStr(getParentStopId(stopIdList[i])));
 		switch (action){
-			case 'highlight':
+			case 'hover':
 				stopItem.classList.add('hlStop');
 				stopItem.parentNode.appendChild(stopItem)
 				break
 			case 'select':
 				stopItem.classList.add('selectStop');
 				break
-			case 'show':
+			case 'default':
 				stopItem.classList.remove('hlStop');
-				stopItem.classList.remove('hidden');
-				break
-			case 'hide':
-				stopItem.classList.add('hidden');
 				break
 		}
 	}
@@ -109,56 +105,60 @@ function setShapesDisplay(action,shapeIdList){
 	}
 }
 //set route display
-function setRoutesDisplay(action,stopIdList){
+function setRoutesDisplay(action,routeIdList){
 	// console.log(stopIdList)
-	let touchingRoutes = shapeStopRoute.filter(function(d){return stopIdList.includes(d.stop_id)})
-	let nestTouchingRoutes = getNest(touchingRoutes,'route','stop')
+	// let touchingRoutes = shapeStopRoute.filter(function(d){return stopIdList.includes(d.stop_id)})
+	// let nestTouchingRoutes = getNest(touchingRoutes,'route','stop')
 	// console.log(nestTouchingRoutes)
-	let countStops = stopIdList.length
-	let countRoutes = nestTouchingRoutes.length
+	let countRoutes = routeIdList.length
+	// let countRoutes = nestTouchingRoutes.length
 	switch (action){
-		case 'highlight':
+		case 'hover':
 			for(i=0;i<countRoutes;i++){
-				let route = nestTouchingRoutes[i]
-				let routeColor = allData.route.find(function(d){return d.route_id == route.key}).route_color
-				let routePath = d3.select('.route' + route.key)
+				let route = routeIdList[i];
+				let routeColor = allData.route.find(function(d){return d.route_id == route}).route_color;
+				let routePath = document.querySelector('.route' + route);
+				routePath.classList.add('hlRoute');
+				routePath.style.stroke = '#' + routeColor;
 				// console.log(route.key,routePath.node())
-				routePath
-					.style('stroke',routeColor)
-					.style('stroke-width',6)
-					.style('opacity',routeScale(route.values.length / countStops))
-				// routePath.node().parentNode.appendChild(routePath.node())
+				// routePath
+				// 	.style('stroke',routeColor)
+				// 	.style('stroke-width',6)
+				// 	.style('opacity',routeScale(route.values.length / countStops))
+				routePath.parentNode.appendChild(routePath)
 			}
 			break
 		case 'select':
 			for(i=0;i<countRoutes;i++){
-				let route = nestTouchingRoutes[i]
-				let routePath = d3.select('.route' + route.key)
-				routePath
-					.classed('selectRoute',true)
-					.style('opacity',routeScale(route.values.length / countStops))
+				let route = routeIdList[i];
+				let routeColor = allData.route.find(function(d){return d.route_id == route}).route_color;
+				let routePath = document.querySelector('.route' + route);
+				routePath.classList.add('selectRoute');
+				routePath.style.stroke = '#' + routeColor;
+				routePath.parentNode.appendChild(routePath)
 			}
 			break
-		case 'show':
+		case 'default':
 			for(i=0;i<countRoutes;i++){
-				let route = nestTouchingRoutes[i]
-				let routePath = d3.select('.route' +route.key)
-				routePath
-					.style('stroke','#999')
-					.style('stroke-width',3)
-					.style('opacity',.8)
+				let route = routeIdList[i];
+				let routePath = document.querySelector('.route' + route);
+				routePath.classList.remove('hlRoute');
+				// if this route in the selection
+				if(!display.hasOwnProperty('routes') || !display.routes.includes(route)){
+					routePath.style.stroke = '#666'
+				}			
 			}
 			break
 	}
 }
 //MAP GLOBAL VIEW OPTION
-var isShowViariants = false;
-function toggleViariants(){
-	if(isShowViariants){
-		console.log(isShowViariants)
+var isShowVariants = false;
+function toggleVariants(){
+	if(isShowVariants){
+		console.log(isShowVariants)
 		//hide and set them to false
 		d3.selectAll('.shape').classed('hidden',true)
-		isShowViariants = false;
+		isShowVariants = false;
 	}else{
 		//create or show them 
 		if(document.querySelector('.shape')){
@@ -166,19 +166,31 @@ function toggleViariants(){
 		}else{
 			drawShapes()
 		}
-		isShowViariants = true;
+		isShowVariants = true;
 	}
 }
 // POPUP
+//get the hint text for popup
+//para are id of stop/route, type is 'stop'||'route'
+function getHint(id,type){
+	let hint;
+	if(selection.length == 0){
+		hint = '';
+	}else{
+		hint = display[type + 's'].includes(id) ? '<p class=\"hint\">Shift click to remove from current selection</p>' : '<p class=\"hint\">Shift click to add to current selection</p>'
+	}
+	return hint;
+}
+
 //update popup for the stop 
-//para is an obeject of the stop, an array of children stop, [a array of touching route ids, a array of touching routes]
+//para are an object of the stop, an array of children stop, [a array of touching route ids, a array of touching routes]
 function stopPopup(stop,childrenStops,touchRoutes){
 	let children = stop.location_type == 1 ? '<p>' + childrenStops.map(function(stop){return stop.stop_name}).join(', ') + '</p>' : '';
 	let routes = touchRoutes[1].map(function(route){return `
 		<div class="routelabel" style="color:#${route.route_text_color};background:#${route.route_color}">${route.route_short_name || route.route_long_name}</div>
 		`
 		}).join('')
-	let hint = selection.length == 0? '' : '<p class=\"hint\">Shift click to add to current selection</p>'
+	let hint =  getHint(stop.stop_id,'stop')
 	popup.setLatLng([stop.stop_lat,stop.stop_lon])
 		.setContent(`
 			<h5>${stop.stop_name}</h5> 
@@ -204,7 +216,7 @@ function shapePopup(location,shapeId,route,stopLength){
 //update popup for the route
 function routePopup(location,route,stopLength){
 	let routeName = route.route_short_name || route.route_long_name;
-	let hint = selection.length == 0? '' : '<p class=\"hint\">Shift click to add to current selection</p>'
+	let hint = getHint(route.route_id,'route')
 	popup.setLatLng(location)
         .setContent(`
     		<h5>${routeName}</h5>
@@ -241,7 +253,11 @@ function getShapeInfo(shapeId){
 	}
 	return [shapesList,touchStops,touchRoute]
 }
-//get trip info for 
+//translate children stops to only parent stops and orphan stops
+function replaceChildrenStop(stopIdList){
+	let stops = stopIdList.map(function(d){return getParentStopId(d)})
+	return stops.filter(function(d,i,v){return v.indexOf(d) === i})
+}
 
 //get children stops for stops (para is an object of the stop)
 function getChildrenStop(stop){
@@ -254,8 +270,8 @@ function getChildrenStop(stop){
 	return childStops
 }
 //get parent stops for stops (para is a stop id)
-function getParentStopId(stop){
-	stop = allData.stop.find(function(d){return d.stop_id == stop})
+function getParentStopId(stopId){
+	stop = allData.stop.find(function(d){return d.stop_id == stopId})
 	let parentStopId = stop.parent_station ? stop.parent_station : stop.stop_id;
 	return parentStopId
 }
@@ -264,35 +280,26 @@ function getParentStopId(stop){
 // para : 'items' is a array of the stops/routes/shapes/trips
 // 'type' is 'stop' || 'shape' || 'route' || 'trip'
 function getIdlist(items,type){
-	let idList;
-	if(type == 'stop'){
-		let count = items.length;
-		let newitems = [];
-		for(i=0;i<count;i++){
-			let stops = getChildrenStop(items[i]).map(function(d){return d.stop_id})
-			newitems.push(...stops);
-		}
-		idList = newitems
-	}else{
-		idList = items.map(function(d){return d[type + '_id']})
-	}
-	return idList.filter(function(d,i,v){return v.indexOf(d) === i})
+	let idList = items.map(function(d){return d[type + '_id']})
+		.filter(function(d,i,v){return v.indexOf(d) === i})
+	return idList
 }
-
 // get all related stops/routes/shapes for a stop/route/shape
 // para : 'idList' is a array of the stop/route/shape ids
-// 'relationship' is 'stop_shape' || 'stop_route' || 'route_shape'
+// 'relationship' is 'stop_shape' || 'stop_route' || 'route_shape' || 'route_stop'
 function getRelationships(idList,relationship){
 	let relationshipType = relationship.split('_')[1]
 	let istoShape = relationshipType == 'shape'? 'key' : (relationshipType + '_id')
 	let relationshipMenu = allNest[relationship]
 		.filter(function(d){return idList.includes(d.key)})
 		.map(function(d){return d.values})
-
 	let countMenu = relationshipMenu.length
 	let relationshipList = []	
 	for(i=0;i<countMenu;i++){
-		relationshipList.push(...relationshipMenu[i].map(function(d){return d.key}))
+		relationshipList.push(...relationshipMenu[i].map(function(d){return  d.key}))
+	}
+	if(relationshipType == 'stop'){
+		relationshipList = replaceChildrenStop(relationshipList)
 	}
 	relationshipList = relationshipList.filter(function(d,i,v){return v.indexOf(d) === i})
 	let relationships = allData[relationshipType].filter(function(d){return relationshipList.includes(d[istoShape])})
@@ -301,29 +308,58 @@ function getRelationships(idList,relationship){
 
 //UPDATE SELECTION
 function populateSelection(key,data){
-//if hold shiftkey to select, add the data to last element of selection, otherwise add to selection as the last element.
-	if(key){
-		if(selection.length == 0){
-			selection.push([data])
-		}else{
-			selection[selection.length - 1].push(data)
-		}
+	if(data.stops.length == 0)return
+//data is an object: {stops:[stop.stop_id],routes:[route.route_id]}
+//selection is an array of display
+//when hold shiftkey to select, do remove if any stops in stop selection, otherwise do add. if any stops not on the route selection, change to stop selection mode.
+//when not hold shiftkey or no selection yet, add to selection as the last element.
+
+	if(!key || selection.length == 0){
+		//get the new selection
+		display = data
 	}else{
-		selection.push([data])
+		//get the last item in selection
+		display = selection[selection.length - 1]
+		//get the route, only could be one route since no way to select multiple routes at once
+		let newRoute = data.routes[0];
+		let newRoutes = display.routes.concat(data.routes)
+		console.log(data.routes.length)
+		//if it's a stop selection and any stop in selection, do remove all selected stops from selection
+		if(data.routes.length == 0 && data.stops.some(function(d){return display.stops.includes(d)})){
+			console.log('find same stop')
+			display.stops = display.stops.filter(function(d){return !data.stops.includes(d)})
+		}
+		//if it's a route selection and any route in selection, do remove all selected routes from selection
+		else if(data.routes.length != 0 && (display.routes.indexOf(newRoute) > -1)){	
+			console.log('find same route')		
+			display.routes.splice(display.routes.indexOf(newRoute),1)
+			// only remove stops on this route.
+			let onRoutesStopList = replaceChildrenStop(getIdlist(shapeStopRoute.filter(function(d){return display.routes.includes(d.route_id)}),'stop'))
+			display.stops = display.stops.filter(function(d){return onRoutesStopList.includes(d)})
+		}else{
+			display.stops = display.stops.concat(data.stops).filter(function(d,i,v){return v.indexOf(d) === i})
+			//remove route selection if any stop not on the routes
+			if(newRoutes.length != 0){
+				let onRoutesStopList = replaceChildrenStop(getIdlist(shapeStopRoute.filter(function(d){return newRoutes.includes(d.route_id)}),'stop'))
+				display.routes = display.stops.some(function(d){return !onRoutesStopList.includes(d)}) ? [] : newRoutes
+			}else{
+				display.routes = newRoutes
+			}
+		}	
 	}
-	console.log(key,selection)
-	let display = selection[selection.length-1].reduce(function(a, b){
-     return a.concat(b);
-	});
 	console.log(display)
+	selection.push(display)
+
+	console.log(key,selection)
+	
 	updateSelection(display)
 }
 function updateSelection(data){
 	//highlight the selection stops and routes
 	d3.selectAll('.selectStop').classed('selectStop',false)
-	d3.selectAll('.selectRoute').classed('selectRoute',false).style('opacity',.8).style('stroke','#999').style('stroke-width',3);
-	setStopsDisplay('select',getIdlist(data,'stop'))
-	setRoutesDisplay('select',getIdlist(data,'stop'))
+	d3.selectAll('.selectRoute').classed('selectRoute',false).style('stroke','#666');
+	setStopsDisplay('select',data.stops)
+	setRoutesDisplay('select',data.routes)
 	updatepreview(data)
 }
 

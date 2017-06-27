@@ -48,26 +48,26 @@ function updatepreview(data){
 }
 //update service content
 function updateService(data){
-  //get the routes info of the stops and populate content
-  let routeList = getRelationships(getIdlist(data,'stop'),'stop_route')[1]
+  //count the stops and populate content
   document.querySelector('#routesummary').innerHTML = ''
-  document.querySelector('#selection').innerHTML = `${data.length} stop(s)`;
-  document.querySelector('.stopname').innerHTML = `<h5>${data.length} stop(s) <small>on</small></h5><div class="routeList"></div>`
+  document.querySelector('#selection').innerHTML = `${data.stops.length} stop(s)`;
+  document.querySelector('.stopname').innerHTML = `<h5>${data.stops.length} stop(s) <small>on</small></h5><div class="routeList"></div>`
 
   //add listeners to routes lable
-  let updateRoute = d3.select('.stopname').select('.routeList').selectAll('.routelabel').data(routeList,function(d){return d.route_id})
-  let enterRoute = updateRoute.enter().append('p')
-    .attr('class','routelabel')
-    .html(function(d){return d.route_short_name || d.route_long_name})
-    .style('color',function(d){return '#' + d.route_text_color})
-    .style('background',function(d){return '#' + d.route_color})
-    .on('click',function(d){
-      let touchStops = getRelationships([d.route_id],'route_stop')
-      console.log(touchStops[0],getIdlist(data,'stop'))
-      let selectionOnroute = getMatch(touchStops[0], getIdlist(data,'stop'))
-      document.querySelector('#routesummary').innerHTML = `<h5>${d.route_short_name || d.route_long_name}</h5><p><small>${selectionOnroute.length}/${touchStops[0].length} stops selected</small></p>`
-    })
-  updateRoute.exit().remove()
+  // let routeList = getRelationships(getIdlist(data,'stop'),'stop_route')[1]
+  // let updateRoute = d3.select('.stopname').select('.routeList').selectAll('.routelabel').data(routeList,function(d){return d.route_id})
+  // let enterRoute = updateRoute.enter().append('p')
+  //   .attr('class','routelabel')
+  //   .html(function(d){return d.route_short_name || d.route_long_name})
+  //   .style('color',function(d){return '#' + d.route_text_color})
+  //   .style('background',function(d){return '#' + d.route_color})
+  //   .on('click',function(d){
+  //     let touchStops = getRelationships([d.route_id],'route_stop')
+  //     console.log(touchStops[0],getIdlist(data,'stop'))
+  //     let selectionOnroute = getMatch(touchStops[0], getIdlist(data,'stop'))
+  //     document.querySelector('#routesummary').innerHTML = `<h5>${d.route_short_name || d.route_long_name}</h5><p><small>${selectionOnroute.length}/${touchStops[0].length} stops selected</small></p>`
+  //   })
+  // updateRoute.exit().remove()
 }
 
 

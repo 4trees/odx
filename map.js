@@ -76,13 +76,13 @@ map.on(L.Draw.Event.CREATED, function (e) {
 		if(isInside){
 			// console.log('found!'),console.log(stopMarkers[i])
 			let foundStopId = stopMarkers[i].marker.options.className.split(' ')[1].replace('stop','')
-			let foundStopData = allData.stop.find(function(d){return d.stop_id == foundStopId})
-			drawSelection.push(...getChildrenStop(foundStopData))
+			// let foundStopData = allData.stop.find(function(d){return d.stop_id == foundStopId})
+			drawSelection.push(foundStopId)
 			// console.log(drawSelection)
 		}
 	}
-
-	populateSelection(false,drawSelection)
+	if(drawSelection.length == 0)return
+	populateSelection(false,{stops:drawSelection,routes:[]})
 });
 
 //GLOBAL SIZE
@@ -105,23 +105,16 @@ function drawStops(){
 				//show popup
 				stopPopup(stop,stopinfo[1],stopinfo[2])
 				//highlight the stop
-				setStopsDisplay('highlight',[stop.stop_id])
-				//highlight the shapes
-				// setShapesDisplay('highlight', stopinfo[3][0])
-				//display the route touching this stop
-				setRoutesDisplay('highlight',getIdlist(getChildrenStop(stop),'stop'))
-
+				setStopsDisplay('hover',[stop.stop_id])
 			})
 			.on('mouseout',function(){
 				let stopinfo = getStopInfo(stop);
-				setStopsDisplay('show',[stop.stop_id]);
-				// setShapesDisplay('show',stopinfo[3][0]);
-				setRoutesDisplay('show',getIdlist(getChildrenStop(stop),'stop'))
-				map.closePopup();
+				setStopsDisplay('default',[stop.stop_id]);
+				// map.closePopup();
 			})
 			.on('click',function(e){
-				// setStopsDisplay('select',[stop.stop_id])
-				populateSelection(e.originalEvent.shiftKey,getChildrenStop(stop))
+				
+				populateSelection(e.originalEvent.shiftKey,{stops:[stop.stop_id],routes:[]})
 			})
 			.addTo(map);
 		stopMarkers.push({id:slugStr(stop.stop_id),marker:stopMarker})
@@ -182,27 +175,30 @@ function drawRoutes(){
 		//draw the top shape as this route
 		let routeMarker = L.polyline(shapepts, {className: 'route route'+ route.key,pane:'routes'})
 			.on('mouseover',function(e){
-		// 		//get the route info
+				//get the route info
 				let routeData = allData.route.find(function(d){return d.route_id == route.key})
 				let touchStops = getRelationships([route.key],'route_stop')
 				// show the popup
 				routePopup([e.latlng.lat,e.latlng.lng],routeData,touchStops[0].length)
 				//highlight the stops on the route
-				setStopsDisplay('highlight',touchStops[0])
+				setStopsDisplay('hover',touchStops[0])
 				//highlight the touching routes based on the stops on this route
-				setRoutesDisplay('highlight',touchStops[0])
+				setRoutesDisplay('hover',[route.key])
 
 			})
 			.on('mouseout',function(){
 				let touchStops = getRelationships([route.key],'route_stop')
-				setRoutesDisplay('show',touchStops[0])
-				setStopsDisplay('show',touchStops[0])
+				setRoutesDisplay('default',[route.key])
+				setStopsDisplay('default',touchStops[0])
 				map.closePopup();
+				
 			})
 			.on('click',function(e){
+				//get the route info
+				// let routeData = allData.route.find(function(d){return d.route_id == route.key})
 				let touchStops = getRelationships([route.key],'route_stop')
 				// setRoutesDisplay('select',touchStops[0])
-				populateSelection(e.originalEvent.shiftKey,touchStops[1])
+				populateSelection(e.originalEvent.shiftKey,{stops:touchStops[0],routes:[route.key]})
 			})
 			.addTo(map);
 		routeMarkers.push(routeMarker)
