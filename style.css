@@ -82,14 +82,16 @@ nav{
 }
 
 .hlRoute{
-  opacity: 1;
+  opacity: 1 !important;
   stroke-width:6;
 }
 .selectRoute{
-  opacity: 1;
+  opacity: 1 !important;
   stroke-width:6;
 }
-
+.subwayRoute{
+  opacity: .3;
+}
 /* Leaflet DRAW TOOL */
 .leaflet-draw{
   margin-top: 70px !important;
@@ -168,7 +170,9 @@ nav{
   vertical-align: center;
   font-size: 120%;
 }
-
+#preview section{
+  margin-bottom: 30px;
+}
 #preview .dl-horizontal dt{
   text-align: left;
 }
@@ -178,23 +182,23 @@ nav{
 #preview .panel-body{
   padding-top: 10px;
 }
-#stopsummary .stopname{
+#stopsummary #stopInfo{
   /*font-size: 150%;*/
   margin:15px 0 20px 0;
 }
-.stopname .routelabel{
+#routeonStop .routelabel{
   cursor: pointer;
 }
 #preview .checkbox label{
   display: block;
 }
-#preview #routesToStop .checkbox p{
+/*#preview #routesToStop .checkbox p{
   margin: 0;
   font-size: 120%;
-}
-#preview #routesToStop .checkbox input{
+}*/
+/*#preview #routesToStop .checkbox input{
   /*margin-top: 0;*/
-}
+/*}*/
 #preview .dropdown button{
   width: 100%;
 }

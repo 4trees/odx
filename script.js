@@ -61,49 +61,49 @@ function setStopsDisplay(action,stopIdList){
 	}
 }
 //set the shape display(second para is a array of shape ids)
-function setShapesDisplay(action,shapeIdList){
-	let hasMatchShape = shapeStopRoute.find(function(d){return d.shape_id == shapeIdList[0]});
-	let itsRoute = hasMatchShape ? allData.route.find(function(route){return route.route_id == hasMatchShape.route_id}) : '';
-	let itsRouteColor = itsRoute ? '#' + itsRoute.route_color : '';
-	let countshapes = shapeIdList.length;
+// function setShapesDisplay(action,shapeIdList){
+// 	let hasMatchShape = shapeStopRoute.find(function(d){return d.shape_id == shapeIdList[0]});
+// 	let itsRoute = hasMatchShape ? allData.route.find(function(route){return route.route_id == hasMatchShape.route_id}) : '';
+// 	let itsRouteColor = itsRoute ? '#' + itsRoute.route_color : '';
+// 	let countshapes = shapeIdList.length;
 
-	switch (action){
-		case 'highlight':
-			for(i=0;i<countshapes;i++){
-				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
-				shapeItem.classList.remove('hidden');
-				shapeItem.style.stroke = itsRouteColor;
-				shapeItem.style.strokeWidth = 8;
-				shapeItem.parentNode.appendChild(shapeItem)
+// 	switch (action){
+// 		case 'highlight':
+// 			for(i=0;i<countshapes;i++){
+// 				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
+// 				shapeItem.classList.remove('hidden');
+// 				shapeItem.style.stroke = itsRouteColor;
+// 				shapeItem.style.strokeWidth = 8;
+// 				shapeItem.parentNode.appendChild(shapeItem)
 
-			}
-			break
-		case 'semihighlight':
-			for(i=0;i<countshapes;i++){
-				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
-				shapeItem.classList.remove('hidden');
-				shapeItem.style.stroke = itsRouteColor;
-				shapeItem.style.strokeWidth = 2;
-				shapeItem.parentNode.appendChild(shapeItem)
-			}
-			break
-		case 'show':
-			for(i=0;i<countshapes;i++){
-				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
-				shapeItem.classList.remove('hidden');
-				shapeItem.style.stroke = '#b2b2b2';
-				shapeItem.style.strokeWidth = 2;
-				shapeItem.style.opacity = .8;
-			}
-			break
-		case 'hide':
-			for(i=0;i<countshapes;i++){
-				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
-				shapeItem.classList.add('hidden');
-			}
-			break
-	}
-}
+// 			}
+// 			break
+// 		case 'semihighlight':
+// 			for(i=0;i<countshapes;i++){
+// 				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
+// 				shapeItem.classList.remove('hidden');
+// 				shapeItem.style.stroke = itsRouteColor;
+// 				shapeItem.style.strokeWidth = 2;
+// 				shapeItem.parentNode.appendChild(shapeItem)
+// 			}
+// 			break
+// 		case 'show':
+// 			for(i=0;i<countshapes;i++){
+// 				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
+// 				shapeItem.classList.remove('hidden');
+// 				shapeItem.style.stroke = '#b2b2b2';
+// 				shapeItem.style.strokeWidth = 2;
+// 				shapeItem.style.opacity = .8;
+// 			}
+// 			break
+// 		case 'hide':
+// 			for(i=0;i<countshapes;i++){
+// 				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
+// 				shapeItem.classList.add('hidden');
+// 			}
+// 			break
+// 	}
+// }
 //set route display
 function setRoutesDisplay(action,routeIdList){
 	// console.log(stopIdList)
@@ -120,6 +120,7 @@ function setRoutesDisplay(action,routeIdList){
 				let routePath = document.querySelector('.route' + route);
 				routePath.classList.add('hlRoute');
 				routePath.style.stroke = '#' + routeColor;
+				// routePath.style.opacity = 1;
 				// console.log(route.key,routePath.node())
 				// routePath
 				// 	.style('stroke',routeColor)
@@ -138,13 +139,25 @@ function setRoutesDisplay(action,routeIdList){
 				routePath.parentNode.appendChild(routePath)
 			}
 			break
-		case 'default':
+		case 'subway':
 			for(i=0;i<countRoutes;i++){
 				let route = routeIdList[i];
+				let routeColor = allData.route.find(function(d){return d.route_id == route}).route_color;
 				let routePath = document.querySelector('.route' + route);
+				routePath.classList.add('subwayRoute');
+				routePath.style.stroke = '#' + routeColor;
+				
+			}
+			break
+		case 'default':
+			for(i=0;i<countRoutes;i++){
+				
+				let route = routeIdList[i];
+				let routePath = document.querySelector('.route' + route);
+				console.log(routePath.classList.contains('subwayRoute'))
 				routePath.classList.remove('hlRoute');
 				// if this route in the selection
-				if(!display.hasOwnProperty('routes') || !display.routes.includes(route)){
+				if((!routePath.classList.contains('subwayRoute') && !routePath.classList.contains('selectRoute'))){
 					routePath.style.stroke = '#666'
 				}			
 			}
@@ -152,21 +165,18 @@ function setRoutesDisplay(action,routeIdList){
 	}
 }
 //MAP GLOBAL VIEW OPTION
-var isShowVariants = false;
+const showAllVariants = document.querySelector('input[name=showallVariants]')
 function toggleVariants(){
-	if(isShowVariants){
-		console.log(isShowVariants)
-		//hide and set them to false
-		d3.selectAll('.shape').classed('hidden',true)
-		isShowVariants = false;
-	}else{
+	if(showAllVariants.checked){
 		//create or show them 
 		if(document.querySelector('.shape')){
 			d3.selectAll('.shape').classed('hidden',false)
 		}else{
 			drawShapes()
 		}
-		isShowVariants = true;
+	}else{
+		//hide and set them to false
+		d3.selectAll('.shape').classed('hidden',true)
 	}
 }
 // POPUP
@@ -231,7 +241,7 @@ function routePopup(location,route,stopLength){
 //get stops, shapes, routes for a stop
 //para is a object of a stop
 function getStopInfo(stop){
-	let childrenStops = getChildrenStop(stop)
+	let childrenStops = getChildrenStop([stop.stop_id])
 	let stopsList = getIdlist(childrenStops,'stop');
 	let touchRoutes = getRelationships(stopsList,'stop_route');
 	let touchShapes = getRelationships(stopsList,'stop_shape');
@@ -259,13 +269,17 @@ function replaceChildrenStop(stopIdList){
 	return stops.filter(function(d,i,v){return v.indexOf(d) === i})
 }
 
-//get children stops for stops (para is an object of the stop)
-function getChildrenStop(stop){
+//get children stops for stops (para is a list of stop id)
+function getChildrenStop(stopIdList){
 	let childStops = []
-	if(stop.location_type == 0){
-		childStops.push(stop)
-	}else{
-		childStops = allData.stop.filter(function(d){return d.parent_station == stop.stop_id})
+	let stopCount = stopIdList.length
+	for(i=0;i<stopCount;i++){
+		let stop = allData.stop.find(function(d){return d.stop_id == stopIdList[i]})
+		if(stop.location_type == 0){
+			childStops.push(stop)
+		}else{
+			childStops.push(...allData.stop.filter(function(d){return d.parent_station == stop.stop_id}))
+		}
 	}
 	return childStops
 }

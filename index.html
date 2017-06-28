@@ -23,7 +23,7 @@
             </li>
             <li class="checkbox">
               <label>
-                <input type="checkbox" name="showVarants" onchange="toggleVariants()">
+                <input type="checkbox" name="showallVariants" onchange="toggleVariants()">
                 show all variants
               </label>
             </li>
@@ -47,61 +47,62 @@
                     <dl class="dl-horizontal">
                       <dt>Service<dt><dd class="text-right"></dd>
                     </dl>
-                      <div class="stopname"></div>
-<!--                       <p class="stopname"></p>
-                      <div id="routesToStop">
-                          <p></p>
-                          <ul></ul> -->
-<!--                           <div class="checkbox">
-                          </div>   -->                        
-                      <!-- </div> -->
+                      <div id="stopInfo"></div>
+                      <div id="routeonStop"></div>
                   </section>
                   <section id="routesummary">
+                    <dl class="dl-horizontal">
+                        <dt>Variants</dt><dd></dd>
+                    </dl>
+                    <ul id="variantsList"></ul>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="" onchange="">show touching routes</label>
+                    </div>
                   </section>
                   <hr>
                   <section id="analysis">
                       <dl class="dl-horizontal">
                          <dt>Analysis<dt><dd class="text-right"><a href="">view report</a></dd>
                       </dl>
-                          <div class="filters row">
-                          <!-- day filter -->
-                            <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                              <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                Everyday
-                                <span class="caret"></span>
-                              </button>
-                              <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                                <li><a href="#">SA</a></li>
-                                <li><a href="#">SU</a></li>
-                                <li><a href="#">Weekday</a></li>
-                                <li><a href="#">Weekend</a></li>
-                                <li><a href="#">Everyday</a></li>
-                              </ul>
-                            </div>
-                            <!-- direction filter -->
-                            <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                              <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                All direc...
-                                <span class="caret"></span>
-                              </button>
-                              <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                                <li><a href="#">Inbound</a></li>
-                                <li><a href="#">Outbound</a></li>
-                                <li><a href="#">All directions</a></li>
-                              </ul>
-                            </div>
-                            <!-- time filter -->
-                            <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                              <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                12:00 -...
-                                <span class="caret"></span>
-                              </button>
-                              <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                                <!-- <li><a href="#">Inbound</a></li> -->
-                                <!-- <li><a href="#">Outbound</a></li> -->
-                              </ul>
-                            </div>
-                          </div>
+                      <div class="filters row">
+                      <!-- day filter -->
+                        <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                          <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Everyday
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                            <li><a href="#">SA</a></li>
+                            <li><a href="#">SU</a></li>
+                            <li><a href="#">Weekday</a></li>
+                            <li><a href="#">Weekend</a></li>
+                            <li><a href="#">Everyday</a></li>
+                          </ul>
+                        </div>
+                        <!-- direction filter -->
+                        <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                          <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            All direc...
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                            <li><a href="#">Inbound</a></li>
+                            <li><a href="#">Outbound</a></li>
+                            <li><a href="#">All directions</a></li>
+                          </ul>
+                        </div>
+                        <!-- time filter -->
+                        <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                          <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            12:00 -...
+                            <span class="caret"></span>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
+                            <!-- <li><a href="#">Inbound</a></li> -->
+                            <!-- <li><a href="#">Outbound</a></li> -->
+                          </ul>
+                        </div>
+                      </div>
                       <div id="odx">
                           <p>ODX</p>
                           <svg></svg>

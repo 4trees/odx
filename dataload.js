@@ -7,19 +7,18 @@ var	stopsUrl = '/data/stops.txt',
   shapename = '/data/shape-id_route-variant_lookup_fall16.csv';
 
 d3.queue()
+  .defer(d3.csv,shapename,parseshapeName)
 	.defer(d3.csv,stopsUrl,parseStop)
 	.defer(d3.csv,shapesUrl,parseShape)
 	.defer(d3.csv,tripsUrl,parseTrip)
 	.defer(d3.csv,routesUrl,parseRoute)
 	.defer(d3.csv,shapestoprouteUrl,parse)
-  .defer(d3.csv,shapename,parseshapeName)
 	.await(dataloaded);
 
-var allShapesData, allShapes, shapeStopRoute, stopAndRoute;
+var allShapesData, allShapes, shapeStopRoute,variantsName, stopAndRoute,subwayLines;
 var allData = {}, allNest = {};
 
-function dataloaded(err, stops, shapes, trips, routes, shapestoproute,shapename){
-
+function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute){
 //nest shape data by shape id
 allShapes = d3.nest()
 	.key(function(d){return d.shape_id})
@@ -37,6 +36,7 @@ allData.stop = stops
 allData.shape = allShapes.filter(function(d){return shapeList.includes(d.key)})
 allData.trip = trips.filter(function(d){return !nonRouteList.includes(d.route_id) && shapeList.includes(d.shape_id) && d.shape_id !=''})
 allData.route = routes.filter(function(d){return !nonRouteList.includes(d.route_id)})
+variantsName = variants
 
 //get a nest list
 allNest.stop_shape = getNest(shapeStopRoute,'stop','shape')
@@ -44,7 +44,8 @@ allNest.stop_route = getNest(shapeStopRoute,'stop','route')
 allNest.route_stop = getNest(shapeStopRoute,'route','stop')
 allNest.route_shape = getNest(allData.trip.filter(function(d){return d.direction_id == 0}),'route','shape')
 
-
+//overview subway line list
+subwayLines = getIdlist(routes.filter(function(d){return [0,1].includes(+d.route_type)}),'route')
 
 //search
 stopAndRoute = allData.stop.map(function(stop){return {type:'stop',id:stop.stop_id,name:stop.stop_name}})
@@ -52,8 +53,8 @@ stopAndRoute = allData.stop.map(function(stop){return {type:'stop',id:stop.stop_
 
 
 drawStops()
-// drawShapes()
 drawRoutes()
+showSubway()
 
 }
 
@@ -93,7 +94,7 @@ function parseTrip(d){
    return {
     route_id : d.route_id,
     service_id: d.service_id,
-    trip_id: d.trip_id,
+    trip_headsign: d.trip_headsign,
     direction_id: +d.direction_id,
     shape_id : d.shape_id,
     }
@@ -124,9 +125,7 @@ function parseShape(d){
 
 function parseshapeName(d){
   return{
-    shape_id: d.shape_id,
-    shape_name : d.RouteID,
-    direction_id: d.direction_id,
-    trip_headsign: d.trip_headsign,
+    shape_id: d.shape_id2,
+    shape_name : d.route_id2 + d.variant,
   }
 }

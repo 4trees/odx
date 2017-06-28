@@ -204,6 +204,10 @@ function drawRoutes(){
 		routeMarkers.push(routeMarker)
 	}
 }
+function showSubway(){
+	setRoutesDisplay('subway',subwayLines)
+}
+
 
 function isMarkerInsidePolygon(marker, poly) {
     var inside = false;
