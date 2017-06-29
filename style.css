@@ -86,11 +86,14 @@ nav{
 }
 .hlRoute{
   opacity: 1 !important;
-  stroke-width:6;
+  stroke-width:7;
 }
 .selectRoute{
   opacity: 1 !important;
-  stroke-width:6;
+  stroke-width:7;
+}
+.touchRoute{
+  opacity: 1 !important;
 }
 .subwayRoute{
   opacity: .3;

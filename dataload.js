@@ -42,11 +42,11 @@ variantsName = variants
 allNest.stop_shape = getNest(shapeStopRoute,'stop','shape')
 allNest.stop_route = getNest(shapeStopRoute,'stop','route')
 allNest.route_stop = getNest(shapeStopRoute,'route','stop')
-allNest.route_shape = getNest(allData.trip.filter(function(d){return d.direction_id == 0}),'route','shape')
-
+allNest.route_shape = getNest(allData.trip,'route','shape')
+allNest.route_direction_shape = getNest(allData.trip,'route','direction','shape')
 //overview subway line list
-subwayLines = getIdlist(routes.filter(function(d){return [0,1].includes(+d.route_type)}),'route')
-
+subwayLines = getIdlist(allData.route.filter(function(d){return [0,1].includes(+d.route_type)}),'route')
+console.log(subwayLines)
 //search
 stopAndRoute = allData.stop.map(function(stop){return {type:'stop',id:stop.stop_id,name:stop.stop_name}})
 	.concat(allData.route.map(function(route){return {type:'route',id:route.route_id,name:route.route_short_name || route.route_long_name}}))
@@ -59,13 +59,23 @@ showSubway()
 }
 
 //create a nested data
-function getNest(data,topId,secId){
-	let nest = d3.nest()
-		.key(function(d){return d[topId + '_id']})
-		.key(function(d){return d[secId + '_id']})
-		.rollup(function(d){return d.length})
-		.entries(data)
-		
+function getNest(data,topId,secId,thirId){
+	let nest 
+  if(thirId){
+    nest = d3.nest()
+      .key(function(d){return d[topId + '_id']})
+      .key(function(d){return d[secId + '_id']}).sortKeys(d3.descending)
+      .key(function(d){return d[thirId + '_id']}).sortKeys(d3.ascending)
+      .rollup(function(d){return d.length})
+      .entries(data)
+  }
+  else{
+    nest = d3.nest()
+      .key(function(d){return d[topId + '_id']})
+      .key(function(d){return d[secId + '_id']}).sortKeys(d3.ascending)
+      .rollup(function(d){return d.length})
+      .entries(data)
+  }
 	return nest
 }
 

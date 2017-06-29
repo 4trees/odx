@@ -162,11 +162,11 @@ function drawShapes(shapeId){
 }
 var routeMarkers = []
 function drawRoutes(){
-	let countRoutes = allNest.route_shape.length
+	let countRoutes = allNest.route_direction_shape.length
 	for(i=0; i<countRoutes; i++){
-		let route = allNest.route_shape[i];
+		let route = allNest.route_direction_shape[i];
 		//find the top trips shape of this route
-		let topShapeId = route.values.sort(function(a,b){return b.value - a.value})[0].key
+		let topShapeId = route.values[0].values.sort(function(a,b){return b.value - a.value})[0].key
 		let topShape = allData.shape.find(function(shape){return shape.key == topShapeId})
 
 		// console.log('topshapeid',route.key,topShape)

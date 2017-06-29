@@ -131,12 +131,6 @@ function setRoutesDisplay(action,routeIdList){
 				let routePath = document.querySelector('.route' + route);
 				routePath.classList.add('hlRoute');
 				routePath.style.stroke = '#' + routeColor;
-				// routePath.style.opacity = 1;
-				// console.log(route.key,routePath.node())
-				// routePath
-				// 	.style('stroke',routeColor)
-				// 	.style('stroke-width',6)
-				// 	.style('opacity',routeScale(route.values.length / countStops))
 				routePath.parentNode.appendChild(routePath)
 			}
 			break
@@ -146,6 +140,17 @@ function setRoutesDisplay(action,routeIdList){
 				let routeColor = allData.route.find(function(d){return d.route_id == route}).route_color;
 				let routePath = document.querySelector('.route' + route);
 				routePath.classList.add('selectRoute');
+				routePath.style.stroke = '#' + routeColor;
+				routePath.parentNode.appendChild(routePath)
+			}
+			break
+		case 'touch':
+			for(i=0;i<countRoutes;i++){
+				let route = routeIdList[i];
+				let routeColor = allData.route.find(function(d){return d.route_id == route}).route_color;
+				let routePath = document.querySelector('.route' + route);
+				console.log(route,routePath)
+				routePath.classList.add('touchRoute');
 				routePath.style.stroke = '#' + routeColor;
 				routePath.parentNode.appendChild(routePath)
 			}
@@ -167,7 +172,7 @@ function setRoutesDisplay(action,routeIdList){
 				let routePath = document.querySelector('.route' + route);
 				routePath.classList.remove('hlRoute');
 				// if this route in the selection
-				if((!routePath.classList.contains('subwayRoute') && !routePath.classList.contains('selectRoute'))){
+				if((!routePath.classList.contains('subwayRoute') && !routePath.classList.contains('selectRoute') && !routePath.classList.contains('touchRoute'))){
 					routePath.style.stroke = '#666'
 				}			
 			}
