@@ -51,27 +51,24 @@ function updateService(data){
   //count the stops and populate content
   document.querySelector('#selection').innerHTML = `${data.stops.length} stop(s)`;
   document.querySelector('#stopInfo').innerHTML = `<h5>${data.stops.length} stop(s) <small>on</small></h5>`;
+  //show routes and variants
   let routeList;
   let childrenStops = getChildrenStop(data.stops).map(function(d){return d.stop_id})
   if(data.routes.length == 0 ){
     routeList = getRelationships(childrenStops,'stop_route')[1]  
     document.querySelector('#routesummary').classList.add('hidden')
   }else{
+    document.querySelector('#routesummary').classList.remove('hidden')
     routeList = allData.route.filter(function(d){return data.routes.includes(d.route_id)}) 
     let routeIdList = routeList.map(function(d){return d.route_id});
-    document.querySelector('#routesummary').classList.remove('hidden')
     let variantsList = allNest.route_shape.filter(function(d){return routeIdList.includes(d.key)})
     document.querySelector('#variantsList').innerHTML = variantsList.map(function(route){
         return route.values.map(function(variant){
             let shapeId =  variant.key
-            console.log(shapeId)
-            let variantInfo = variantsName.find(function(d){return d.shape_id == shapeId});
-            let variantName = variantInfo ? variantInfo.shape_name : shapeId;
-            let variantTrip = allData.trip.find(function(d){return d.shape_id == shapeId});
-            console.log(variantInfo,variantName)
-            let variantDes = variantTrip ? ((variantTrip.direction_id == 0 ? 'Outbound to ' : 'Inbound to ') + variantTrip.trip_headsign) : ''
+            let shapeInfo = getShapeInfo(shapeId)
+            let isChecked = routeMarkers.map(function(d){return d.options.className.split(' ')[2].replace('hlShape','')}).includes(shapeId) ? 'checked' : ''
             return `<p class="checkbox">
-                        <label><input type="checkbox" name="" onchange="" value=${shapeId}>${variantName} <small>${variantDes}</small></label>
+                        <label><input type="checkbox" name="" onchange="showVariants(this)" value=${shapeId} ${isChecked}>${shapeInfo[0]}  <small>${shapeInfo[1]}</small></label>
                     </p>`
           }).join('')
     }).join('')
@@ -113,30 +110,16 @@ function drawStackedChart(type, key, data, color){
 }
 //show variants when check on the preview panel
 function showVariants(e){
-  const showVariants = document.querySelector('input[name=showVariants]')
+  const showVariants = e
   let variants = showVariants.value;
-  console.log(e)
   if(showVariants.checked){
     //create or show them 
-    if(!document.querySelector('.shape')){
-      drawShapes();
-      d3.selectAll('.shape').classed('hidden',true)
+    if(!document.querySelector('.hlShape' + variants)){
+      drawShapes(variants)
     }
-
-    let variantsTrip = allData.trip.filter(function(trip){return display.routes.includes(trip.route_id)})
-    let variantsIdList = variantsTrip.map(function(d){return d.shape_id})
-    let variantsCount = variantsIdList.length
-    for(i=0;i<variantsCount;i++){
-      let variant = variantsIdList[i]
-      let routeId = variantsTrip.find(function(d){return d.shape_id == variant}).route_id
-      let routeColor = allData.route.find(function(d){return d.route_id == routeId}).route_color
-      let variantShape = document.querySelector('.shape' + variant)
-      variantShape.classList.remove('hidden')
-      variantShape.style.stroke = '#' + routeColor;
-
-    }
+    setShapesDisplay('highlight',[variants])
   }else{
-    //hide and set them to false
-    d3.selectAll('.shape').classed('hidden',true)
+    //hide and set them to default
+    setShapesDisplay('default',[variants])
   }
 }

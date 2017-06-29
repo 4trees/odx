@@ -11,7 +11,21 @@ var routeScale =  d3.scaleLinear()
     .range([0,1])
     .domain([0,1])
 
-
+//MAP GLOBAL VIEW OPTION
+const showAllVariants = document.querySelector('input[name=showallVariants]')
+function toggleVariants(){
+	if(showAllVariants.checked){
+		//create or show them 
+		if(document.querySelector('.shape')){
+			d3.selectAll('.shape').classed('hidden',false)
+		}else{
+			drawShapes('all')
+		}
+	}else{
+		//hide and set them to false
+		d3.selectAll('.shape').classed('hidden',true)
+	}
+}
 //GLOBEL FUNCTION
 //trunc the long word: for station name on the top right
 String.prototype.trunc = String.prototype.trunc ||
@@ -61,49 +75,46 @@ function setStopsDisplay(action,stopIdList){
 	}
 }
 //set the shape display(second para is a array of shape ids)
-// function setShapesDisplay(action,shapeIdList){
-// 	let hasMatchShape = shapeStopRoute.find(function(d){return d.shape_id == shapeIdList[0]});
-// 	let itsRoute = hasMatchShape ? allData.route.find(function(route){return route.route_id == hasMatchShape.route_id}) : '';
-// 	let itsRouteColor = itsRoute ? '#' + itsRoute.route_color : '';
-// 	let countshapes = shapeIdList.length;
+function setShapesDisplay(action,shapeIdList){
+	// console.log(action)
+	// let hasMatchShape = shapeStopRoute.find(function(d){return d.shape_id == shapeIdList[0]});
+	// let itsRoute = hasMatchShape ? allData.route.find(function(route){return route.route_id == hasMatchShape.route_id}) : '';
+	// let itsRouteColor = itsRoute ? '#' + itsRoute.route_color : '';
+	let countshapes = shapeIdList.length;
 
-// 	switch (action){
-// 		case 'highlight':
-// 			for(i=0;i<countshapes;i++){
-// 				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
-// 				shapeItem.classList.remove('hidden');
-// 				shapeItem.style.stroke = itsRouteColor;
-// 				shapeItem.style.strokeWidth = 8;
-// 				shapeItem.parentNode.appendChild(shapeItem)
+	switch (action){
+		case 'highlight':
+			for(i=0;i<countshapes;i++){
+				let shapeId = shapeIdList[i]
+				let shapeItem = document.querySelector('.hlShape' + shapeId);
+				shapeItem.classList.remove('hidden');
+				shapeItem.parentNode.appendChild(shapeItem)
+				let shapeColor = allData.route.find(function(d){return d.route_id == shapeStopRoute.find(function(d){return d.shape_id == shapeId}).route_id}).route_color
+				shapeItem.style.stroke = '#' + shapeColor;
+				// shapeItem.addEventListener("mouseover", function(e){
+				// 	let location = map.layerPointToLatLng(L.point(e.screenX,e.screenY))
+				// 	let shapeInfo = getShapeInfo(shapeIdList[i]);
+				// 	shapePopup([location.lat,location.lng],shapeInfo)
 
-// 			}
-// 			break
-// 		case 'semihighlight':
-// 			for(i=0;i<countshapes;i++){
-// 				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
-// 				shapeItem.classList.remove('hidden');
-// 				shapeItem.style.stroke = itsRouteColor;
-// 				shapeItem.style.strokeWidth = 2;
-// 				shapeItem.parentNode.appendChild(shapeItem)
-// 			}
-// 			break
-// 		case 'show':
-// 			for(i=0;i<countshapes;i++){
-// 				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
-// 				shapeItem.classList.remove('hidden');
-// 				shapeItem.style.stroke = '#b2b2b2';
-// 				shapeItem.style.strokeWidth = 2;
-// 				shapeItem.style.opacity = .8;
-// 			}
-// 			break
-// 		case 'hide':
-// 			for(i=0;i<countshapes;i++){
-// 				let shapeItem = document.querySelector('.shape' + shapeIdList[i]);
-// 				shapeItem.classList.add('hidden');
-// 			}
-// 			break
-// 	}
-// }
+				// });
+				// shapeItem.addEventListener('mouseout',function(){map.closePopup();})
+			}
+			break
+		case 'default':
+			for(i=0;i<countshapes;i++){
+				let shapeItem = document.querySelector('.hlShape' + shapeIdList[i]);
+				shapeItem.classList.add('hidden')
+				// shapeItem.style.stroke = '#b2b2b2';
+				// shapeItem.classList.remove('hlShape');
+				// if(!showAllVariants.checked){
+				// 	shapeItem.classList.add('hidden');
+				// }else{
+				// 	shapeItem.classList.remove('hidden');
+				// }
+			}
+			break
+	}
+}
 //set route display
 function setRoutesDisplay(action,routeIdList){
 	// console.log(stopIdList)
@@ -154,7 +165,6 @@ function setRoutesDisplay(action,routeIdList){
 				
 				let route = routeIdList[i];
 				let routePath = document.querySelector('.route' + route);
-				console.log(routePath.classList.contains('subwayRoute'))
 				routePath.classList.remove('hlRoute');
 				// if this route in the selection
 				if((!routePath.classList.contains('subwayRoute') && !routePath.classList.contains('selectRoute'))){
@@ -164,21 +174,7 @@ function setRoutesDisplay(action,routeIdList){
 			break
 	}
 }
-//MAP GLOBAL VIEW OPTION
-const showAllVariants = document.querySelector('input[name=showallVariants]')
-function toggleVariants(){
-	if(showAllVariants.checked){
-		//create or show them 
-		if(document.querySelector('.shape')){
-			d3.selectAll('.shape').classed('hidden',false)
-		}else{
-			drawShapes()
-		}
-	}else{
-		//hide and set them to false
-		d3.selectAll('.shape').classed('hidden',true)
-	}
-}
+
 // POPUP
 //get the hint text for popup
 //para are id of stop/route, type is 'stop'||'route'
@@ -212,14 +208,12 @@ function stopPopup(stop,childrenStops,touchRoutes){
 	
 }
 //update popup for the shape
-function shapePopup(location,shapeId,route,stopLength){
-	let routeName = route ? (route.route_short_name || route.route_long_name) : 'No match route';
+function shapePopup(location,shapeInfo){
 	popup.setLatLng(location)
         .setContent(`
-    		<h5>${routeName}</h5>
-    		<p>Shape ${shapeId}</p>
+    		<h5>${shapeInfo[0]}</h5>
     		<hr>
-    		<p>${stopLength} stop(s)</p>
+    		<p>${shapeInfo[1]}</p>
         `)
         .openOn(map);
 }
@@ -250,18 +244,11 @@ function getStopInfo(stop){
 //get stops,routes for a shape
 //para is a shape id
 function getShapeInfo(shapeId){
-	let hasMatchShape = shapeStopRoute.find(function(d){return d.shape_id == shapeId});
-	let touchRoute,touchStops,shapesList
-	if(hasMatchShape){
-		shapesList = getIdlist(shapeStopRoute.filter(function(d){return d.route_id == hasMatchShape.route_id}),'shape');
-		touchRoute = allData.route.find(function(route){return route.route_id == hasMatchShape.route_id});	
-		touchStops = getRelationships([hasMatchShape.route_id],'route_stop');
-	}else{
-		shapesList = [shapeId]
-		touchRoute = '';
-		touchStops = [[],[]];
-	}
-	return [shapesList,touchStops,touchRoute]
+    let variantInfo = variantsName.find(function(d){return d.shape_id == shapeId});
+    let variantName = variantInfo ? variantInfo.shape_name : shapeId;
+    let variantTrip = allData.trip.find(function(d){return d.shape_id == shapeId});
+    let variantDes = variantTrip ? ((variantTrip.direction_id == 0 ? 'Outbound to ' : 'Inbound to ') + variantTrip.trip_headsign) : '';
+	return [variantName,variantDes]
 }
 //translate children stops to only parent stops and orphan stops
 function replaceChildrenStop(stopIdList){

@@ -53,15 +53,19 @@ var popup = L.popup({className:'popup',closeButton:false})
 
 //create panes for stops
 var stopPanes = map.createPane('stops');
-	stopPanes.style.zIndex = 450;
+	stopPanes.style.zIndex = 550;
 	stopPanes.style.pointerEvents = 'none';
 //create panes for shapes
 var stopPanes = map.createPane('routes');
-	stopPanes.style.zIndex = 445;
+	stopPanes.style.zIndex = 440;
+	stopPanes.style.pointerEvents = 'none';
+//create panes for hlshapes
+var stopPanes = map.createPane('hlshapes');
+	stopPanes.style.zIndex = 450;
 	stopPanes.style.pointerEvents = 'none';
 //create panes for shapes
 var stopPanes = map.createPane('shapes');
-	stopPanes.style.zIndex = 440;
+	stopPanes.style.zIndex = 410;
 	stopPanes.style.pointerEvents = 'none';
 
 //TOOLTIP EDIT
@@ -122,39 +126,38 @@ function drawStops(){
 
 }
 
-var shapeMarkers = []
-function drawShapes(){
-
-	let countShapes = allData.shape.length
+function drawShapes(shapeId){
+	let shapes,type,pane;
+	if(shapeId == 'all'){
+		shapes = allData.shape;
+		type = 'shape'
+		pane = 'shapes'
+	}else{
+		shapes = [allData.shape.find(function(d){return d.key == shapeId})]
+		type = 'hlShape'
+		pane = 'hlshapes'
+	}
+	let countShapes = shapes.length
 	for(i=0; i<countShapes; i++){
-		let shape = allData.shape[i];
+		let shape = shapes[i];
 		let shapepts = [];
 		shape.values.forEach(function(shapept){
 			shapepts.push([shapept.shape_pt_lat,shapept.shape_pt_lon])
 		})
-		let shapeMarker = L.polyline(shapepts, {className: 'shape shape'+ shape.key,pane:'shapes'})
-			// .on('mouseover',function(e){
-			// 	//get the shape info
-			// 	let shapeinfo = getShapeInfo(shape.key)
-			// 	//show the popup
-			// 	shapePopup([e.latlng.lat,e.latlng.lng],shape.key,shapeinfo[2],shapeinfo[1][0].length)
-			// 	//highlight the shape and relevant shapes
-			// 	setShapesDisplay('semihighlight', shapeinfo[0])
-			// 	setShapesDisplay('highlight', [shape.key])
-			// 	//highlight the stops on the shape
-			// 	setStopsDisplay('highlight',shapeinfo[1][0])
-			// })
-			// .on('mouseout',function(){
-			// 	let shapeinfo = getShapeInfo(shape.key)
-			// 	setShapesDisplay('show', shapeinfo[0])
-			// 	setStopsDisplay('show',shapeinfo[1][0])
-			// 	map.closePopup();
-			// })
-			// .on('click',function(e){
-			// 	// updateSelection(e.shiftKey,)
-			// })
+		let shapeMarker = L.polyline(shapepts, {className: type + ' ' + type + shape.key,pane:pane})
 			.addTo(map);
-		shapeMarkers.push(shapeMarker)
+		if(type == 'hlShape'){
+			shapeMarker
+				.on('mouseover',function(e){
+					//get the shape info
+					let shapeinfo = getShapeInfo(shape.key)
+					//show the popup
+					shapePopup([e.latlng.lat,e.latlng.lng],shapeinfo)
+				})
+				.on('mouseout',function(){
+					map.closePopup();
+				})
+		}
 	}
 }
 var routeMarkers = []
@@ -173,7 +176,7 @@ function drawRoutes(){
 		})
 		// console.log('shapedots',topShape,shapepts)
 		//draw the top shape as this route
-		let routeMarker = L.polyline(shapepts, {className: 'route route'+ route.key,pane:'routes'})
+		let routeMarker = L.polyline(shapepts, {className: 'route route'+ route.key + ' hlShape' + topShapeId,pane:'routes'})
 			.on('mouseover',function(e){
 				//get the route info
 				let routeData = allData.route.find(function(d){return d.route_id == route.key})

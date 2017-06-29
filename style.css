@@ -80,7 +80,10 @@ nav{
   stroke: #b2b2b2;
   stroke-width:2;
 }
-
+.hlShape{
+  stroke-width:4;
+  opacity: 1 !important;
+}
 .hlRoute{
   opacity: 1 !important;
   stroke-width:6;
@@ -171,7 +174,7 @@ nav{
   font-size: 120%;
 }
 #preview section{
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 #preview .dl-horizontal dt{
   text-align: left;
