@@ -235,6 +235,18 @@ function routePopup(location,route,stopLength){
         `)
         .openOn(map);
 }
+//update popup for the draw selection
+function routePopup(location,stopIdList){
+	popup.setLatLng(location)
+        .setContent(`
+    		<h5>${stopIdList.length} stop(s)</h5>
+    		<hr>
+    		<p>Add to current selection</p>
+    		<p>Set as new selection</p>
+        `)
+        .openOn(map);
+}
+
 
 //GET DATA
 //get stops, shapes, routes for a stop
