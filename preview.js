@@ -75,7 +75,7 @@ function updateService(data){
         return route.values.map(function(variant){
             let shapeId =  variant.key
             let shapeInfo = getShapeInfo(shapeId)
-            let isChecked = routeMarkers.map(function(d){return d.options.className.split(' ')[2].replace('hlShape','')}).includes(shapeId) ? 'checked' : ''
+            let isChecked = routeMarkers.map(function(d){return d.marker.options.className.split(' ')[2].replace('hlShape','')}).includes(shapeId) ? 'checked' : ''
             return `<p class="checkbox">
                         <label><input type="checkbox" name="" onchange="showVariants(this)" value=${shapeId} ${isChecked}>${shapeInfo[0]}  <small>${shapeInfo[1]}</small></label>
                     </p>`

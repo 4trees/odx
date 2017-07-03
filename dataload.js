@@ -46,9 +46,9 @@ allNest.route_shape = getNest(allData.trip,'route','shape')
 allNest.route_direction_shape = getNest(allData.trip,'route','direction','shape')
 //overview subway line list
 subwayLines = getIdlist(allData.route.filter(function(d){return [0,1].includes(+d.route_type)}),'route')
-console.log(subwayLines)
+
 //search
-stopAndRoute = allData.stop.map(function(stop){return {type:'stop',id:stop.stop_id,name:stop.stop_name}})
+stopAndRoute = allData.stop.filter(function(stop){return stop.parent_station == ''}).map(function(stop){return {type:'stop',id:stop.stop_id,name:stop.stop_name}})
 	.concat(allData.route.map(function(route){return {type:'route',id:route.route_id,name:route.route_short_name || route.route_long_name}}))
 
 

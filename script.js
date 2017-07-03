@@ -183,12 +183,17 @@ function setRoutesDisplay(action,routeIdList){
 // POPUP
 //get the hint text for popup
 //para are id of stop/route, type is 'stop'||'route'
-function getHint(id,type){
+function getHint(idList,type){
 	let hint;
 	if(selection.length == 0){
 		hint = '';
 	}else{
-		hint = display[type + 's'].includes(id) ? '<p class=\"hint\">Shift click to remove from current selection</p>' : '<p class=\"hint\">Shift click to add to current selection</p>'
+		let ifremove = idList.some(function(id){return display[type + 's'].includes(id)})
+		if(idList == 1){
+			hint =  ifremove ? '<p class=\"hint\">Shift click to remove from current selection</p>' : '<p class=\"hint\">Shift click to add to current selection</p>'
+		}else{
+			hint = ifremove ? 'Remove from current selection' : 'Add to current selection';
+		}
 	}
 	return hint;
 }
@@ -201,7 +206,7 @@ function stopPopup(stop,childrenStops,touchRoutes){
 		<div class="routelabel" style="color:#${route.route_text_color};background:#${route.route_color}">${route.route_short_name || route.route_long_name}</div>
 		`
 		}).join('')
-	let hint =  getHint(stop.stop_id,'stop')
+	let hint =  getHint([stop.stop_id],'stop')
 	popup.setLatLng([stop.stop_lat,stop.stop_lon])
 		.setContent(`
 			<h5>${stop.stop_name}</h5> 
@@ -225,7 +230,7 @@ function shapePopup(location,shapeInfo){
 //update popup for the route
 function routePopup(location,route,stopLength){
 	let routeName = route.route_short_name || route.route_long_name;
-	let hint = getHint(route.route_id,'route')
+	let hint = getHint([route.route_id],'route')
 	popup.setLatLng(location)
         .setContent(`
     		<h5>${routeName}</h5>
@@ -236,15 +241,20 @@ function routePopup(location,route,stopLength){
         .openOn(map);
 }
 //update popup for the draw selection
-function routePopup(location,stopIdList){
+function selectionPopup(layer,drawSelection){
+	let location = layer.getBounds().getCenter()
+	let hint = getHint(drawSelection,'stop')
 	popup.setLatLng(location)
         .setContent(`
-    		<h5>${stopIdList.length} stop(s)</h5>
+    		<h5>${drawSelection.length} stop(s)</h5>
     		<hr>
-    		<p>Add to current selection</p>
+    		<p>${hint}</p>
     		<p>Set as new selection</p>
         `)
         .openOn(map);
+    
+    // populateSelection(false,{stops:drawSelection,routes:[]})
+    // layer.remove()
 }
 
 
@@ -325,6 +335,17 @@ function getRelationships(idList,relationship){
 }
 
 //UPDATE SELECTION
+function makeSelection(type,key,id){
+	console.log(id)
+  if(type == 'stop'){
+    populateSelection(key,{stops:[id],routes:[]})
+  }else{
+    let touchStops = getRelationships([id],'route_stop')
+    populateSelection(key,{stops:touchStops[0],routes:[id]})
+  }
+}
+
+
 function populateSelection(key,data){
 	if(data.stops.length == 0)return
 //data is an object: {stops:[stop.stop_id],routes:[route.route_id]}

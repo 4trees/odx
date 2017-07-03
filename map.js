@@ -73,7 +73,7 @@ map.on(L.Draw.Event.CREATED, function (e) {
 	let drawSelection = []
    	let layer = e.layer;   
 	let countMarkers = stopMarkers.length
-	// console.log(e)
+	console.log(layer.getBounds().getCenter())
 
 	for(i=0;i<countMarkers;i++){
 		let isInside = isMarkerInsidePolygon(stopMarkers[i].marker,layer)
@@ -86,7 +86,9 @@ map.on(L.Draw.Event.CREATED, function (e) {
 		}
 	}
 	if(drawSelection.length == 0)return
-	populateSelection(false,{stops:drawSelection,routes:[]})
+	map.addLayer(layer);
+	selectionPopup(layer,drawSelection)
+	// populateSelection(false,{stops:drawSelection,routes:[]})
 });
 
 //GLOBAL SIZE
@@ -117,8 +119,8 @@ function drawStops(){
 				// map.closePopup();
 			})
 			.on('click',function(e){
-				
-				populateSelection(e.originalEvent.shiftKey,{stops:[stop.stop_id],routes:[]})
+				makeSelection('stop',e.originalEvent.shiftKey,stop.stop_id)
+				// populateSelection(e.originalEvent.shiftKey,{stops:[stop.stop_id],routes:[]})
 			})
 			.addTo(map);
 		stopMarkers.push({id:slugStr(stop.stop_id),marker:stopMarker})
@@ -182,7 +184,10 @@ function drawRoutes(){
 				let routeData = allData.route.find(function(d){return d.route_id == route.key})
 				let touchStops = getRelationships([route.key],'route_stop')
 				// show the popup
-				routePopup([e.latlng.lat,e.latlng.lng],routeData,touchStops[0].length)
+				if(e.latlng){
+					routePopup([e.latlng.lat,e.latlng.lng],routeData,touchStops[0].length)
+				}
+				
 				//highlight the stops on the route
 				setStopsDisplay('hover',touchStops[0])
 				//highlight the touching routes based on the stops on this route
@@ -193,18 +198,14 @@ function drawRoutes(){
 				let touchStops = getRelationships([route.key],'route_stop')
 				setRoutesDisplay('default',[route.key])
 				setStopsDisplay('default',touchStops[0])
-				map.closePopup();
+				// map.closePopup();
 				
 			})
 			.on('click',function(e){
-				//get the route info
-				// let routeData = allData.route.find(function(d){return d.route_id == route.key})
-				let touchStops = getRelationships([route.key],'route_stop')
-				// setRoutesDisplay('select',touchStops[0])
-				populateSelection(e.originalEvent.shiftKey,{stops:touchStops[0],routes:[route.key]})
+				makeSelection('route',e.originalEvent.shiftKey,route.key)
 			})
 			.addTo(map);
-		routeMarkers.push(routeMarker)
+		routeMarkers.push({id:slugStr(route.key),marker:routeMarker})
 	}
 }
 function showSubway(){

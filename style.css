@@ -217,10 +217,11 @@ nav{
 
 /*search*/
 .suggestions {
-  margin: 0;
+  margin-top: 25px;
   padding: 0;
   position: relative;
   /*perspective:20px;*/
+  max-width: 300px;
 }
 .suggestions li {
   background:white;
@@ -229,19 +230,24 @@ nav{
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.14);
   margin:0;
   padding:20px;
-  transition:background 0.2s;
+  /*transition:background 0.2s;*/
+  text-transform: capitalize;
+  cursor: pointer;
+}
+.suggestions li p{
   display:flex;
   justify-content:space-between;
-  text-transform: capitalize;
 }
-
 .suggestions li:nth-child(even) {
-  transform: perspective(100px) rotateX(3deg) translateY(2px) scale(1.001);
+  transform:  rotateX(3deg) translateY(2px) scale(1.001);
   background: linear-gradient(to bottom,  #ffffff 0%,#EFEFEF 100%);
 }
 .suggestions li:nth-child(odd) {
-  transform: perspective(100px) rotateX(-3deg) translateY(3px);
+  transform:  rotateX(-3deg) translateY(3px);
   background: linear-gradient(to top,  #ffffff 0%,#EFEFEF 100%);
+}
+.suggestions li:hover{
+  background: #fff;
 }
 .suggestions .name .hl {
   background:#ffc600;
