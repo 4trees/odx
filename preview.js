@@ -86,13 +86,34 @@ function updateService(data){
   //count the stops and populate content
   document.querySelector('#selection').innerHTML = `${data.stops.length} stop(s)`;
   document.querySelector('#stopInfo').innerHTML = `<h5>${data.stops.length} stop(s) <small>${modeText}</small></h5>`;
-  document.querySelector('#routeonStop').innerHTML = '<p class="routeList">'+ routeList.map(function(route){return `
-      <span class="routelabel" style="color:#${route.route_text_color};background:#${route.route_color}">${route.route_short_name || route.route_long_name}</span>
-      `
-  }).join('') + '</p>'
+
+  let updateRoutes = d3.select('#routeonStop').select('.routeList').selectAll('.routelabel').data(routeList,function(d){return d.route_id})
+  updateRoutes.enter().append('span')
+    .attr('class','routelabel')
+    .style('color',function(d){return '#' + d.route_text_color})
+    .style('background',function(d){return '#' + d.route_color})
+    .html(function(d){return d.route_short_name || d.route_long_name})
+    .attr('data-toggle','popover')
+    .attr('data-trigger','hover')
+    .attr('title','Route Summary')
+    .attr('data-content',function(d){return d.route_short_name || d.route_long_name})
+  updateRoutes.exit().remove()
+$(function () {
+  $('[data-toggle="popover"]').popover()
+})
+  // document.querySelector('#routeonStop').innerHTML = '<p class="routeList">'+ routeList.map(function(route){return `
+  //     <span class="routelabel" style="color:#${route.route_text_color};background:#${route.route_color}">${route.route_short_name || route.route_long_name}</span>
+  //     `
+  // }).join('') + '</p>'
 
 }
-
+//update selection box
+function updateSelectionBox(){
+  let countRoutes = display.routes.length
+  let routes = countRoutes == 0 ? '' : `${countRoutes} route(s)<hr>` + display.routes.map(function(d){return d}).join(' ')
+  let stops = `${display.stops.length} stop(s)<hr>` + display.stops.map(function(d){return d}).join(' ')
+  document.querySelector('#mySelection').querySelector('.modal-body').innerHTML = routes + '<br>' + stops
+}
 //draw stacked chart
 // function drawStackedChart(type, key, data, color){
 //   var plot = d3.select('#' + type).select('svg')

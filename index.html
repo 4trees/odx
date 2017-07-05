@@ -13,6 +13,20 @@
     <script src="https://use.fontawesome.com/bb7d7deb27.js"></script>
   	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="lib/bootstrap-3.3.5/bootstrap.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('[data-toggle="popover"]').popover({
+      title:'Route Summary',
+      content:'haha',
+      trigger:'hover'
+    }); 
+});
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
+</script>
 </head>
 <nav class="navbar navbar-default">
         <ul class="nav navbar-nav">
@@ -39,7 +53,7 @@
           <div class="panel panel-default">   
               <div class="panel-heading">
                 <dl class="dl-horizontal">
-                 <dt>Selected<dt><dd class="text-right"><a href="" id="selection"></a></dd>
+                 <dt>Selected<dt><dd class="text-right"><a type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()"></a></dd>
                 </dl>
               </div>
               <div class="panel-body">
@@ -48,7 +62,7 @@
                       <dt>Service<dt><dd class="text-right"></dd>
                     </dl>
                       <div id="stopInfo"></div>
-                      <div id="routeonStop"></div>
+                      <div id="routeonStop"><p class="routeList"></p></div>
                   </section>
                   <section id="routesummary">
                     <div class="checkbox">
@@ -118,9 +132,24 @@
           <div class="collapseBt"><button onclick="toggleCollapse()"><i class="fa fa-caret-left" aria-label="Collapse side panel"></i></button> </div>
       </div>
     </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="mySelection">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Selection</h4>
+          </div>
+          <div class="modal-body">
+            <!-- <p>One fine body&hellip;</p> -->
+          </div>
+          <div class="modal-footer">
+            <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
+            <button type="button" class="btn btn-default">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="lib/bootstrap-3.3.5/bootstrap.min.js"></script>
 <script src="lib/d3.min.js"></script>
 <script src="dataload.js"></script>
 <script src="map.js"></script>
@@ -141,6 +170,7 @@ function toggleCollapse(){
   }
 
 }
+
 </script>
 
 </body>
