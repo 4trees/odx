@@ -198,13 +198,10 @@ nav{
 #preview .checkbox label{
   display: block;
 }
-/*#preview #routesToStop .checkbox p{
-  margin: 0;
-  font-size: 120%;
-}*/
-/*#preview #routesToStop .checkbox input{
-  /*margin-top: 0;*/
-/*}*/
+
+#mySelection .checkbox{
+  display: inline-block;
+}
 #preview .dropdown button{
   width: 100%;
 }

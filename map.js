@@ -30,14 +30,11 @@ var resetMap = L.Control.extend({
 });
 map.addControl(new resetMap());
 
-//create a drawable layers
-var drawnItems = new L.FeatureGroup().addTo(map);
-
+//set a drawcontrol
+var drawnItems = new L.FeatureGroup();
+drawnItems.options.pane = 'draw';
+drawnItems.addTo(map)
 var drawControl = new L.Control.Draw({
-    edit: {
-        featureGroup: drawnItems,
-        edit:false
-    },
     draw: {
     	marker: false,
     	polyline:false,
@@ -56,20 +53,25 @@ var stopPanes = map.createPane('stops');
 	stopPanes.style.zIndex = 550;
 	stopPanes.style.pointerEvents = 'none';
 //create panes for shapes
-var stopPanes = map.createPane('routes');
-	stopPanes.style.zIndex = 440;
-	stopPanes.style.pointerEvents = 'none';
+var routePanes = map.createPane('routes');
+	routePanes.style.zIndex = 440;
+	routePanes.style.pointerEvents = 'none';
 //create panes for hlshapes
-var stopPanes = map.createPane('hlshapes');
-	stopPanes.style.zIndex = 450;
-	stopPanes.style.pointerEvents = 'none';
+var hlshapePanes = map.createPane('hlshapes');
+	hlshapePanes.style.zIndex = 450;
+	hlshapePanes.style.pointerEvents = 'none';
 //create panes for shapes
-var stopPanes = map.createPane('shapes');
-	stopPanes.style.zIndex = 410;
-	stopPanes.style.pointerEvents = 'none';
+var shapePanes = map.createPane('shapes');
+	shapePanes.style.zIndex = 410;
+	shapePanes.style.pointerEvents = 'none';
+//create panes for draw 
+var drawPanes = map.createPane('draw');
+	drawPanes.style.zIndex = 555;
+	drawPanes.style.pointerEvents = 'none';
+
 
 //TOOLTIP EDIT
-map.on(L.Draw.Event.CREATED, function (e) {
+map.on('draw:created', function (e) {
 	let drawSelection = []
    	let layer = e.layer;   
 	let countMarkers = stopMarkers.length
@@ -80,16 +82,23 @@ map.on(L.Draw.Event.CREATED, function (e) {
 		if(isInside){
 			// console.log('found!'),console.log(stopMarkers[i])
 			let foundStopId = stopMarkers[i].marker.options.className.split(' ')[1].replace('stop','')
-			// let foundStopData = allData.stop.find(function(d){return d.stop_id == foundStopId})
 			drawSelection.push(foundStopId)
 			// console.log(drawSelection)
 		}
 	}
 	if(drawSelection.length == 0)return
-	map.addLayer(layer);
+
+	drawnItems.addLayer(layer)
 	selectionPopup(layer,drawSelection)
-	// populateSelection(false,{stops:drawSelection,routes:[]})
+	layer.on('mouseover',function(){selectionPopup(layer,drawSelection)})
 });
+//add a cover layer when drawing to avoid other events fire
+map.on('draw:drawstart',function(e){
+	document.querySelector('.leaflet-popup-pane').classList.add('hidden')
+})
+map.on('draw:drawstop',function(e){
+	document.querySelector('.leaflet-popup-pane').classList.remove('hidden')
+})
 
 //GLOBAL SIZE
 var stopRadius = {default:14,select:28}

@@ -244,17 +244,19 @@ function routePopup(location,route,stopLength){
 function selectionPopup(layer,drawSelection){
 	let location = layer.getBounds().getCenter()
 	let hint = getHint(drawSelection,'stop')
+	let selection = {stops:drawSelection,routes:[]}
 	popup.setLatLng(location)
         .setContent(`
     		<h5>${drawSelection.length} stop(s)</h5>
     		<hr>
-    		<p>${hint}</p>
-    		<p>Set as new selection</p>
+    		<a id="addDraw">${hint}</a>
+    		<a id="replaceDraw">Set as new selection</a>
         `)
         .openOn(map);
     
-    // populateSelection(false,{stops:drawSelection,routes:[]})
-    // layer.remove()
+	document.querySelector('#addDraw').addEventListener('click',function(d){populateSelection(true,selection);layer.remove();map.closePopup();})
+	document.querySelector('#replaceDraw').addEventListener('click',function(d){populateSelection(false,selection);layer.remove();map.closePopup();})
+    
 }
 
 
@@ -347,7 +349,6 @@ function makeSelection(type,key,id){
 
 
 function populateSelection(key,data){
-	if(data.stops.length == 0)return
 //data is an object: {stops:[stop.stop_id],routes:[route.route_id]}
 //selection is an array of display
 //when hold shiftkey to select, do remove if any stops in stop selection, otherwise do add. if any stops not on the route selection, change to stop selection mode.
@@ -357,12 +358,12 @@ function populateSelection(key,data){
 		//get the new selection
 		display = data
 	}else{
+		if(data.stops.length == 0)return
 		//get the last item in selection
 		display = selection[selection.length - 1]
 		//get the route, only could be one route since no way to select multiple routes at once
 		let newRoute = data.routes[0];
 		let newRoutes = display.routes.concat(data.routes)
-		console.log(data.routes.length)
 		//if it's a stop selection and any stop in selection, do remove all selected stops from selection
 		if(data.routes.length == 0 && data.stops.some(function(d){return display.stops.includes(d)})){
 			console.log('find same stop')
@@ -394,11 +395,24 @@ function populateSelection(key,data){
 	updateSelection(display)
 }
 function updateSelection(data){
+	//update preview panel
+	updatepreview(data)
+	if(data == '')return
 	//highlight the selection stops and routes
 	d3.selectAll('.selectStop').classed('selectStop',false)
 	d3.selectAll('.selectRoute').classed('selectRoute',false).style('stroke','#666');
 	setStopsDisplay('select',data.stops)
 	setRoutesDisplay('select',data.routes)
-	updatepreview(data)
+	
 }
 
+function undoSelection(){
+	//back to last selection
+	console.log(selection)
+	selection.pop()
+	console.log(selection)
+	updateSelection(selection[selection.length - 1])
+	// console.log(selection)
+	// display = backToLastSelection[backToLastSelection.length - 1]
+	// updateSelection(display)
+}

@@ -31,7 +31,7 @@ $(document).ready(function(){
 <nav class="navbar navbar-default">
         <ul class="nav navbar-nav">
             <li class="input-group input-group-sm" id="searchBar">
-                <input type="text" class="form-control" name="route" placeholder="stop, route..." value="">
+                <input type="text" class="form-control" name="search" placeholder="stop, route..." value="">
                 <ul class="suggestions hidden">
                 </ul>
             </li>
@@ -52,9 +52,14 @@ $(document).ready(function(){
       <div id="preview">
           <div class="panel panel-default">   
               <div class="panel-heading">
-                <dl class="dl-horizontal">
-                 <dt>Selected<dt><dd class="text-right"><a type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()"></a></dd>
-                </dl>
+                <p>
+                  <span class="text-left">Selected<span>
+                  <span class="text-right">
+                      <a type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()"></a> 
+                      <span id="clear">&#124; <a type="button" onclick="clearSelectionBox()">Clear</a></span>
+                      <span id="undo" class="hidden">&#124; <a type="button" onclick="undoSelection()">Undo</a></span>
+                  </span>
+                </p>
               </div>
               <div class="panel-body">
                   <section id="stopsummary">
@@ -143,8 +148,8 @@ $(document).ready(function(){
             <!-- <p>One fine body&hellip;</p> -->
           </div>
           <div class="modal-footer">
-            <!-- <button type="button" class="btn btn-default" data-dismiss="modal">Close</button> -->
-            <button type="button" class="btn btn-default">Save changes</button>
+            <a type="button" onclick="clearSelectionBox()">Clear Selection</a>
+            <button type="button" class="btn btn-default" onclick="synicSelection()">Save changes</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->

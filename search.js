@@ -4,9 +4,13 @@ const suggestions = document.querySelector('#searchBar').querySelector('.suggest
 searchInput.addEventListener('change', displayMatches);
 searchInput.addEventListener('keyup', displayMatches);
 
+
+//click map, clear search box and draw layer
 map.on('click',function(){
   searchInput.value = ''
   suggestions.classList.add('hidden')
+  
+  drawnItems.clearLayers()
 })
 
 function displayMatches() {
