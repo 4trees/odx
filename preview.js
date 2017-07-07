@@ -105,25 +105,25 @@ function updateService(data){
 
   }
   //count the stops and populate content
-  document.querySelector('#selection').innerHTML = `${data.stops.length} stop(s)`;
-  document.querySelector('#stopInfo').innerHTML = `<h5>${data.stops.length} stop(s) <small>${modeText}</small></h5>`;
-  
-  document.querySelector('#routeonStop').querySelector('.routeList').innerHTML = routeList.map(function(route){
-      let routeName = route.route_short_name || route.route_long_name
-      // let routeInfo = `<h5>${routeName}</h5>`
-      return `
-      <span class="routelabel" 
-            style="color:#${route.route_text_color};background:#${route.route_color}" 
-            data-toggle="popover" 
-            data-trigger="hover" 
-            title="Route Summary"
-            data-content=""
-            >${routeName}</span>
-      `
-  }).join('')
-  $(function () {
-    $('[data-toggle="popover"]').popover()
-  })
+  // document.querySelector('#selection').innerHTML = `${data.stops.length} stop(s)`;
+  document.querySelector('#stopInfo').innerHTML = `<p>${data.stops.length} stop(s) <small>${modeText}</small><p>`;
+  document.querySelector('#routeonStop').innerHTML = routeList.map(function(route){return route.route_short_name || route.route_long_name}).join(', ')
+  // document.querySelector('#routeonStop').querySelector('.routeList').innerHTML = routeList.map(function(route){
+  //     let routeName = route.route_short_name || route.route_long_name
+  //     // let routeInfo = `<h5>${routeName}</h5>`
+  //     return `
+  //     <span class="routelabel" 
+  //           style="color:#${route.route_text_color};background:#${route.route_color}" 
+  //           data-toggle="popover" 
+  //           data-trigger="hover" 
+  //           title="Route Summary"
+  //           data-content=""
+  //           >${routeName}</span>
+  //     `
+  // }).join('')
+  // $(function () {
+  //   $('[data-toggle="popover"]').popover()
+  // })
 }
 //update odx
 function updateOdx(data){

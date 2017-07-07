@@ -53,26 +53,21 @@ $(document).ready(function(){
           <div class="panel panel-default">   
               <div class="panel-heading">
                 <p>
-                  <span class="text-left">Selected<span>
-                  <span class="text-right">
-                      <a type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()"></a> 
-                      <span id="clear">&#124; <a type="button" onclick="clearSelectionBox()">Clear</a></span>
-                      <span id="undo" class="hidden">&#124; <a type="button" onclick="undoSelection()">Undo</a></span>
-                  </span>
+                  <span class="text-left">Selected</span>
+                  <span id="clear"><a type="button" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a></span>
+                  <span id="undo" class="hidden">&#124; <a type="button" onclick="undoSelection()"><i class="fa fa-undo" aria-hidden="true"></i></a></span>
                 </p>
+                <a type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()">
+                    <p><span id="stopInfo"></span><span id="routeonStop"></span></p>
+                </a>
+                <div class="checkbox">
+                    <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
+                </div> 
               </div>
               <div class="panel-body">
                   <section id="stopsummary">
-                    <dl class="dl-horizontal">
-                      <dt>Service<dt><dd class="text-right"></dd>
-                    </dl>
-                      <div id="stopInfo"></div>
-                      <div id="routeonStop"><p class="routeList"></p></div>
                   </section>
                   <section id="routesummary">
-                    <div class="checkbox">
-                        <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
-                    </div>
                     <dl class="dl-horizontal">
                         <dt>Variants</dt><dd></dd>
                     </dl>
@@ -80,11 +75,16 @@ $(document).ready(function(){
                   </section>
                   <hr>
                   <section id="analysis">
+                      <dl class="dl-horizontal">
+                          <dt>Overview<dt><dd class="text-right"><a type="button"><i class="fa fa-filter" aria-hidden="true"></i></a></dd>
+                      </dl>
                       <div id="odx">
-                        <dl class="dl-horizontal">
-                          <dt>Trips<dt><dd class="text-right"><a href="">filter</a></dd>
-                        </dl>
                         <svg></svg>
+                      </div>
+                      <div id="transfer">
+                        <dl class="dl-horizontal">
+                          <dt>Transfer<dt><dd class="text-right"><a type="button"><i class="fa fa-bar-chart" aria-hidden="true"></i></a><a type="button"><i class="fa fa-table" aria-hidden="true"></i></a></dd>
+                        </dl>
                         <table class="table table-hover">
                           <thead>
                             <tr>
