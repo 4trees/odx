@@ -67,6 +67,9 @@ nav{
   /*stroke-opacity:.6;*/
   fill:#000;
 }
+.odxStop{
+  stroke-opacity:.9;
+}
 .shape,.route{
 	fill:none;
   opacity: .5;
@@ -211,6 +214,11 @@ nav{
 .filter{
   padding:0 5px;
 }
+.odxCount{
+  font-size: 8px;
+  fill:#999;
+}
+
 
 /*search*/
 .suggestions {

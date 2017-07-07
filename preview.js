@@ -1,30 +1,35 @@
 // testing data
-var odxdata = [{o:12,d:23,x:12}]
-    // stagedata = [{1:32,2:3,3:12}]
-    odxKey = Object.keys(odxdata[0])
-    // stageKey = Object.keys(stagedata[0])
+var odx = [
+  {type:'o',count:1300, list:[{stop_id:'70002',count:400},{stop_id:'70007',count:300},{stop_id:'8824',count:500},{stop_id:'88335',count:100}]},
+  {type:'d',count:230,list:[{stop_id:'8820',count:20},{stop_id:'87619',count:10},{stop_id:'70124',count:100},{stop_id:'36961',count:100}]},
+  {type:'xo',count:800,list:[{stop_id:'3683',count:300},{stop_id:'70007',count:200},{stop_id:'23835',count:300}]},
+  {type:'xd',count:120,list:[{stop_id:'36842',count:100},{stop_id:'2369',count:20}]}
+]
+
 
 // global setting for preview
-var w = d3.select('.panel-body').select('section').node().clientWidth;
+var w = d3.select('#odx').node().clientWidth;
 
 var fullWidthScale = d3.scaleLinear()
-    .range([0,w])
+  .range([0,w])
 var fullWidthLabelScale = d3.scaleLinear()
-    .range([0,w-30])
-  
-// var stack = d3.stack()
-//     .order(d3.stackOrderNone)
-//     .offset(d3.stackOffsetNone);
+  .range([0,w-45])
+var RadiusForODX = d3.scaleLinear()
+  .range([28,60])
 
 var colorForODX = d3.scaleOrdinal()
-  .domain(odxKey)
+  .domain(['o','d','xo','xd'])
   // .range(['#96ceb4','pink','ffcc5c'])
-  .range(['#559e83','#ae6a41','#c3cb71'])
+  .range(['#559e83','#ae6a41','#c3cb71','#ffcc5c'])
 // var colorForstage = d3.scaleOrdinal()
 //   .domain(stageKey)
-//   .range(['#99d5cf','#66c0b7','#32ab9f','#009688'])
-
-
+  // .range(['#99d5cf','#66c0b7','#32ab9f','#009688'])
+var odxLable = d3.scaleOrdinal()
+  .domain(['o','d','xo','xd'])
+  .range(['As origin','As destination','As transfer origin','As transfer destination'])
+var odxPairs = d3.scaleOrdinal()
+  .domain(['o','d','xo','xd'])
+  .range(['d','o','xd','xo'])
 // show or hide the preview panel
 var previewPanel = document.querySelector('#preview')
 function toggleCollapse(){
@@ -42,7 +47,7 @@ function updatepreview(data){
     previewPanel.style.left = '-500px';
   }else{
     previewPanel.style.left = 0;
-    
+
     //update selection button: clear, undo
     if(selection == ''){
       document.querySelector('#clear').classList.add('hidden');
@@ -57,6 +62,9 @@ function updatepreview(data){
     
     //update content
     updateService(data)
+    //get the odx data and update
+    let odxdata = odx;
+    updateOdx(odxdata)
   }
 
 	// drawStackedChart('odx',odxKey, odxdata,colorForODX)
@@ -99,21 +107,84 @@ function updateService(data){
   //count the stops and populate content
   document.querySelector('#selection').innerHTML = `${data.stops.length} stop(s)`;
   document.querySelector('#stopInfo').innerHTML = `<h5>${data.stops.length} stop(s) <small>${modeText}</small></h5>`;
-
-  document.querySelector('#routeonStop').querySelector('.routeList').innerHTML = routeList.map(function(route){return `
+  
+  document.querySelector('#routeonStop').querySelector('.routeList').innerHTML = routeList.map(function(route){
+      let routeName = route.route_short_name || route.route_long_name
+      // let routeInfo = `<h5>${routeName}</h5>`
+      return `
       <span class="routelabel" 
             style="color:#${route.route_text_color};background:#${route.route_color}" 
             data-toggle="popover" 
             data-trigger="hover" 
-            title=""
-            data-content="${route.route_short_name || route.route_long_name}"
-            >${route.route_short_name || route.route_long_name}</span>
+            title="Route Summary"
+            data-content=""
+            >${routeName}</span>
       `
   }).join('')
-$(function () {
-  $('[data-toggle="popover"]').popover()
-})
+  $(function () {
+    $('[data-toggle="popover"]').popover()
+  })
 }
+//update odx
+function updateOdx(data){
+  //update the barchart
+  fullWidthLabelScale.domain([0,d3.max(data,function(d){return d.count})])
+  let updateodx = d3.select('#odx').select('svg')
+    .attr('width',w)
+    .selectAll('.odx').data(data)
+  let enterodx = updateodx.enter().append('g').attr('class','odx')
+    .attr('transform',function(d,i){return 'translate(0' + ',' + (20 + i * 35) + ')'})
+    .on('mouseover',function(d){
+      //remove previews markers
+      d3.selectAll('.odxStop').remove()
+      d3.selectAll('.hlStop').classed('hlStop',false)
+      //get new markers data
+      const stopList = d.list.map(function(e){return e.stop_id})
+      //highlight the stop
+      setStopsDisplay('hover',stopList)
+      const stops = allData.stop.filter(function(e){return stopList.includes(e.stop_id)})
+      RadiusForODX.domain([0,d3.max(d.list,function(e){return e.count})])
+      const stopCount = stops.length
+      const fillColor = colorForODX(odxPairs(d.type))
+      let markers = []
+      for(i=0;i<stopCount;i++){
+        let stop = stops[i]
+
+        //draw markers
+        let radius = RadiusForODX(d.list.find(function(e){return e.stop_id == stop.stop_id}).count)
+        let odxMarker = L.circle([stop.stop_lat,stop.stop_lon], {radius:stopRadius.default,weight:radius,className:'odxStop odx' + slugStr(stop.stop_id),color:fillColor})
+        .on('mouseover',function(){
+        })
+        .on('mouseout',function(){
+        })
+        markers.push(odxMarker)
+      }
+      //show the stops on the map and center the view of them
+      const group = new L.featureGroup(markers).addTo(map);;
+      map.fitBounds(group.getBounds());
+    })
+  enterodx.append('rect')
+    .attr('y', 7)
+    .attr('height',10)
+    .style('fill',function(d){return colorForODX(d.type)})
+  enterodx.append('text')
+    .attr('class','odxLable')
+    .text(function(d){return odxLable(d.type)})
+  enterodx.append('text')
+    .attr('y',16)
+    .attr('class','odxCount')
+  let mergeodx = updateodx.merge(enterodx)
+  mergeodx.select('rect')
+    .attr('width', function(d){return fullWidthLabelScale(d.count)})
+  mergeodx.select('.odxCount')
+    .attr('x',function(d){return 4 + fullWidthLabelScale(d.count)})
+    .text(function(d){return numberWithCommas(d.count)})
+
+  //update the transfer table
+
+}
+
+
 //update selection box
 function updateSelectionBox(){
   let countRoutes = display.routes.length

@@ -80,56 +80,22 @@ $(document).ready(function(){
                   </section>
                   <hr>
                   <section id="analysis">
-                      <dl class="dl-horizontal">
-                         <dt>Analysis<dt><dd class="text-right"><a href="">view report</a></dd>
-                      </dl>
-                      <div class="filters row">
-                      <!-- day filter -->
-                        <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                          <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            Everyday
-                            <span class="caret"></span>
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                            <li><a href="#">SA</a></li>
-                            <li><a href="#">SU</a></li>
-                            <li><a href="#">Weekday</a></li>
-                            <li><a href="#">Weekend</a></li>
-                            <li><a href="#">Everyday</a></li>
-                          </ul>
-                        </div>
-                        <!-- direction filter -->
-                        <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                          <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            All direc...
-                            <span class="caret"></span>
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                            <li><a href="#">Inbound</a></li>
-                            <li><a href="#">Outbound</a></li>
-                            <li><a href="#">All directions</a></li>
-                          </ul>
-                        </div>
-                        <!-- time filter -->
-                        <div class="filter dropdown col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                          <button class="btn btn-default dropdown-toggle btn-xs" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            12:00 -...
-                            <span class="caret"></span>
-                          </button>
-                          <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1">
-                            <!-- <li><a href="#">Inbound</a></li> -->
-                            <!-- <li><a href="#">Outbound</a></li> -->
-                          </ul>
-                        </div>
-                      </div>
                       <div id="odx">
-                          <!-- <p>ODX</p> -->
-                          <!-- <svg></svg> -->
+                        <dl class="dl-horizontal">
+                          <dt>Trips<dt><dd class="text-right"><a href="">filter</a></dd>
+                        </dl>
+                        <svg></svg>
+                        <table class="table table-hover">
+                          <thead>
+                            <tr>
+                              <th>Route <small>to</small></th>
+                              <th>Route</th>
+                              <th>Trips</th>
+                            </tr>
+                          </thead>
+                          <tbody></tbody>
+                        </table>
                       </div>
-<!--                       <div id="stage">
-                          <p>Stage</p>
-                          <svg></svg>
-                      </div> -->
                   </section>
               </div>
           </div>
