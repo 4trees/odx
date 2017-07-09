@@ -15,13 +15,21 @@ p{
   margin: 0;
 }
 hr{
-  color:#eee;
-  margin:20px 0 10px 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 .container-fluid,#content{
   /*height:100%;*/
 }
-
+.iconButton{
+  margin-left: 8px;
+  cursor: pointer;
+  font-size:120%;
+  color:#333;
+}
+.active{
+  color:#ccc;
+}
 /* NAVIGATION BAR */
 .navbar{
   border-radius: 0;
@@ -50,21 +58,17 @@ nav{
   stroke: #333;
   fill:#38c0df;
   stroke-width:1;
-  /*fill-opacity: 1;*/
-  /*transition: stroke-width .5s, stroke 1s;*/
   transition: fill-opacity .5s;
 }
 .hlStop{
   stroke-width:8;
   stroke: #38c0df !important;
   fill-opacity: 1;
-  /*stroke-opacity:.4;*/
 }
 .selectStop{
   stroke: #38c0df !important;
   stroke-width:8;
   fill-opacity: 1 !important;
-  /*stroke-opacity:.6;*/
   fill:#000;
 }
 .odxStop{
@@ -179,46 +183,35 @@ nav{
   vertical-align: center;
   font-size: 120%;
 }
-#preview section{
-  margin-bottom: 20px;
+#analysis .title{
+  font-size:120%;
+  margin-bottom: 10px;
 }
-#preview .dl-horizontal dt{
+#selection{
+  max-width: 100%;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  color:#333;
+  white-space: normal;
   text-align: left;
-}
-#preview .dl-horizontal{
-  margin-bottom: 0;
-}
-#preview .panel-body{
-  padding-top: 10px;
-}
-#stopsummary #stopInfo{
-  /*font-size: 150%;*/
-  margin:15px 0 20px 0;
-}
-#routeonStop .routelabel{
-  cursor: pointer;
 }
 #preview .checkbox label{
   display: block;
 }
-
+/*#variantsList{
+  max-height: 200px;
+  overflow-y: scroll;
+}*/
 #mySelection .checkbox{
   display: inline-block;
 }
-#preview .dropdown button{
-  width: 100%;
-}
-.filters{
-  margin:20px -5px;
-}
-.filter{
-  padding:0 5px;
-}
 .odxCount{
-  font-size: 8px;
+  font-size:70%;
   fill:#999;
 }
-
+.odxLable{
+  font-size:80%;
+}
 
 /*search*/
 .suggestions {

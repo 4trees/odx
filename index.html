@@ -15,18 +15,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="lib/bootstrap-3.3.5/bootstrap.min.js"></script>
-<script type="text/javascript">
-  $(document).ready(function(){
-    $('[data-toggle="popover"]').popover({
-      title:'Route Summary',
-      content:'haha',
-      trigger:'hover'
-    }); 
-});
-$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip(); 
-});
-</script>
 </head>
 <nav class="navbar navbar-default">
         <ul class="nav navbar-nav">
@@ -44,7 +32,6 @@ $(document).ready(function(){
         </ul>
 
 </nav>
-<!-- <body ng-app="spApp" ng-controller="spAppController"> -->
 <body>
 <div class="container-fluid">
     <div class="row" id="content">
@@ -52,50 +39,70 @@ $(document).ready(function(){
       <div id="preview">
           <div class="panel panel-default">   
               <div class="panel-heading">
-                <p>
-                  <span class="text-left">Selected</span>
-                  <span id="clear"><a type="button" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a></span>
-                  <span id="undo" class="hidden">&#124; <a type="button" onclick="undoSelection()"><i class="fa fa-undo" aria-hidden="true"></i></a></span>
-                </p>
-                <a type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()">
+                <div class="clearfix">
+                  <div class="pull-left">
+                    <p>Selected</p>
+                  </div>
+                  <div class="pull-right">
+                    <a type="button" id="clear" class="iconButton" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                    <a type="button" id="undo" class="hidden iconButton" onclick="undoSelection()"><i class="fa fa-undo" aria-hidden="true"></i></a>
+                  </div>
+                </div>
+                <div>
+                  <a class="btn btn-xs" type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()">
                     <p><span id="stopInfo"></span><span id="routeonStop"></span></p>
-                </a>
-                <div class="checkbox">
-                    <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
-                </div> 
+                  </a>
+                </div>
               </div>
               <div class="panel-body">
-                  <section id="stopsummary">
-                  </section>
                   <section id="routesummary">
-                    <dl class="dl-horizontal">
-                        <dt>Variants</dt><dd></dd>
-                    </dl>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
+                    </div> 
+                    <div>
+                        <p>Variants</p>
+                    </div>
                     <ul id="variantsList"></ul>
                   </section>
-                  <hr>
+                  <div class="row"><hr></div>
                   <section id="analysis">
-                      <dl class="dl-horizontal">
-                          <dt>Overview<dt><dd class="text-right"><a type="button"><i class="fa fa-filter" aria-hidden="true"></i></a></dd>
-                      </dl>
-                      <div id="odx">
-                        <svg></svg>
+                    <div class="clearfix title">
+                      <div class="pull-left">
+                          <p>Overview</p>
                       </div>
-                      <div id="transfer">
-                        <dl class="dl-horizontal">
-                          <dt>Transfer<dt><dd class="text-right"><a type="button"><i class="fa fa-bar-chart" aria-hidden="true"></i></a><a type="button"><i class="fa fa-table" aria-hidden="true"></i></a></dd>
-                        </dl>
+                      <div class="pull-right">
+                          <a type="button" class="iconButton"><i class="fa fa-filter" aria-hidden="true"></i></a>
+                      </div>
+                    </div>
+                    <div id="odx">
+                      <div><p>Trips</p></div>
+                      <svg></svg>
+                    </div>
+                    <hr>
+                    <div id="transfer">
+                      <div class="clearfix">
+                        <div class="pull-left">
+                            <p>Transfer</p>
+                        </div>
+                        <div class="pull-right">
+                          <a type="button" class="iconButton active"><i class="fa fa-bar-chart" aria-hidden="true"></i></a>
+                          <a type="button" class="iconButton"><i class="fa fa-table" aria-hidden="true"></i></a>
+                        </div>
+                      </div>
+                      <div class="transferChart"></div>
+                      <div class="transferTable">
                         <table class="table table-hover">
                           <thead>
                             <tr>
-                              <th>Route <small>to</small></th>
-                              <th>Route</th>
+                              <th>From</th>
+                              <th>To</th>
                               <th>Trips</th>
                             </tr>
                           </thead>
                           <tbody></tbody>
                         </table>
                       </div>
+                    </div>
                   </section>
               </div>
           </div>

@@ -1,11 +1,11 @@
 // testing data
 var odx = [
-  {type:'o',count:1300, list:[{stop_id:'70002',count:400},{stop_id:'70007',count:300},{stop_id:'8824',count:500},{stop_id:'88335',count:100}]},
+  {type:'o',count:1300, list:[{stop_id:'70002',count:400},{stop_id:'70007',count:300},{stop_id:'8824',count:500},{stop_id:'88335',count:100}],},
   {type:'d',count:230,list:[{stop_id:'8820',count:20},{stop_id:'87619',count:10},{stop_id:'70124',count:100},{stop_id:'36961',count:100}]},
   {type:'xo',count:800,list:[{stop_id:'3683',count:300},{stop_id:'70007',count:200},{stop_id:'23835',count:300}]},
   {type:'xd',count:120,list:[{stop_id:'36842',count:100},{stop_id:'2369',count:20}]}
 ]
-
+var transfer = [{from:'9',to:'1',count:320},{from:'43',to:'44',count:300},{from:'95',to:'1',count:30}]
 
 // global setting for preview
 var w = d3.select('#odx').node().clientWidth;
@@ -30,6 +30,7 @@ var odxLable = d3.scaleOrdinal()
 var odxPairs = d3.scaleOrdinal()
   .domain(['o','d','xo','xd'])
   .range(['d','o','xd','xo'])
+
 // show or hide the preview panel
 var previewPanel = document.querySelector('#preview')
 function toggleCollapse(){
@@ -63,12 +64,9 @@ function updatepreview(data){
     //update content
     updateService(data)
     //get the odx data and update
-    let odxdata = odx;
-    updateOdx(odxdata)
+    updateOdx(odx)
+    updateTransfer(transfer)
   }
-
-	// drawStackedChart('odx',odxKey, odxdata,colorForODX)
-	// drawStackedChart('stage',stageKey, stagedata,colorForstage)
 
 }
 //update service content
@@ -105,25 +103,10 @@ function updateService(data){
 
   }
   //count the stops and populate content
-  // document.querySelector('#selection').innerHTML = `${data.stops.length} stop(s)`;
-  document.querySelector('#stopInfo').innerHTML = `<p>${data.stops.length} stop(s) <small>${modeText}</small><p>`;
+
+  document.querySelector('#stopInfo').innerHTML = `${data.stops.length} stop(s) <small>${modeText}</small> `;
   document.querySelector('#routeonStop').innerHTML = routeList.map(function(route){return route.route_short_name || route.route_long_name}).join(', ')
-  // document.querySelector('#routeonStop').querySelector('.routeList').innerHTML = routeList.map(function(route){
-  //     let routeName = route.route_short_name || route.route_long_name
-  //     // let routeInfo = `<h5>${routeName}</h5>`
-  //     return `
-  //     <span class="routelabel" 
-  //           style="color:#${route.route_text_color};background:#${route.route_color}" 
-  //           data-toggle="popover" 
-  //           data-trigger="hover" 
-  //           title="Route Summary"
-  //           data-content=""
-  //           >${routeName}</span>
-  //     `
-  // }).join('')
-  // $(function () {
-  //   $('[data-toggle="popover"]').popover()
-  // })
+
 }
 //update odx
 function updateOdx(data){
@@ -131,9 +114,10 @@ function updateOdx(data){
   fullWidthLabelScale.domain([0,d3.max(data,function(d){return d.count})])
   let updateodx = d3.select('#odx').select('svg')
     .attr('width',w)
+    .attr('height',130)
     .selectAll('.odx').data(data)
   let enterodx = updateodx.enter().append('g').attr('class','odx')
-    .attr('transform',function(d,i){return 'translate(0' + ',' + (20 + i * 35) + ')'})
+    .attr('transform',function(d,i){return 'translate(0' + ',' + (15 + i * 30) + ')'})
     .on('mouseover',function(d){
       //remove previews markers
       d3.selectAll('.odxStop').remove()
@@ -164,14 +148,14 @@ function updateOdx(data){
       map.fitBounds(group.getBounds());
     })
   enterodx.append('rect')
-    .attr('y', 7)
+    .attr('y', 5)
     .attr('height',10)
     .style('fill',function(d){return colorForODX(d.type)})
   enterodx.append('text')
     .attr('class','odxLable')
     .text(function(d){return odxLable(d.type)})
   enterodx.append('text')
-    .attr('y',16)
+    .attr('y',13)
     .attr('class','odxCount')
   let mergeodx = updateodx.merge(enterodx)
   mergeodx.select('rect')
@@ -180,10 +164,25 @@ function updateOdx(data){
     .attr('x',function(d){return 4 + fullWidthLabelScale(d.count)})
     .text(function(d){return numberWithCommas(d.count)})
 
-  //update the transfer table
+}
+//update the transfer table
+function updateTransfer(data){
+
+  //create the table
+  document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML =  data.map(function(d){
+    let fromRoute = allData.route.find(function(route){return route.route_id == d.from})
+    let toRoute = allData.route.find(function(route){return route.route_id == d.to})
+    console.log(fromRoute,toRoute)
+    return `
+      <tr>
+        <td>${fromRoute.route_long_name || fromRoute.route_short_name}</td>
+        <td>${toRoute.route_long_name || toRoute.route_short_name}</td>
+        <td>${numberWithCommas(d.count)}</td>
+      </tr>
+      `}).join('')
+  //create the chart
 
 }
-
 
 //update selection box
 function updateSelectionBox(){

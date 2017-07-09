@@ -212,7 +212,7 @@ function stopPopup(stop,childrenStops,touchRoutes){
 			<h5>${stop.stop_name}</h5> 
 			${children}
 			<hr><div class=\"routeList\">${routes}</div>
-			${hint}
+			<p class="hint">${hint}</p>
 		`)
         .openOn(map);
 	
@@ -236,7 +236,7 @@ function routePopup(location,route,stopLength){
     		<h5>${routeName}</h5>
     		<hr>
     		<p>${stopLength} stop(s)</p>
-    		${hint}
+    		<p class="hint">${hint}</p>
         `)
         .openOn(map);
 }
@@ -244,13 +244,15 @@ function routePopup(location,route,stopLength){
 function selectionPopup(layer,drawSelection){
 	let location = layer.getBounds().getCenter()
 	let hint = getHint(drawSelection,'stop')
+	let isHidden = hint == '' ? 'hidden' : ''
+	console.log(hint)
 	let selection = {stops:drawSelection,routes:[]}
 	popup.setLatLng(location)
         .setContent(`
     		<h5>${drawSelection.length} stop(s)</h5>
     		<hr>
-    		<a id="addDraw">${hint}</a>
-    		<a id="replaceDraw">Set as new selection</a>
+    		<a id="addDraw" class="btn btn-default btn-xs ${isHidden}" >${hint}</a>
+    		<a id="replaceDraw" class="btn btn-default btn-xs">Set as new selection</a>
         `)
         .openOn(map);
     
@@ -338,7 +340,6 @@ function getRelationships(idList,relationship){
 
 //UPDATE SELECTION
 function makeSelection(type,key,id){
-	console.log(id)
   if(type == 'stop'){
     populateSelection(key,{stops:[id],routes:[]})
   }else{
@@ -412,7 +413,5 @@ function undoSelection(){
 	selection.pop()
 	console.log(selection)
 	updateSelection(selection[selection.length - 1])
-	// console.log(selection)
-	// display = backToLastSelection[backToLastSelection.length - 1]
-	// updateSelection(display)
+
 }
