@@ -1,3 +1,4 @@
+
 // testing data
 var odx = [
   {type:'o',count:1300, list:[{stop_id:'70002',count:400},{stop_id:'70007',count:300},{stop_id:'8824',count:500},{stop_id:'88335',count:100}],},
@@ -78,10 +79,10 @@ function updateService(data){
   if(data.routes.length == 0 ){
     modeText = 'touching'
     routeList = getRelationships(childrenStops,'stop_route')[1]  
-    document.querySelector('#displayOption').classList.add('hidden')
+    document.querySelector('#displayOption').querySelector('#showVariants').classList.add('hidden')
   }else{
     modeText = 'on'
-    document.querySelector('#displayOption').classList.remove('hidden')
+    document.querySelector('#displayOption').querySelector('#showVariants').classList.remove('hidden')
     //reset the touching route checkbox
     let touchroutes = document.querySelector('input[name=showTouchRoutes]')
     touchroutes.checked = false;
@@ -257,8 +258,8 @@ function showVariants(e){
   }
 }
 
-function showTouchRoutes(e){
 
+function showTouchRoutes(e){
   if(e.checked){
     let touchRoutes = getRelationships(getIdlist(getChildrenStop(display.stops),'stop'),'stop_route')[0].filter(function(d){return !display.routes.includes(d)})
     console.log(touchRoutes)
@@ -266,4 +267,5 @@ function showTouchRoutes(e){
   }else{
     d3.selectAll('.touchRoute').classed('touchRoute',false).style('stroke','#666');
   }
+  showSubway()
 }

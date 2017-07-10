@@ -26,6 +26,7 @@ function toggleVariants(){
 		d3.selectAll('.shape').classed('hidden',true)
 	}
 }
+
 //GLOBEL FUNCTION
 //trunc the long word: for station name on the top right
 String.prototype.trunc = String.prototype.trunc ||
@@ -149,7 +150,6 @@ function setRoutesDisplay(action,routeIdList){
 				let route = routeIdList[i];
 				let routeColor = allData.route.find(function(d){return d.route_id == route}).route_color;
 				let routePath = document.querySelector('.route' + route);
-				console.log(route,routePath)
 				routePath.classList.add('touchRoute');
 				routePath.style.stroke = '#' + routeColor;
 				routePath.parentNode.appendChild(routePath)
@@ -396,6 +396,7 @@ function populateSelection(key,data){
 	updateSelection(display)
 }
 function updateSelection(data){
+
 	//update preview panel
 	updatepreview(data)
 	if(data == '')return
@@ -404,6 +405,10 @@ function updateSelection(data){
 	d3.selectAll('.selectRoute').classed('selectRoute',false).style('stroke','#666');
 	setStopsDisplay('select',data.stops)
 	setRoutesDisplay('select',data.routes)
+	//hidden highlight variants, reshow routes and subway
+	d3.selectAll('.hlShape').classed('hidden',true)
+	d3.selectAll('.route').classed('hidden',false)
+	showSubway()
 	
 }
 
