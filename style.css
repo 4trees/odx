@@ -198,10 +198,24 @@ nav{
 #preview .checkbox label{
   display: block;
 }
-/*#variantsList{
-  max-height: 200px;
-  overflow-y: scroll;
-}*/
+#variantsList{
+  padding: 5px 15px;
+}
+#variantsList label{
+  font-size:90%;
+}
+#displayOption ul{
+  margin-bottom: 0;
+  margin-top: 0;
+}
+#displayOption ul li{
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 0;
+}
+#displayOption .dropdown a{
+ color:#333;
+}
 #mySelection .checkbox{
   display: inline-block;
 }
@@ -210,7 +224,7 @@ nav{
   fill:#999;
 }
 .odxLable{
-  font-size:80%;
+  font-size:90%;
 }
 
 /*search*/

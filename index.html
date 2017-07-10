@@ -53,16 +53,22 @@
                     <p><span id="stopInfo"></span><span id="routeonStop"></span></p>
                   </a>
                 </div>
+                <div id="displayOption">
+                  <ul>
+                    <li class="checkbox">
+                        <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
+                    </li>
+                    <li class="dropdown">
+                      <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">show variants <span class="caret"></span></a>
+                      <ul class="dropdown-menu" id="variantsList">
+                      </ul>
+                    </li>
+                  </ul>
+                </div>
               </div>
               <div class="panel-body">
                   <section id="routesummary">
-                    <div class="checkbox">
-                        <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
-                    </div> 
-                    <div>
-                        <p>Variants</p>
-                    </div>
-                    <ul id="variantsList"></ul>
+                    <p>Route Summary</p>
                   </section>
                   <div class="row"><hr></div>
                   <section id="analysis">

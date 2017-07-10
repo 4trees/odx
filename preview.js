@@ -78,10 +78,10 @@ function updateService(data){
   if(data.routes.length == 0 ){
     modeText = 'touching'
     routeList = getRelationships(childrenStops,'stop_route')[1]  
-    document.querySelector('#routesummary').classList.add('hidden')
+    document.querySelector('#displayOption').classList.add('hidden')
   }else{
     modeText = 'on'
-    document.querySelector('#routesummary').classList.remove('hidden')
+    document.querySelector('#displayOption').classList.remove('hidden')
     //reset the touching route checkbox
     let touchroutes = document.querySelector('input[name=showTouchRoutes]')
     touchroutes.checked = false;
@@ -95,9 +95,9 @@ function updateService(data){
             let shapeId =  variant.key
             let shapeInfo = getShapeInfo(shapeId)
             let isChecked = routeMarkers.map(function(d){return d.marker.options.className.split(' ')[2].replace('hlShape','')}).includes(shapeId) ? 'checked' : ''
-            return `<p class="checkbox">
+            return `<li class="checkbox">
                         <label><input type="checkbox" name="" onchange="showVariants(this)" value=${shapeId} ${isChecked}>${shapeInfo[0]}  <small>${shapeInfo[1]}</small></label>
-                    </p>`
+                    </li>`
           }).join('')
     }).join('')
 
@@ -118,6 +118,18 @@ function updateOdx(data){
     .selectAll('.odx').data(data)
   let enterodx = updateodx.enter().append('g').attr('class','odx')
     .attr('transform',function(d,i){return 'translate(0' + ',' + (15 + i * 30) + ')'})
+  enterodx.append('rect')
+    .attr('y', 5)
+    .attr('height',10)
+    .style('fill',function(d){return colorForODX(d.type)})
+  enterodx.append('text')
+    .attr('class','odxLable')
+    .text(function(d){return odxLable(d.type)})
+  enterodx.append('circle')
+    .attr('cx',function(){const distance = this.parentNode.querySelector('.odxLable').getBBox();return distance.width + 10})
+    .attr('cy',-2)
+    .attr('r',4)
+    .style('fill',function(d){return colorForODX(odxPairs(d.type))})
     .on('mouseover',function(d){
       //remove previews markers
       d3.selectAll('.odxStop').remove()
@@ -147,13 +159,6 @@ function updateOdx(data){
       const group = new L.featureGroup(markers).addTo(map);;
       map.fitBounds(group.getBounds());
     })
-  enterodx.append('rect')
-    .attr('y', 5)
-    .attr('height',10)
-    .style('fill',function(d){return colorForODX(d.type)})
-  enterodx.append('text')
-    .attr('class','odxLable')
-    .text(function(d){return odxLable(d.type)})
   enterodx.append('text')
     .attr('y',13)
     .attr('class','odxCount')
@@ -172,7 +177,6 @@ function updateTransfer(data){
   document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML =  data.map(function(d){
     let fromRoute = allData.route.find(function(route){return route.route_id == d.from})
     let toRoute = allData.route.find(function(route){return route.route_id == d.to})
-    console.log(fromRoute,toRoute)
     return `
       <tr>
         <td>${fromRoute.route_long_name || fromRoute.route_short_name}</td>
