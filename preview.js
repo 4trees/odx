@@ -107,7 +107,7 @@ function updateService(data){
 
   document.querySelector('#stopInfo').innerHTML = `${data.stops.length} stop(s) <small>${modeText}</small> `;
   document.querySelector('#routeonStop').innerHTML = routeList.map(function(route){return route.route_short_name || route.route_long_name}).join(', ')
-
+  document.querySelector('#routeDetail').innerHTML = '<select>' + routeList.map(function(route){return `<option>${route.route_short_name || route.route_long_name}</option>`}).join(', ') + '</select>'
 }
 //update odx
 function updateOdx(data){
@@ -118,7 +118,7 @@ function updateOdx(data){
     .attr('height',130)
     .selectAll('.odx').data(data)
   let enterodx = updateodx.enter().append('g').attr('class','odx')
-    .attr('transform',function(d,i){return 'translate(0' + ',' + (15 + i * 30) + ')'})
+    .attr('transform',function(d,i){return `translate(0,${15 + i * 30})`})
   enterodx.append('rect')
     .attr('y', 5)
     .attr('height',10)
@@ -126,11 +126,11 @@ function updateOdx(data){
   enterodx.append('text')
     .attr('class','odxLable')
     .text(function(d){return odxLable(d.type)})
-  enterodx.append('circle')
-    .attr('cx',function(){const distance = this.parentNode.querySelector('.odxLable').getBBox();return distance.width + 10})
-    .attr('cy',-2)
-    .attr('r',4)
-    .style('fill',function(d){return colorForODX(odxPairs(d.type))})
+  enterodx.append('text')
+    .attr('y',13)
+    .attr('class','odxCount')
+  let odCheckpoint = enterodx.append('g')
+    .attr('transform',function(){const distance = this.parentNode.querySelector('.odxLable').getBBox();return `translate(${distance.width + 10},0)`})
     .on('mouseover',function(d){
       //remove previews markers
       d3.selectAll('.odxStop').remove()
@@ -160,9 +160,16 @@ function updateOdx(data){
       const group = new L.featureGroup(markers).addTo(map);;
       map.fitBounds(group.getBounds());
     })
-  enterodx.append('text')
-    .attr('y',13)
-    .attr('class','odxCount')
+  odCheckpoint.append('text')
+    .attr('class','checkpoint')
+    .attr('x',3)
+    .text(function(d,i){return i % 2 ? 'from' : 'to'})
+  odCheckpoint.insert('rect','.checkpoint')
+    .attr('y',-8)
+    .attr('width',function(){const distance = this.parentNode.querySelector('.checkpoint').getBBox();return distance.width + 5})
+    .attr('height',10)
+    .style('fill',function(d){return colorForODX(odxPairs(d.type))})
+    .style('fill-opacity',.4)
   let mergeodx = updateodx.merge(enterodx)
   mergeodx.select('rect')
     .attr('width', function(d){return fullWidthLabelScale(d.count)})

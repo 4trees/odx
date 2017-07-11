@@ -202,7 +202,7 @@ nav{
   padding: 5px 15px;
 }
 #variantsList label{
-  font-size:90%;
+  font-size:70%;
 }
 #displayOption ul{
   margin-bottom: 0;
@@ -219,6 +219,10 @@ nav{
 #mySelection .checkbox{
   display: inline-block;
 }
+#filters{
+  font-size:90%;
+  color:#999;
+}
 .odxCount{
   font-size:70%;
   fill:#999;
@@ -226,7 +230,10 @@ nav{
 .odxLable{
   font-size:90%;
 }
-
+.checkpoint{
+  font-size:70%;
+  fill:#333;
+}
 /*search*/
 .suggestions {
   margin-top: 25px;

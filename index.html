@@ -68,7 +68,8 @@
               </div>
               <div class="panel-body">
                   <section id="routesummary">
-                    <p>Route Summary</p>
+                    <p role="button" data-toggle="collapse" aria-expanded="false" data-target="#routeDetail" aria-controls="routeDetail">Route Summary</p>
+                    <div class="collapse" id="routeDetail"></div>
                   </section>
                   <div class="row"><hr></div>
                   <section id="analysis">
@@ -77,9 +78,11 @@
                           <p>Overview</p>
                       </div>
                       <div class="pull-right">
-                          <a type="button" class="iconButton"><i class="fa fa-filter" aria-hidden="true"></i></a>
+                          <a type="button" class="iconButton" data-toggle="modal" data-target="#filterBox"><i class="fa fa-filter" aria-hidden="true"></i></a>
                       </div>
                     </div>
+                    <div id="filters">filter by: <span>Weekdays - All time</span></div>
+                    <br>
                     <div id="odx">
                       <div><p>Trips</p></div>
                       <svg></svg>
@@ -91,11 +94,11 @@
                             <p>Transfer</p>
                         </div>
                         <div class="pull-right">
-                          <a type="button" class="iconButton active"><i class="fa fa-bar-chart" aria-hidden="true"></i></a>
-                          <a type="button" class="iconButton"><i class="fa fa-table" aria-hidden="true"></i></a>
+                          <!-- <a type="button" class="iconButton active"><i class="fa fa-bar-chart" aria-hidden="true"></i></a> -->
+                          <!-- <a type="button" class="iconButton"><i class="fa fa-table" aria-hidden="true"></i></a> -->
                         </div>
                       </div>
-                      <div class="transferChart"></div>
+                      <!-- <div class="transferChart"></div> -->
                       <div class="transferTable">
                         <table class="table table-hover">
                           <thead>
@@ -116,6 +119,7 @@
           <div class="collapseBt"><button onclick="toggleCollapse()"><i class="fa fa-caret-left" aria-label="Collapse side panel"></i></button> </div>
       </div>
     </div>
+    <!-- selection Box -->
     <div class="modal fade" tabindex="-1" role="dialog" id="mySelection">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -129,6 +133,67 @@
           <div class="modal-footer">
             <a type="button" onclick="clearSelectionBox()">Clear Selection</a>
             <button type="button" class="btn btn-default" onclick="synicSelection()">Save changes</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- filter Box -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="filterBox">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">filter</h4>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-12 col-md-12 col-md-12 col-xs-12"> 
+                <p>Mode</p><hr>
+                <div class="col-lg-12 col-md-12 col-md-12 col-xs-12"> 
+                  <span class="checkbox"><label><input type="checkbox" name="modeType" value="subway" checked>Subway</label></span>
+                  <span class="checkbox"><label><input type="checkbox" name="modeType" value="bus" checked>Bus</label></span>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12 col-md-12 col-md-12 col-xs-12"> 
+                <p>Date - Time</p><hr>
+                <div class="col-lg-6 col-md-6 col-md-6 col-xs-6">
+                  <p>Day</p>
+                  <select>
+                    <option name="dayPeriod" value="weekdays">Weekdays</option>
+                    <option name="dayPeriod" value="saturdays">Saturdays</option>
+                    <option name="dayPeriod" value="sundays">Sundays</option>
+                  </select>
+                </div>            
+                <div class="col-lg-6 col-md-6 col-md-6 col-xs-6">
+                <p>Time period</p>
+                 - under construction
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12 col-md-12 col-md-12 col-xs-12"> 
+                <p>Fare</p><hr>
+                <div class="col-lg-6 col-md-6 col-md-6 col-xs-6"> 
+                  <p>Fare user type</p>
+                  <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="regular" checked>Regular</label></span>
+                  <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="senior" checked>Senior</label></span>
+                  <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="student" checked>Student</label></span>
+                  <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="tap" checked>Tap</label></span>
+                </div>
+                <div class="col-lg-6 col-md-6 col-md-6 col-xs-6"> 
+                  <p>Fare method</p>
+                  <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="weeklypass" checked>Weekly Pass</label></span>
+                  <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="monthlypass" checked>Monthly Pass</label></span>
+                  <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="student" checked>Student</label></span>
+                  <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="payg" checked>PAYG</label></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">           
+            <button type="button" class="btn btn-default" onclick="">Confirm</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->

@@ -182,14 +182,14 @@ function setRoutesDisplay(action,routeIdList){
 
 // POPUP
 //get the hint text for popup
-//para are id of stop/route, type is 'stop'||'route'
-function getHint(idList,type){
+//para are id of stop/route, type is 'stop'||'route', where is 'draw' || 'click'
+function getHint(idList,type,where){
 	let hint;
 	if(selection.length == 0){
 		hint = '';
 	}else{
 		let ifremove = idList.some(function(id){return display[type + 's'].includes(id)})
-		if(idList == 1){
+		if(where === 'click'){
 			hint =  ifremove ? '<p class=\"hint\">Shift click to remove from current selection</p>' : '<p class=\"hint\">Shift click to add to current selection</p>'
 		}else{
 			hint = ifremove ? 'Remove from current selection' : 'Add to current selection';
@@ -206,7 +206,7 @@ function stopPopup(stop,childrenStops,touchRoutes){
 		<div class="routelabel" style="color:#${route.route_text_color};background:#${route.route_color}">${route.route_short_name || route.route_long_name}</div>
 		`
 		}).join('')
-	let hint =  getHint([stop.stop_id],'stop')
+	let hint =  getHint([stop.stop_id],'stop','click')
 	popup.setLatLng([stop.stop_lat,stop.stop_lon])
 		.setContent(`
 			<h5>${stop.stop_name}</h5> 
@@ -230,7 +230,7 @@ function shapePopup(location,shapeInfo){
 //update popup for the route
 function routePopup(location,route,stopLength){
 	let routeName = route.route_short_name || route.route_long_name;
-	let hint = getHint([route.route_id],'route')
+	let hint = getHint([route.route_id],'route','click')
 	popup.setLatLng(location)
         .setContent(`
     		<h5>${routeName}</h5>
@@ -243,7 +243,7 @@ function routePopup(location,route,stopLength){
 //update popup for the draw selection
 function selectionPopup(layer,drawSelection){
 	let location = layer.getBounds().getCenter()
-	let hint = getHint(drawSelection,'stop')
+	let hint = getHint(drawSelection,'stop','draw')
 	let isHidden = hint == '' ? 'hidden' : ''
 	console.log(hint)
 	let selection = {stops:drawSelection,routes:[]}
