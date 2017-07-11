@@ -3,6 +3,8 @@ html, body {
   height: 100%;
   font-size:10px;
   font-family: Verdana, Geneva, sans-serif;
+  background-color: #333;
+  color:#fff;
 }
 ul{
   margin-top: 10px;
@@ -18,14 +20,22 @@ hr{
   margin-top: 10px;
   margin-bottom: 10px;
 }
-.container-fluid,#content{
-  /*height:100%;*/
+.dropdown-menu{
+  background: #333;
+}
+
+.dash{
+  border:.5px dashed #666;
+}
+.container-fluid , .content{
+  min-width: 800px;
+  height: 100%;
 }
 .iconButton{
   margin-left: 8px;
   cursor: pointer;
   font-size:120%;
-  color:#333;
+  color:#fff;
 }
 .active{
   color:#ccc;
@@ -47,11 +57,16 @@ nav{
 
 
 /* MAP */
+#mapContainer{
+  height: 100%;
+  padding: 60px 15px 15px;
+}
 #mapid{
   width: 100%;
   height: 100%;
-  position: fixed;
-  top:0;
+  /*box-shadow: 0px 1px 1px #999;*/
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 .stop{
@@ -105,10 +120,7 @@ nav{
 .subwayRoute{
   opacity: .3;
 }
-/* Leaflet DRAW TOOL */
-.leaflet-draw{
-  margin-top: 70px !important;
-}
+
 /* Leaflet POPUP*/
 .leaflet-popup-content-wrapper, .leaflet-popup-tip{
 	background: #fff;
@@ -149,19 +161,14 @@ nav{
 
 /* PREVIEW PANEL */
 #preview{
-  width: 300px;
-  left: -500px;
-  height: 100%;
-  z-index: 1000;
-  position: fixed;
-  transition: all 1s;
-}
-.panel{
   width: 100%;
-  max-height: 100%;
-  background: #fff;
-  float:left;
-  box-shadow: 0px 1px 1px #999;
+  padding-top: 60px;
+}
+#preview hr{
+  border-color:#666;
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+  border-color:#999;
 }
 .collapseBt{
   width: 18px;
@@ -183,15 +190,16 @@ nav{
   vertical-align: center;
   font-size: 120%;
 }
-#analysis .title{
+/*#analysis .title{
   font-size:120%;
   margin-bottom: 10px;
-}
+}*/
 #selection{
   max-width: 100%;
   margin-top: 8px;
-  border: 1px solid #ccc;
-  color:#333;
+  font-size:100%;
+  border: 1px solid #787878;
+  color:#fff;
   white-space: normal;
   text-align: left;
 }
@@ -207,21 +215,22 @@ nav{
 #displayOption ul{
   margin-bottom: 0;
   margin-top: 0;
+  padding-top:5px;
 }
-#displayOption ul li{
-  display: inline-block;
-  margin-right: 15px;
-  margin-bottom: 0;
-}
+
 #displayOption .dropdown a{
- color:#333;
+ color:#fff;
 }
 #mySelection .checkbox{
   display: inline-block;
 }
+#filterBt{
+  cursor: pointer;
+}
 #filters{
-  font-size:90%;
+  font-size:80%;
   color:#999;
+  margin-top: 10px;
 }
 .odxCount{
   font-size:70%;
@@ -229,10 +238,11 @@ nav{
 }
 .odxLable{
   font-size:90%;
+  fill:#fff;
 }
 .checkpoint{
-  font-size:70%;
-  fill:#333;
+  font-size:80%;
+  fill:#fff;
 }
 /*search*/
 .suggestions {
@@ -270,4 +280,36 @@ nav{
 }
 .suggestions .name .hl {
   background:#ffc600;
+}
+
+
+/* shadow for map*/
+.shadow{
+    position:relative;
+    -webkit-box-shadow:0 1px 6px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+       -moz-box-shadow:0 1px 6px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+            box-shadow:0 1px 6px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+}
+.shadow:before, .shadow:after{
+    content:"";
+    position:absolute;
+    z-index:-1;
+    -webkit-box-shadow:0 0 20px rgba(0,0,0,0.8);
+    -moz-box-shadow:0 0 20px rgba(0,0,0,0.8);
+    box-shadow:0 0 20px rgba(0,0,0,0.8);
+    top:10px;
+    bottom:10px;
+    left:0;
+    right:0;
+    -moz-border-radius:100px / 10px;
+    border-radius:100px / 10px;
+}
+.shadow:after{
+    right:10px;
+    left:auto;
+    -webkit-transform:skew(8deg) rotate(3deg);
+       -moz-transform:skew(8deg) rotate(3deg);
+        -ms-transform:skew(8deg) rotate(3deg);
+         -o-transform:skew(8deg) rotate(3deg);
+            transform:skew(8deg) rotate(3deg);
 }

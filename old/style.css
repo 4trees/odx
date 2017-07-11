@@ -1,0 +1,273 @@
+/* GLOBAL STYLE */
+html, body {
+  height: 100%;
+  font-size:10px;
+  font-family: Verdana, Geneva, sans-serif;
+}
+ul{
+  margin-top: 10px;
+  padding: 0;
+}
+li{
+  list-style: none;
+}
+p{
+  margin: 0;
+}
+hr{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.container-fluid,#content{
+  /*height:100%;*/
+}
+.iconButton{
+  margin-left: 8px;
+  cursor: pointer;
+  font-size:120%;
+  color:#333;
+}
+.active{
+  color:#ccc;
+}
+/* NAVIGATION BAR */
+.navbar{
+  border-radius: 0;
+  padding-top: 10px;
+  padding-left: 20px;
+  height: 50px;
+  border-bottom: 2px solid rgba(0,0,0,0.2)
+}
+.navbar li{
+  margin-right:30px;
+}
+nav{
+  z-index: 1001;
+}
+
+
+/* MAP */
+#mapid{
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top:0;
+}
+
+.stop{
+  stroke: #333;
+  fill:#38c0df;
+  stroke-width:1;
+  transition: fill-opacity .5s;
+}
+.hlStop{
+  stroke-width:8;
+  stroke: #38c0df !important;
+  fill-opacity: 1;
+}
+.selectStop{
+  stroke: #38c0df !important;
+  stroke-width:8;
+  fill-opacity: 1 !important;
+  fill:#000;
+}
+.odxStop{
+  stroke-opacity:.9;
+}
+.shape,.route{
+	fill:none;
+  opacity: .5;
+  transition: stroke-width .5s, stroke .5s;
+}
+.route{
+  stroke: #666;
+  stroke-width:4;
+}
+.shape{
+  stroke: #b2b2b2;
+  stroke-width:2;
+}
+.hlShape{
+  stroke-width:4;
+  opacity: 1 !important;
+}
+.hlRoute{
+  opacity: 1 !important;
+  stroke-width:7;
+}
+.selectRoute{
+  opacity: 1 !important;
+  stroke-width:7;
+}
+.touchRoute{
+  opacity: 1 !important;
+}
+.subwayRoute{
+  opacity: .3;
+}
+/* Leaflet DRAW TOOL */
+.leaflet-draw{
+  margin-top: 70px !important;
+}
+/* Leaflet POPUP*/
+.leaflet-popup-content-wrapper, .leaflet-popup-tip{
+	background: #fff;
+	opacity: .9;
+	color: #333;
+}
+.leaflet-popup-content-wrapper{
+	border-radius: 4px;
+  min-width: 280px;
+}
+.leaflet-popup-content{
+	margin: 10px;
+}
+.leaflet-popup-close-button{
+  color: #000;
+}
+
+.hint{
+  /*font-size: 60%;*/
+  color:#999;
+}
+
+.routeList{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.routelabel{
+  padding: 3px 5px;
+  margin-right: 5px;
+  border-radius: 3px;
+  margin-bottom: 5px;
+}
+/* Leaflet CUSTOM CONTROL -- BACK TO BOSTON BUTTON */
+.leaflet-control-custom{
+  font-size: 16px;
+}
+
+/* PREVIEW PANEL */
+#preview{
+  width: 300px;
+  left: -500px;
+  height: 100%;
+  z-index: 1000;
+  position: fixed;
+  transition: all 1s;
+}
+.panel{
+  width: 100%;
+  max-height: 100%;
+  background: #fff;
+  float:left;
+  box-shadow: 0px 1px 1px #999;
+}
+.collapseBt{
+  width: 18px;
+  height: 30px;
+  position: absolute;
+  left: 300px;
+  margin-top: 40px;
+}
+.collapseBt button{
+  background: #fff;
+  padding: 0 5px;
+  border: none;
+}
+.collapseBt button:focus{
+  outline: none;
+}
+.collapseBt i{
+  line-height: 30px;
+  vertical-align: center;
+  font-size: 120%;
+}
+#analysis .title{
+  font-size:120%;
+  margin-bottom: 10px;
+}
+#selection{
+  max-width: 100%;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  color:#333;
+  white-space: normal;
+  text-align: left;
+}
+#preview .checkbox label{
+  display: block;
+}
+#variantsList{
+  padding: 5px 15px;
+}
+#variantsList label{
+  font-size:70%;
+}
+#displayOption ul{
+  margin-bottom: 0;
+  margin-top: 0;
+}
+#displayOption ul li{
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 0;
+}
+#displayOption .dropdown a{
+ color:#333;
+}
+#mySelection .checkbox{
+  display: inline-block;
+}
+#filters{
+  font-size:90%;
+  color:#999;
+}
+.odxCount{
+  font-size:70%;
+  fill:#999;
+}
+.odxLable{
+  font-size:90%;
+}
+.checkpoint{
+  font-size:70%;
+  fill:#333;
+}
+/*search*/
+.suggestions {
+  margin-top: 25px;
+  padding: 0;
+  position: relative;
+  /*perspective:20px;*/
+  max-width: 300px;
+}
+.suggestions li {
+  background:white;
+  list-style: none;
+  border-bottom: 1px solid #D8D8D8;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.14);
+  margin:0;
+  padding:20px;
+  /*transition:background 0.2s;*/
+  text-transform: capitalize;
+  cursor: pointer;
+}
+.suggestions li p{
+  display:flex;
+  justify-content:space-between;
+}
+.suggestions li:nth-child(even) {
+  transform:  rotateX(3deg) translateY(2px) scale(1.001);
+  background: linear-gradient(to bottom,  #ffffff 0%,#EFEFEF 100%);
+}
+.suggestions li:nth-child(odd) {
+  transform:  rotateX(-3deg) translateY(3px);
+  background: linear-gradient(to top,  #ffffff 0%,#EFEFEF 100%);
+}
+.suggestions li:hover{
+  background: #fff;
+}
+.suggestions .name .hl {
+  background:#ffc600;
+}

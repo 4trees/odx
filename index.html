@@ -16,7 +16,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="lib/bootstrap-3.3.5/bootstrap.min.js"></script>
 </head>
-<nav class="navbar navbar-default">
+<!-- <nav class="navbar navbar-default">
         <ul class="nav navbar-nav">
             <li class="input-group input-group-sm" id="searchBar">
                 <input type="text" class="form-control" name="search" placeholder="stop, route..." value="">
@@ -31,92 +31,86 @@
             </li>
         </ul>
 
-</nav>
+</nav> -->
 <body>
 <div class="container-fluid">
-    <div class="row" id="content">
-      <div id="mapid"></div>
-      <div id="preview">
-          <div class="panel panel-default">   
-              <div class="panel-heading">
+    <div class="row content">
+      <div class="col-lg-2 col-md-2">
+        <div id="preview">
+            <div class="clearfix">
+              <div class="pull-left">
+                <p>Selected</p>
+              </div>
+              <div class="pull-right">
+                <a type="button" id="clear" class="iconButton" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                <a type="button" id="undo" class="hidden iconButton" onclick="undoSelection()"><i class="fa fa-undo" aria-hidden="true"></i></a>
+              </div>
+            </div>
+            <div class="btn btn-xs" type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()">
+                <p><span id="stopInfo"></span><span id="routeonStop"></span></p>
+            </div>
+            <div id="displayOption">
+              <ul>
+                <li class="checkbox" id="showTouchRoutes">
+                    <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
+                </li>
+                <li class="dropdown hidden" id="showVariants">
+                  <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">show variants <span class="caret"></span></a>
+                  <ul class="dropdown-menu" id="variantsList">
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            <div class="row"><hr></div>
+            <section id="routesummary">
+              <p role="button" data-toggle="collapse" aria-expanded="false" data-target="#routeDetail" aria-controls="routeDetail">Route Summary</p>
+              <div class="collapse" id="routeDetail"></div>
+            </section>
+            <div class="row"><hr></div>
+            <section>
+              <div type="button" data-toggle="modal" data-target="#filterBox" id="filterBt">
+                <p><i class="fa fa-filter" class="iconButton" aria-hidden="true"></i> Filter</p>
+                <p id="filters">filter by: <span>Weekdays - All time</span></p>
+              </div>      
+            </section>
+            <div class="row"><hr></div>
+            <section id="analysis">              
+              <div id="odx">
+                <div><p>Trips</p></div>
+                <svg></svg>
+              </div>
+              <hr class="dash">
+              <div id="transfer">
                 <div class="clearfix">
                   <div class="pull-left">
-                    <p>Selected</p>
+                      <p>Transfer</p>
                   </div>
                   <div class="pull-right">
-                    <a type="button" id="clear" class="iconButton" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
-                    <a type="button" id="undo" class="hidden iconButton" onclick="undoSelection()"><i class="fa fa-undo" aria-hidden="true"></i></a>
+                    <!-- <a type="button" class="iconButton active"><i class="fa fa-bar-chart" aria-hidden="true"></i></a> -->
+                    <!-- <a type="button" class="iconButton"><i class="fa fa-table" aria-hidden="true"></i></a> -->
                   </div>
                 </div>
-                <div>
-                  <a class="btn btn-xs" type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()">
-                    <p><span id="stopInfo"></span><span id="routeonStop"></span></p>
-                  </a>
-                </div>
-                <div id="displayOption">
-                  <ul>
-                    <li class="checkbox" id="showTouchRoutes">
-                        <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
-                    </li>
-                    <li class="dropdown" id="showVariants">
-                      <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">show variants <span class="caret"></span></a>
-                      <ul class="dropdown-menu" id="variantsList">
-                      </ul>
-                    </li>
-                  </ul>
+                <!-- <div class="transferChart"></div> -->
+                <div class="transferTable">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Trips</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
                 </div>
               </div>
-              <div class="panel-body">
-                  <section id="routesummary">
-                    <p role="button" data-toggle="collapse" aria-expanded="false" data-target="#routeDetail" aria-controls="routeDetail">Route Summary</p>
-                    <div class="collapse" id="routeDetail"></div>
-                  </section>
-                  <div class="row"><hr></div>
-                  <section id="analysis">
-                    <div class="clearfix title">
-                      <div class="pull-left">
-                          <p>Overview</p>
-                      </div>
-                      <div class="pull-right">
-                          <a type="button" class="iconButton" data-toggle="modal" data-target="#filterBox"><i class="fa fa-filter" aria-hidden="true"></i></a>
-                      </div>
-                    </div>
-                    <div id="filters">filter by: <span>Weekdays - All time</span></div>
-                    <br>
-                    <div id="odx">
-                      <div><p>Trips</p></div>
-                      <svg></svg>
-                    </div>
-                    <hr>
-                    <div id="transfer">
-                      <div class="clearfix">
-                        <div class="pull-left">
-                            <p>Transfer</p>
-                        </div>
-                        <div class="pull-right">
-                          <!-- <a type="button" class="iconButton active"><i class="fa fa-bar-chart" aria-hidden="true"></i></a> -->
-                          <!-- <a type="button" class="iconButton"><i class="fa fa-table" aria-hidden="true"></i></a> -->
-                        </div>
-                      </div>
-                      <!-- <div class="transferChart"></div> -->
-                      <div class="transferTable">
-                        <table class="table table-hover">
-                          <thead>
-                            <tr>
-                              <th>From</th>
-                              <th>To</th>
-                              <th>Trips</th>
-                            </tr>
-                          </thead>
-                          <tbody></tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </section>
-              </div>
+            </section>
           </div>
           <!-- end panel -->
-          <div class="collapseBt"><button onclick="toggleCollapse()"><i class="fa fa-caret-left" aria-label="Collapse side panel"></i></button> </div>
+          <!-- <div class="collapseBt"><button onclick="toggleCollapse()"><i class="fa fa-caret-left" aria-label="Collapse side panel"></i></button> </div> -->
+      </div>
+      <div  id="mapContainer" class="col-lg-10 col-md-10">
+        <div id="mapid" class="shadow" ></div>
       </div>
     </div>
     <!-- selection Box -->
@@ -147,18 +141,18 @@
           </div>
           <div class="modal-body">
             <div class="row">
-              <div class="col-lg-12 col-md-12 col-md-12 col-xs-12"> 
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
                 <p>Mode</p><hr>
-                <div class="col-lg-12 col-md-12 col-md-12 col-xs-12"> 
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
                   <span class="checkbox"><label><input type="checkbox" name="modeType" value="subway" checked>Subway</label></span>
                   <span class="checkbox"><label><input type="checkbox" name="modeType" value="bus" checked>Bus</label></span>
                 </div>
               </div>
             </div>
             <div class="row">
-              <div class="col-lg-12 col-md-12 col-md-12 col-xs-12"> 
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
                 <p>Date - Time</p><hr>
-                <div class="col-lg-6 col-md-6 col-md-6 col-xs-6">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                   <p>Day</p>
                   <select>
                     <option name="dayPeriod" value="weekdays">Weekdays</option>
@@ -166,23 +160,23 @@
                     <option name="dayPeriod" value="sundays">Sundays</option>
                   </select>
                 </div>            
-                <div class="col-lg-6 col-md-6 col-md-6 col-xs-6">
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                 <p>Time period</p>
                  - under construction
                 </div>
               </div>
             </div>
             <div class="row">
-              <div class="col-lg-12 col-md-12 col-md-12 col-xs-12"> 
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
                 <p>Fare</p><hr>
-                <div class="col-lg-6 col-md-6 col-md-6 col-xs-6"> 
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
                   <p>Fare user type</p>
                   <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="regular" checked>Regular</label></span>
                   <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="senior" checked>Senior</label></span>
                   <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="student" checked>Student</label></span>
                   <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="tap" checked>Tap</label></span>
                 </div>
-                <div class="col-lg-6 col-md-6 col-md-6 col-xs-6"> 
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
                   <p>Fare method</p>
                   <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="weeklypass" checked>Weekly Pass</label></span>
                   <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="monthlypass" checked>Monthly Pass</label></span>
