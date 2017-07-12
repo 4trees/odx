@@ -16,74 +16,71 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="lib/bootstrap-3.3.5/bootstrap.min.js"></script>
 </head>
-<!-- <nav class="navbar navbar-default">
-        <ul class="nav navbar-nav">
-            <li class="input-group input-group-sm" id="searchBar">
-                <input type="text" class="form-control" name="search" placeholder="stop, route..." value="">
-                <ul class="suggestions hidden">
-                </ul>
-            </li>
-            <li class="checkbox">
-              <label>
-                <input type="checkbox" name="showallVariants" onchange="toggleVariants()">
-                show all variants
-              </label>
-            </li>
-        </ul>
-
-</nav> -->
+<nav class="navbar navbar-fixed-top">
+  <div class="navbar-header">
+    <a class="navbar-brand" href="#">ODX Viewer</a>
+  </div>
+  <ul class="nav navbar-nav navbar-right">
+      <li>
+      <a href="#">About</a>
+      </li>
+  </ul>
+</nav>
 <body>
 <div class="container-fluid">
     <div class="row content">
-      <div class="col-lg-2 col-md-2">
-        <div id="preview">
+      <div class="col-lg-2 col-md-2" id="previewContainer">
+        <div id="emptyHint"><h5>Select</h5><h5>a stop or a route</h5><h5>to start</h5></div>
+        <div id="preview" class="hidden scrollbar scroll">
             <div class="clearfix">
               <div class="pull-left">
-                <p>Selected</p>
+                <p class="sectionTitle">Selected</p>
               </div>
               <div class="pull-right">
-                <a type="button" id="clear" class="iconButton" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
-                <a type="button" id="undo" class="hidden iconButton" onclick="undoSelection()"><i class="fa fa-undo" aria-hidden="true"></i></a>
+                <a type="button" id="clear" class="iconButton" title="clear all" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                <a type="button" id="undo" class="hidden iconButton" title="undo" onclick="undoSelection()"><i class="fa fa-undo" aria-hidden="true"></i></a>
               </div>
             </div>
-            <div class="btn btn-xs" type="button" data-toggle="modal" data-target="#mySelection" id="selection" onclick="updateSelectionBox()">
-                <p><span id="stopInfo"></span><span id="routeonStop"></span></p>
+            <div>
+                <div class="btn btn-default btn-xs" type="button" data-toggle="modal" data-target="#mySelection" id="selection" title="edit" onclick="updateSelectionBox()">
+                  <p id="selectionInfo"><span id="stopInfo"></span><span id="routeonStop"></span></p>
+                </div>
             </div>
-            <div id="displayOption">
+            <section id="displayOption">
               <ul>
                 <li class="checkbox" id="showTouchRoutes">
-                    <label><input type="checkbox" name="showTouchRoutes" onchange="showTouchRoutes(this)">show touching routes</label>
+                  <input type="checkbox" name="showTouchRoutes" id="touchroutes" onchange="showTouchRoutes(this)"><label for="touchroutes">show touching routes</label>
                 </li>
                 <li class="dropdown hidden" id="showVariants">
-                  <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">show variants <span class="caret"></span></a>
-                  <ul class="dropdown-menu" id="variantsList">
+                  <a role="button" data-toggle="collapse" aria-expanded="false" data-target="#variantsList" aria-controls="variantsList"><i class="fa fa-ellipsis-v" aria-hidden="true"></i> Variants</a>
+                  <ul class="collapse" id="variantsList">
                   </ul>
                 </li>
               </ul>
-            </div>
-            <div class="row"><hr></div>
+            </section>           
             <section id="routesummary">
-              <p role="button" data-toggle="collapse" aria-expanded="false" data-target="#routeDetail" aria-controls="routeDetail">Route Summary</p>
+              <!-- <div class="row"><hr></div> -->
+              <p role="button" data-toggle="collapse" aria-expanded="false" data-target="#routeDetail" aria-controls="routeDetail"><i class="fa fa-ellipsis-v" aria-hidden="true"></i> Route Summary</p>
               <div class="collapse" id="routeDetail"></div>
-            </section>
-            <div class="row"><hr></div>
+            </section>            
             <section>
+              <!-- <div class="row"><hr></div> -->
               <div type="button" data-toggle="modal" data-target="#filterBox" id="filterBt">
                 <p><i class="fa fa-filter" class="iconButton" aria-hidden="true"></i> Filter</p>
                 <p id="filters">filter by: <span>Weekdays - All time</span></p>
               </div>      
-            </section>
-            <div class="row"><hr></div>
-            <section id="analysis">              
-              <div id="odx">
-                <div><p>Trips</p></div>
+            </section>           
+            <!-- <section id="analysis">  -->
+              <!-- <div class="row"><hr></div>              -->
+              <section id="odx">
+                <div><p class="sectionTitle">Trips</p></div>
                 <svg></svg>
-              </div>
-              <hr class="dash">
-              <div id="transfer">
+              </section>
+              <!-- <hr class="dash"> -->
+              <section id="transfer">
                 <div class="clearfix">
                   <div class="pull-left">
-                      <p>Transfer</p>
+                      <p class="sectionTitle">Transfer</p>
                   </div>
                   <div class="pull-right">
                     <!-- <a type="button" class="iconButton active"><i class="fa fa-bar-chart" aria-hidden="true"></i></a> -->
@@ -103,9 +100,9 @@
                     <tbody></tbody>
                   </table>
                 </div>
-              </div>
-            </section>
-          </div>
+              </section>
+            <!-- </section> -->
+        </div>
           <!-- end panel -->
           <!-- <div class="collapseBt"><button onclick="toggleCollapse()"><i class="fa fa-caret-left" aria-label="Collapse side panel"></i></button> </div> -->
       </div>
@@ -125,7 +122,7 @@
             <!-- <p>One fine body&hellip;</p> -->
           </div>
           <div class="modal-footer">
-            <a type="button" onclick="clearSelectionBox()">Clear Selection</a>
+            <a type="button" onclick="clearSelectionBox()">Clear all &#38; save</a>
             <button type="button" class="btn btn-default" onclick="synicSelection()">Save changes</button>
           </div>
         </div><!-- /.modal-content -->
@@ -137,15 +134,15 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">filter</h4>
+            <h4 class="modal-title">Filter</h4>
           </div>
           <div class="modal-body">
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
                 <p>Mode</p><hr>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                  <span class="checkbox"><label><input type="checkbox" name="modeType" value="subway" checked>Subway</label></span>
-                  <span class="checkbox"><label><input type="checkbox" name="modeType" value="bus" checked>Bus</label></span>
+                  <span class="checkbox"><input type="checkbox" name="modeType" value="subway" id="subway" checked><label for="subway">Subway</label></span>
+                  <span class="checkbox"><input type="checkbox" name="modeType" value="bus" id="bus" checked><label for="bus">Bus</label></span>
                 </div>
               </div>
             </div>
@@ -171,17 +168,16 @@
                 <p>Fare</p><hr>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
                   <p>Fare user type</p>
-                  <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="regular" checked>Regular</label></span>
-                  <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="senior" checked>Senior</label></span>
-                  <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="student" checked>Student</label></span>
-                  <span class="checkbox"><label><input type="checkbox" name="fareUserType" value="tap" checked>Tap</label></span>
+                  <span class="checkbox"><input type="checkbox" name="fareUserType" value="regular" id="regular" checked><label for="regular">Regular</label></span>
+                  <span class="checkbox"><input type="checkbox" name="fareUserType" value="senior" id="senior" checked><label for="senior">Senior</label></span>
+                  <span class="checkbox"><input type="checkbox" name="fareUserType" value="student" id="student" checked><label for="student">Student</label></span>
+                  <span class="checkbox"><input type="checkbox" name="fareUserType" value="tap" id="tap" checked><label for="tap">Tap</label></span>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
                   <p>Fare method</p>
-                  <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="weeklypass" checked>Weekly Pass</label></span>
-                  <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="monthlypass" checked>Monthly Pass</label></span>
-                  <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="student" checked>Student</label></span>
-                  <span class="checkbox"><label><input type="checkbox" name="fareMethod" value="payg" checked>PAYG</label></span>
+                  <span class="checkbox"><input type="checkbox" name="fareMethod" value="weeklypass" id="weeklypass" checked><label for="weeklypass">Weekly Pass</label></span>
+                  <span class="checkbox"><input type="checkbox" name="fareMethod" value="monthlypass" id="monthlypass" checked><label for="monthlypass">Monthly Pass</label></span>
+                  <span class="checkbox"><input type="checkbox" name="fareMethod" value="payg" id="payg" checked><label for="payg">PAYG</label></span>
                 </div>
               </div>
             </div>

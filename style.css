@@ -6,6 +6,9 @@ html, body {
   background-color: #333;
   color:#fff;
 }
+body{
+  padding-top: 60px;
+}
 ul{
   margin-top: 10px;
   padding: 0;
@@ -19,14 +22,54 @@ p{
 hr{
   margin-top: 10px;
   margin-bottom: 10px;
+  border-color:#787878;
 }
-.dropdown-menu{
+a,a:hover{
+  color:#fff;
+}
+a:hover{
+  cursor: pointer;
+  text-decoration: none;
+}
+section{
+  margin-top:20px;
+}
+.dropdown-menu,select{
+  background: #333;
+}
+select{
+  margin-bottom: 15px;
+  margin-top: 10px;
+  padding: 1px 3px;
+  border: 1px solid #787878;
+  border-radius: 2px;
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+  border-color:rgba(120,120,120,.8);
+}
+
+/* model style */
+.modal-header,.modal-footer{
+  border-color:#484848;
+}
+.modal-content{
   background: #333;
 }
 
-.dash{
-  border:.5px dashed #666;
+/* button style */
+.btn-default{
+  background: #333;
+  color:#fff;
+  border-color:#787878;
 }
+.btn-default:hover,.btn-default:active,.btn-default:focus{
+  background: rgba(34,34,34,.8) !important;
+  color:#fff !important;
+}
+
+/*.dash{
+  border:.5px dashed #787878;
+}*/
 .container-fluid , .content{
   min-width: 800px;
   height: 100%;
@@ -42,24 +85,24 @@ hr{
 }
 /* NAVIGATION BAR */
 .navbar{
-  border-radius: 0;
-  padding-top: 10px;
-  padding-left: 20px;
-  height: 50px;
-  border-bottom: 2px solid rgba(0,0,0,0.2)
+  padding-right: 20px;
 }
-.navbar li{
-  margin-right:30px;
+.navbar-header, .nav>li>a{
+  opacity: .7;
+}
+.nav>li>a:focus, .nav>li>a:hover{
+  opacity: 1;
+  background: none;
 }
 nav{
-  z-index: 1001;
+  z-index: 999;
 }
 
 
 /* MAP */
 #mapContainer{
   height: 100%;
-  padding: 60px 15px 15px;
+  padding: 0px 15px 15px 0px;
 }
 #mapid{
   width: 100%;
@@ -123,9 +166,13 @@ nav{
 
 /* Leaflet POPUP*/
 .leaflet-popup-content-wrapper, .leaflet-popup-tip{
-	background: #fff;
-	opacity: .9;
-	color: #333;
+/*	background: rgba(34,34,34,.9);
+	color: #fff;*/
+  background: rgba(255,255,255,.9);
+  color: #333;
+}
+.leaflet-popup-content-wrapper hr{
+  border-color: #ccc;
 }
 .leaflet-popup-content-wrapper{
 	border-radius: 4px;
@@ -139,7 +186,6 @@ nav{
 }
 
 .hint{
-  /*font-size: 60%;*/
   color:#999;
 }
 
@@ -160,15 +206,22 @@ nav{
 }
 
 /* PREVIEW PANEL */
+#previewContainer{
+  /*padding-top: 60px;*/
+  height: 100%;
+}
 #preview{
+  height: 100%;
   width: 100%;
-  padding-top: 60px;
 }
-#preview hr{
-  border-color:#666;
+#emptyHint{
+  opacity: .4;
+  text-align: center;
+  transform: translateY(350%);
 }
-.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
-  border-color:#999;
+.sectionTitle,.selectionTitle{
+  font-size: 120%;
+  opacity: .5;
 }
 .collapseBt{
   width: 18px;
@@ -190,32 +243,23 @@ nav{
   vertical-align: center;
   font-size: 120%;
 }
-/*#analysis .title{
-  font-size:120%;
-  margin-bottom: 10px;
-}*/
+
 #selection{
   max-width: 100%;
   margin-top: 8px;
   font-size:100%;
-  border: 1px solid #787878;
-  color:#fff;
   white-space: normal;
   text-align: left;
+  padding: 5px 8px;
 }
-#preview .checkbox label{
-  display: block;
-}
+
 #variantsList{
   padding: 5px 15px;
+  margin-bottom: -15px;
 }
-#variantsList label{
-  font-size:70%;
-}
-#displayOption ul{
+#displayOption ~ ul{
   margin-bottom: 0;
   margin-top: 0;
-  padding-top:5px;
 }
 
 #displayOption .dropdown a{
@@ -223,6 +267,7 @@ nav{
 }
 #mySelection .checkbox{
   display: inline-block;
+  margin-right: 20px;
 }
 #filterBt{
   cursor: pointer;
@@ -245,22 +290,26 @@ nav{
   fill:#fff;
 }
 /*search*/
+#searchBar{
+  z-index: 1000;
+}
 .suggestions {
-  margin-top: 25px;
+  font-size: 70%;
+  color: #333;
+  margin-top: 27px;
   padding: 0;
   position: relative;
-  /*perspective:20px;*/
+  margin-bottom: 0;
   max-width: 300px;
 }
+
 .suggestions li {
-  background:white;
+  background:rgba(255, 255,255, 0.6);
   list-style: none;
   border-bottom: 1px solid #D8D8D8;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.14);
   margin:0;
-  padding:20px;
-  /*transition:background 0.2s;*/
-  text-transform: capitalize;
+  padding:10px 20px;
   cursor: pointer;
 }
 .suggestions li p{
@@ -268,15 +317,15 @@ nav{
   justify-content:space-between;
 }
 .suggestions li:nth-child(even) {
-  transform:  rotateX(3deg) translateY(2px) scale(1.001);
-  background: linear-gradient(to bottom,  #ffffff 0%,#EFEFEF 100%);
+  /*transform:  rotateX(3deg) translateY(2px) scale(1.001);*/
+  background: linear-gradient(to bottom,  #ffffff 0%,#eee 60%);
 }
 .suggestions li:nth-child(odd) {
-  transform:  rotateX(-3deg) translateY(3px);
-  background: linear-gradient(to top,  #ffffff 0%,#EFEFEF 100%);
+  /*transform:  rotateX(-3deg) translateY(3px);*/
+  background: linear-gradient(to top,  #ffffff 0%,#eee 60%);
 }
 .suggestions li:hover{
-  background: #fff;
+  background: rgba(255, 255,255, 1);
 }
 .suggestions .name .hl {
   background:#ffc600;
@@ -312,4 +361,58 @@ nav{
         -ms-transform:skew(8deg) rotate(3deg);
          -o-transform:skew(8deg) rotate(3deg);
             transform:skew(8deg) rotate(3deg);
+}
+
+/* SCROLL BAR */
+.scrollbar{
+  overflow-y: scroll;
+  /*overflow-x: hidden;*/
+}
+
+.scroll::-webkit-scrollbar{
+  display: none;
+}
+
+/* CHECK BOX LABELIZE*/
+.checkbox{
+  margin-bottom: 0;
+}
+input[type="checkbox"] { 
+  display: none; 
+}
+
+input[type="checkbox"] + label {
+  display: block;
+  position: relative;
+  padding-left: 20px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+input[type="checkbox"] + label:before {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #6cc0e5;
+  position: absolute;
+  left: 0;
+  top: 2px;
+  opacity: .6;
+  -webkit-transition: all .12s, border-color .08s;
+  transition: all .12s, border-color .08s;
+}
+
+input[type="checkbox"]:checked + label:before {
+  width: 10px;
+  top: -3px;
+  border-radius: 0;
+  opacity: 1;
+  border-top-color: transparent;
+  border-left-color: transparent;
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
 }

@@ -26,9 +26,49 @@ var resetMap = L.Control.extend({
     }
     return container;
   },
-
 });
 map.addControl(new resetMap());
+
+//search on the map
+var searchMap = L.Control.extend({
+  options: {
+    position: 'topleft' 
+  },
+  onAdd: function (map) {
+  	var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+    container.innerHTML = `
+    		<div class="input-group input-group-sm" id="searchBar">  			
+                <input type="text" class="form-control" name="search" placeholder="stop, route..." value="">
+                <ul class="suggestions hidden">
+                </ul>
+            </div>`
+    container.onclick = function(){
+      this.querySelector('div').classList.remove('hidden')
+      this.querySelector('a').classList.remove('hidden')
+    }
+    return container;
+  },
+});
+map.addControl(new searchMap());
+
+//visual map layer
+var VlayerMap = L.Control.extend({
+  options: {
+    position: 'bottomleft' 
+  },
+  onAdd: function (map) {
+  	var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+    container.innerHTML = `
+                <a title = "Show all variants" role="button">
+                	<label><input type="checkbox" name="showallVariants"><i class="fa fa-road" aria-hidden="true"></i></label>
+                </a>`
+    container.onclick = function(){
+    	toggleVariants()
+    }
+    return container;
+  },
+});
+map.addControl(new VlayerMap());
 
 //set a drawcontrol
 var drawnItems = new L.FeatureGroup();

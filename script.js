@@ -1,8 +1,8 @@
-//set shiftKey actions for draw toolbar
+//set hint text for draw toolbar
 var drawPolygon = document.querySelector('.leaflet-draw-draw-polygon')
 var drawRectangle = document.querySelector('.leaflet-draw-draw-rectangle')
-drawPolygon.setAttribute('title','Click to draw your new selection; Shift click to draw additional selection')
-drawRectangle.setAttribute('title','Click to draw your new selection; Shift click to draw additional selection')
+drawPolygon.setAttribute('title','Draw a polygon to select stops')
+drawRectangle.setAttribute('title','Draw a rectangle to select stops')
 
 
 //GLOBEL VARIABLES

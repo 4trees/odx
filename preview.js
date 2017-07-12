@@ -1,20 +1,20 @@
 
 // testing data
 var odx = [
-  {type:'o',count:1300, list:[{stop_id:'70002',count:400},{stop_id:'70007',count:300},{stop_id:'8824',count:500},{stop_id:'88335',count:100}],},
-  {type:'d',count:230,list:[{stop_id:'8820',count:20},{stop_id:'87619',count:10},{stop_id:'70124',count:100},{stop_id:'36961',count:100}]},
-  {type:'xo',count:800,list:[{stop_id:'3683',count:300},{stop_id:'70007',count:200},{stop_id:'23835',count:300}]},
-  {type:'xd',count:120,list:[{stop_id:'36842',count:100},{stop_id:'2369',count:20}]}
+  {type:'o',count:31300, list:[{stop_id:'70002',count:13400},{stop_id:'70007',count:10300},{stop_id:'8824',count:6500},{stop_id:'88335',count:1100}]},
+  {type:'d',count:11230,list:[{stop_id:'8820',count:5620},{stop_id:'87619',count:3610},{stop_id:'70124',count:2100},{stop_id:'36961',count:100}]},
+  {type:'xo',count:7800,list:[{stop_id:'3683',count:4300},{stop_id:'70007',count:2200},{stop_id:'23835',count:1300}]},
+  {type:'xd',count:22120,list:[{stop_id:'36842',count:11800},{stop_id:'2369',count:10320}]}
 ]
-var transfer = [{from:'9',to:'1',count:320},{from:'43',to:'44',count:300},{from:'95',to:'1',count:30}]
+var transfer = [{from:'9',to:'1',count:32000},{from:'43',to:'44',count:7000},{from:'95',to:'1',count:6300},{from:'39',to:'110',count:4500},{from:'55',to:'66',count:3000},{from:'Green-E',to:'Red',count:2300}]
 
 // global setting for preview
-var w = d3.select('#odx').node().clientWidth;
+var w = d3.select('#previewContainer').node().clientWidth;
 
 var fullWidthScale = d3.scaleLinear()
   .range([0,w])
 var fullWidthLabelScale = d3.scaleLinear()
-  .range([0,w-45])
+  .range([0,w - 70])
 var RadiusForODX = d3.scaleLinear()
   .range([28,60])
 
@@ -46,22 +46,16 @@ function toggleCollapse(){
 // update the content
 function updatepreview(data){
   if(data == '' || data.stops.length == 0){
-    previewPanel.style.left = '-500px';
+    document.querySelector('#preview').classList.add('hidden');
+    document.querySelector('#emptyHint').classList.remove('hidden');
   }else{
-    previewPanel.style.left = 0;
-
-    //update selection button: clear, undo
-    if(selection == ''){
-      document.querySelector('#clear').classList.add('hidden');
-    }else{
-      document.querySelector('#clear').classList.remove('hidden');
-    }
+    document.querySelector('#emptyHint').classList.add('hidden');
+    document.querySelector('#preview').classList.remove('hidden');
     if(selection.length <= 1){
       document.querySelector('#undo').classList.add('hidden');
     }else{
       document.querySelector('#undo').classList.remove('hidden');
     }     
-    
     //update content
     updateService(data)
     //get the odx data and update
@@ -72,7 +66,6 @@ function updatepreview(data){
 }
 //update service content
 function updateService(data){
-
   //show routes and variants
   let routeList,modeText;
   let childrenStops = getChildrenStop(data.stops).map(function(d){return d.stop_id})
@@ -97,7 +90,7 @@ function updateService(data){
             let shapeInfo = getShapeInfo(shapeId)
             let isChecked = routeMarkers.map(function(d){return d.marker.options.className.split(' ')[2].replace('hlShape','')}).includes(shapeId) ? 'checked' : ''
             return `<li class="checkbox">
-                        <label><input type="checkbox" name="" onchange="showVariants(this)" value=${shapeId} ${isChecked}>${shapeInfo[0]}  <small>${shapeInfo[1]}</small></label>
+                        <input type="checkbox" name="variants" onchange="showVariants(this)" value=${shapeId} id="checkshape${shapeId}" ${isChecked}><label for="checkshape${shapeId}">${shapeInfo[0]}  <small>${shapeInfo[1]}</small></label>
                     </li>`
           }).join('')
     }).join('')
@@ -105,16 +98,17 @@ function updateService(data){
   }
   //count the stops and populate content
 
-  document.querySelector('#stopInfo').innerHTML = `${data.stops.length} stop(s) <small>${modeText}</small> `;
-  document.querySelector('#routeonStop').innerHTML = routeList.map(function(route){return route.route_short_name || route.route_long_name}).join(', ')
-  document.querySelector('#routeDetail').innerHTML = '<select>' + routeList.map(function(route){return `<option>${route.route_short_name || route.route_long_name}</option>`}).join(', ') + '</select>'
+  document.querySelector('#selectionInfo').innerHTML = `${data.stops.length} stop(s) <small>${modeText}</small> ` + routeList.map(function(route){return route.route_short_name || route.route_long_name}).join(', ');
+  document.querySelector('#routeDetail').innerHTML = 
+    '<select>' + routeList.map(function(route){return `<option>${route.route_short_name || route.route_long_name}</option>`}).join(', ') + '</select>' + 
+    '<svg></svg>'
 }
 //update odx
 function updateOdx(data){
   //update the barchart
   fullWidthLabelScale.domain([0,d3.max(data,function(d){return d.count})])
   let updateodx = d3.select('#odx').select('svg')
-    .attr('width',w)
+    .attr('width',w - 30)
     .attr('height',160)
     .selectAll('.odx').data(data)
   let enterodx = updateodx.enter().append('g').attr('class','odx')
@@ -189,9 +183,9 @@ function updateTransfer(data){
     let toRoute = allData.route.find(function(route){return route.route_id == d.to})
     return `
       <tr>
-        <td>${fromRoute.route_long_name || fromRoute.route_short_name}</td>
-        <td>${toRoute.route_long_name || toRoute.route_short_name}</td>
-        <td>${numberWithCommas(d.count)}</td>
+        <td>${fromRoute.route_short_name || fromRoute.route_long_name}</td>
+        <td>${toRoute.route_short_name || toRoute.route_long_name}</td>
+        <td class="text-right">${numberWithCommas(d.count)}</td>
       </tr>
       `}).join('')
   //create the chart
@@ -204,16 +198,17 @@ function updateSelectionBox(){
   let routes = '' ,stops
   if(countRoutes != 0 ){
     let routesdata = allData.route.filter(function(d){return display.routes.includes(d.route_id)})
-    routes = `${countRoutes} route(s)<hr>` + routesdata.map(function(d){return `<span class="checkbox"><label><input type="checkbox" name="route" value="${d.route_id}" checked>${d.route_short_name || d.route_long_name}</label></span>`}).join(' ')
+    routes = `<p class="selectionTitle">${countRoutes} route(s)</p>` + routesdata.map(function(d){return `<span class="checkbox"><input type="checkbox" name="route" value="${d.route_id}" id="checkroute${d.route_id}" checked><label for="checkroute${d.route_id}">${d.route_short_name || d.route_long_name}</label></span>`}).join(' ')
   }
   
   let stopsdata = allData.stop.filter(function(d){return display.stops.includes(d.stop_id)})
-  stops = `${display.stops.length} stop(s)<hr>` + stopsdata.map(function(d){return `<span class="checkbox"><label><input type="checkbox" name="stop" value="${d.stop_id}" checked>${d.stop_name}</label></span>`}).join(' ')
+  stops = `<p class="selectionTitle">${display.stops.length} stop(s)<p>` + stopsdata.map(function(d){return `<span class="checkbox"><input type="checkbox" name="stop" value="${d.stop_id}" id="checkstop${d.stop_id}" checked><label for="checkstop${d.stop_id}">${d.stop_name}</label></span>`}).join(' ')
   document.querySelector('#mySelection').querySelector('.modal-body').innerHTML = routes + '<br>' + stops
 }
 //clear selection
 function clearSelectionBox(){
-  populateSelection(false,{stops:[],routes:[]})
+  selection = [], display = {stops:[],routes:[]};
+  updatepreview(display)
   $('#mySelection').modal('hide')
 }
 

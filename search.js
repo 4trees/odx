@@ -32,17 +32,18 @@ function displayMatches() {
       </li>
     `;
   }).join('');
-  suggestions.innerHTML = html;
+  const hintText = matchArray.length > 10 ? '<li class="text-center">show at most 10 results</li>' : ''
+  suggestions.innerHTML = html + hintText;
 
   listenMatches()
 }
 
 function findMatches(wordToMatch, stopAndRoute) {
-  return stopAndRoute.filter(item => {
-    // here we need to figure out if the city or state matches what was searched
+  //get the first 6 matchs
+  return stopAndRoute.filter(function(item){
     const regex = new RegExp(wordToMatch, 'gi');
     return item.name.match(regex)
-  });
+  }).slice(0, 12);
 }
 
 function listenMatches(){
