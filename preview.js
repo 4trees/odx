@@ -2,9 +2,9 @@
 // testing data
 var odx = [
   {type:'o',count:31300, list:[{stop_id:'70002',count:13400},{stop_id:'70007',count:10300},{stop_id:'8824',count:6500},{stop_id:'88335',count:1100}]},
-  {type:'d',count:11230,list:[{stop_id:'8820',count:5620},{stop_id:'87619',count:3610},{stop_id:'70124',count:2100},{stop_id:'36961',count:100}]},
   {type:'xo',count:7800,list:[{stop_id:'3683',count:4300},{stop_id:'70007',count:2200},{stop_id:'23835',count:1300}]},
-  {type:'xd',count:22120,list:[{stop_id:'36842',count:11800},{stop_id:'2369',count:10320}]}
+  {type:'xd',count:22120,list:[{stop_id:'36842',count:11800},{stop_id:'2369',count:10320}]},
+  {type:'d',count:11230,list:[{stop_id:'8820',count:5620},{stop_id:'87619',count:3610},{stop_id:'70124',count:2100},{stop_id:'36961',count:100}]}
 ]
 var transfer = [{from:'9',to:'1',count:32000},{from:'43',to:'44',count:7000},{from:'95',to:'1',count:6300},{from:'39',to:'110',count:4500},{from:'55',to:'66',count:3000},{from:'Green-E',to:'Red',count:2300}]
 
@@ -27,7 +27,7 @@ var colorForODX = d3.scaleOrdinal()
   // .range(['#99d5cf','#66c0b7','#32ab9f','#009688'])
 var odxLable = d3.scaleOrdinal()
   .domain(['o','d','xo','xd'])
-  .range(['As origin','As destination','As transfer origin','As transfer destination'])
+  .range(['As origin','As destination','As transfer from','As transfer to'])
 var odxPairs = d3.scaleOrdinal()
   .domain(['o','d','xo','xd'])
   .range(['d','o','xd','xo'])
@@ -124,6 +124,7 @@ function updateOdx(data){
     .attr('y',15)
     .attr('class','odxCount')
   let odCheckpoint = enterodx.append('g')
+    .attr('class',function(d){return d.type == 'o' || d.type == 'd' ? '' : 'hidden'})
     .attr('transform',function(){const distance = this.parentNode.querySelector('.odxLable').getBBox();return `translate(${distance.width + 10},0)`})
     .attr('cursor','pointer')
     .on('click',function(d){

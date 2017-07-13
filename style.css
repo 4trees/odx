@@ -166,10 +166,17 @@ nav{
 
 /* Leaflet POPUP*/
 .leaflet-popup-content-wrapper, .leaflet-popup-tip{
-/*	background: rgba(34,34,34,.9);
-	color: #fff;*/
   background: rgba(255,255,255,.9);
   color: #333;
+}
+.leaflet-popup-content-wrapper .btn-default{
+  background: rgba(255,255,255,.9);
+  color:#333;
+  border-color:#787878;
+}
+.leaflet-popup-content-wrapper .btn-default:hover,.leaflet-popup-content-wrapper .btn-default:active,.leaflet-popup-content-wrapper .btn-default:focus{
+  background: rgba(255,255,255,.8) !important;
+  color:#333 !important;
 }
 .leaflet-popup-content-wrapper hr{
   border-color: #ccc;
