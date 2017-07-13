@@ -47,6 +47,7 @@ function toggleCheckAll(e){
   let timeOptions = document.querySelectorAll('input[name="timePeriod"]')
   timeOptions.forEach(function(time){return time.checked = e.checked ? true : false;})
 }
+
 // update the content
 function updatepreview(data){
   if(data == '' || data.stops.length == 0){
@@ -198,6 +199,11 @@ function updateTransfer(data){
   //create the chart
 
 }
+//update filters
+function updateFilters(){
+  // document.querySelector('#filterBox')
+  // document.querySelector('#filters').innerHTML = 
+}
 
 //update selection box
 function updateSelectionBox(){
@@ -215,7 +221,8 @@ function updateSelectionBox(){
 //clear selection
 function clearSelectionBox(){
   selection = [], display = {stops:[],routes:[]};
-  updatepreview(display)
+  // updatepreview(display)
+  updateSelection(display)
   $('#mySelection').modal('hide')
 }
 

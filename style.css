@@ -382,7 +382,7 @@ nav{
 .checkbox{
   margin-bottom: 0;
 }
-.checkbox input[type="checkbox"] { 
+input[type="checkbox"] { 
   display: none; 
 }
 

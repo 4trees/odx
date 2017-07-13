@@ -139,7 +139,7 @@
           <div class="modal-body">
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p>Mode</p><hr>
+                <p class="selectionTitle">Mode</p>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
                   <ul class="list-inline">
                     <li class="checkbox"><input type="checkbox" name="modeType" value="subway" id="subway" checked><label for="subway">Subway</label></li>
@@ -150,14 +150,14 @@
             </div>
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p>Route</p><hr>
+                <p class="selectionTitle">Route</p>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="routeFilter"> 
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p>Date - Time</p><hr>
+                <p class="selectionTitle">Date - Time</p>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                   <ul>
                     <li class="checkbox"><input type="checkbox" name="datePeriod" value="weekdays" id="weekdays" onchange="toggleCheckAll(this)" checked><label for="weekdays">Weekdays</label></li>
@@ -180,29 +180,32 @@
             </div>
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p>Fare</p><hr>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
-                  <p>Fare User Type</p>
-                  <ul>
+                <p class="selectionTitle">Fare User Type</p>             
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
+                  <ul class="list-inline">
                     <li class="checkbox"><input type="checkbox" name="fareUserType" value="regular" id="regular" checked><label for="regular">Regular</label></li>
                     <li class="checkbox"><input type="checkbox" name="fareUserType" value="student" id="student" checked><label for="student">Student</label></li>
                     <li class="checkbox"><input type="checkbox" name="fareUserType" value="senior" id="senior" checked><label for="senior">Senior</label></li>
                     <li class="checkbox"><input type="checkbox" name="fareUserType" value="tap" id="tap" checked><label for="tap">TAP</label></li>
                   </ul>
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6"> 
-                  <p>Fare Method</p>
-                  <ul>
-                    <li class="checkbox"><input type="checkbox" name="fareMethod" value="cash" id="cash" checked><label for="cash">Cash</label></li>
-                    <li class="checkbox"><input type="checkbox" name="fareMethod" value="storedValue" id="storedValue" checked><label for="storedValue">Stored Value</label></li>
-                    <li class="checkbox"><input type="checkbox" name="fareMethod" value="pass" id="pass" checked><label for="pass">Pass</label></li>
-                  </ul>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
+                <p class="selectionTitle">Fare Method</p>
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
+                    <ul class="list-inline">
+                      <li class="checkbox"><input type="checkbox" name="fareMethod" value="cash" id="cash" checked><label for="cash">Cash</label></li>
+                      <li class="checkbox"><input type="checkbox" name="fareMethod" value="storedValue" id="storedValue" checked><label for="storedValue">Stored Value</label></li>
+                      <li class="checkbox"><input type="checkbox" name="fareMethod" value="pass" id="pass" checked><label for="pass">Pass</label></li>
+                    </ul>
                 </div>
               </div>
             </div>
           </div>
           <div class="modal-footer">           
-            <button type="button" class="btn btn-default" onclick="">Confirm</button>
+            <button type="button" class="btn btn-default" onclick="updateFilters()">Confirm</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->

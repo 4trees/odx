@@ -399,10 +399,11 @@ function updateSelection(data){
 
 	//update preview panel
 	updatepreview(data)
-	if(data == '')return
+	
 	//highlight the selection stops and routes
 	d3.selectAll('.selectStop').classed('selectStop',false)
 	d3.selectAll('.selectRoute').classed('selectRoute',false).style('stroke','#666');
+	if(data == '')return
 	setStopsDisplay('select',data.stops)
 	setRoutesDisplay('select',data.routes)
 	//hidden highlight variants, reshow routes and subway
