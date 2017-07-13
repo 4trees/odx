@@ -44,7 +44,6 @@ var searchMap = L.Control.extend({
             </div>`
     container.onclick = function(){
       this.querySelector('div').classList.remove('hidden')
-      this.querySelector('a').classList.remove('hidden')
     }
     return container;
   },
