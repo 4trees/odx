@@ -1,10 +1,10 @@
 //global url
-var	stopsUrl = '/data/stops.txt',
-	shapesUrl = '/data/shapes.txt',
-	tripsUrl = '/data/trips.txt',
-	routesUrl = '/data/routes.txt',
-	shapestoprouteUrl = '/data/route_shape_stop.csv',
-  shapename = '/data/shape-id_route-variant_lookup_fall16.csv';
+var	stopsUrl = './data/stops.txt',
+	shapesUrl = './data/shapes.txt',
+	tripsUrl = './data/trips.txt',
+	routesUrl = './data/routes.txt',
+	shapestoprouteUrl = './data/route_shape_stop.csv',
+  shapename = './data/shape-id_route-variant_lookup_fall16.csv';
 
 d3.queue()
   .defer(d3.csv,shapename,parseshapeName)
