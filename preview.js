@@ -33,16 +33,20 @@ var odxPairs = d3.scaleOrdinal()
   .range(['d','o','xd','xo'])
 
 // show or hide the preview panel
-var previewPanel = document.querySelector('#preview')
-function toggleCollapse(){
-	let offset = previewPanel.getBoundingClientRect().left;
-	if(offset == 0){
-		previewPanel.style.left = '-295px';
-	}else{
-		previewPanel.style.left = 0;
-	}
+// var previewPanel = document.querySelector('#preview')
+// function toggleCollapse(){
+// 	let offset = previewPanel.getBoundingClientRect().left;
+// 	if(offset == 0){
+// 		previewPanel.style.left = '-295px';
+// 	}else{
+// 		previewPanel.style.left = 0;
+// 	}
+// }
+//toggle subcheckbox by checkbox
+function toggleCheckAll(e){
+  let timeOptions = document.querySelectorAll('input[name="timePeriod"]')
+  timeOptions.forEach(function(time){return time.checked = e.checked ? true : false;})
 }
-
 // update the content
 function updatepreview(data){
   if(data == '' || data.stops.length == 0){
@@ -90,7 +94,7 @@ function updateService(data){
             let shapeInfo = getShapeInfo(shapeId)
             let isChecked = routeMarkers.map(function(d){return d.marker.options.className.split(' ')[2].replace('hlShape','')}).includes(shapeId) ? 'checked' : ''
             return `<li class="checkbox">
-                        <input type="checkbox" name="variants" onchange="showVariants(this)" value=${shapeId} id="checkshape${shapeId}" ${isChecked}><label for="checkshape${shapeId}">${shapeInfo[0]}  <small>${shapeInfo[1]}</small></label>
+                        <input type="checkbox" name="variants" onchange="showVariants(this)" value=${shapeId} id="checkshape${shapeId}" ${isChecked}><label for="checkshape${shapeId}"><p>${shapeInfo[0]}  <small>${shapeInfo[1]}</small></p></label>
                     </li>`
           }).join('')
     }).join('')
@@ -102,6 +106,8 @@ function updateService(data){
   document.querySelector('#routeDetail').innerHTML = 
     '<select>' + routeList.map(function(route){return `<option>${route.route_short_name || route.route_long_name}</option>`}).join(', ') + '</select>' + 
     '<svg></svg>'
+  //update route filter
+  document.querySelector('#routeFilter').innerHTML = '<ul class="list-inline">' + routeList.map(function(route){return `<li class="checkbox"><input type="checkbox" name="routefilter" value="routefilter${route.id}" id="routefilter${route.id}" checked><label for="routefilter${route.id}">${route.route_short_name || route.route_long_name}</label></li>`}).join('') + '<ul>'
 }
 //update odx
 function updateOdx(data){
@@ -199,11 +205,11 @@ function updateSelectionBox(){
   let routes = '' ,stops
   if(countRoutes != 0 ){
     let routesdata = allData.route.filter(function(d){return display.routes.includes(d.route_id)})
-    routes = `<p class="selectionTitle">${countRoutes} route(s)</p>` + routesdata.map(function(d){return `<span class="checkbox"><input type="checkbox" name="route" value="${d.route_id}" id="checkroute${d.route_id}" checked><label for="checkroute${d.route_id}">${d.route_short_name || d.route_long_name}</label></span>`}).join(' ')
+    routes = `<p class="selectionTitle">${countRoutes} route(s)</p><ul class="list-inline">` + routesdata.map(function(d){return `<li class="checkbox"><input type="checkbox" name="route" value="${d.route_id}" id="checkroute${d.route_id}" checked><label for="checkroute${d.route_id}">${d.route_short_name || d.route_long_name}</label></li>`}).join(' ') + '</ul>'
   }
   
   let stopsdata = allData.stop.filter(function(d){return display.stops.includes(d.stop_id)})
-  stops = `<p class="selectionTitle">${display.stops.length} stop(s)<p>` + stopsdata.map(function(d){return `<span class="checkbox"><input type="checkbox" name="stop" value="${d.stop_id}" id="checkstop${d.stop_id}" checked><label for="checkstop${d.stop_id}">${d.stop_name}</label></span>`}).join(' ')
+  stops = `<p class="selectionTitle">${display.stops.length} stop(s)<p><ul class="list-inline">` + stopsdata.map(function(d){return `<li class="checkbox"><input type="checkbox" name="stop" value="${d.stop_id}" id="checkstop${d.stop_id}" checked><label for="checkstop${d.stop_id}">${d.stop_name}</label></li>`}).join(' ') + '</ul>'
   document.querySelector('#mySelection').querySelector('.modal-body').innerHTML = routes + '<br>' + stops
 }
 //clear selection

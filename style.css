@@ -260,10 +260,7 @@ nav{
   padding: 5px 8px;
 }
 
-#variantsList{
-  padding: 5px 15px;
-  margin-bottom: -15px;
-}
+
 #displayOption ~ ul{
   margin-bottom: 0;
   margin-top: 0;
@@ -272,10 +269,10 @@ nav{
 #displayOption .dropdown a{
  color:#fff;
 }
-#mySelection .checkbox{
+/*#mySelection .checkbox{
   display: inline-block;
   margin-right: 20px;
-}
+}*/
 #filterBt{
   cursor: pointer;
 }
@@ -296,6 +293,7 @@ nav{
   font-size:80%;
   fill:#fff;
 }
+
 /*search*/
 #searchBar{
   z-index: 1000;
@@ -384,11 +382,11 @@ nav{
 .checkbox{
   margin-bottom: 0;
 }
-input[type="checkbox"] { 
+.checkbox input[type="checkbox"] { 
   display: none; 
 }
 
-input[type="checkbox"] + label {
+.checkbox input[type="checkbox"] + label {
   display: block;
   position: relative;
   padding-left: 20px;
@@ -399,7 +397,7 @@ input[type="checkbox"] + label {
   -ms-user-select: none;
 }
 
-input[type="checkbox"] + label:before {
+.checkbox input[type="checkbox"] + label:before {
   content: '';
   display: block;
   width: 12px;
@@ -413,7 +411,7 @@ input[type="checkbox"] + label:before {
   transition: all .12s, border-color .08s;
 }
 
-input[type="checkbox"]:checked + label:before {
+.checkbox input[type="checkbox"]:checked + label:before {
   width: 10px;
   top: -3px;
   border-radius: 0;
@@ -422,4 +420,8 @@ input[type="checkbox"]:checked + label:before {
   border-left-color: transparent;
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
+}
+.subCheckboxs{
+  padding-left: 20px;
+  font-size: 85%;
 }
