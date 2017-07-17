@@ -203,19 +203,24 @@ function updateOdx(data){
 }
 //update the transfer table
 function updateTransfer(data){
-
-  //create the table
-  document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML =  data.map(function(d){
+  data.map(function(d){
     let fromRoute = allData.route.find(function(route){return route.route_id == d.from})
     let toRoute = allData.route.find(function(route){return route.route_id == d.to})
+    d.from = fromRoute.route_short_name || fromRoute.route_long_name
+    d.to = toRoute.route_short_name || toRoute.route_long_name
+  })
+  //create the table
+  document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML =  data.map(function(d){
     return `
       <tr>
-        <td>${fromRoute.route_short_name || fromRoute.route_long_name}</td>
-        <td>${toRoute.route_short_name || toRoute.route_long_name}</td>
+        <td>${d.from}</td>
+        <td>${d.to}</td>
         <td class="text-right">${numberWithCommas(d.count)}</td>
       </tr>
       `}).join('')
-  //create the chart
+  //prepare the download
+  const downloadData = data.map(function(d){return Object.values(d)})
+  document.querySelector('#downloadTransfer').addEventListener('click',function(){download('transfer',downloadData)})
 
 }
 //update filters
