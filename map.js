@@ -38,7 +38,7 @@ var searchMap = L.Control.extend({
   	var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
     container.innerHTML = `
     		<div class="input-group input-group-sm" id="searchBar">  			
-                <input type="text" class="form-control" name="search" placeholder="stop, route..." value="">
+                <input type="text" class="form-control" name="search" placeholder="stop, route..." title="Limit to routes only by starting with 'route'">
                 <ul class="suggestions hidden">
                 </ul>
             </div>`

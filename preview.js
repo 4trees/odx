@@ -1,12 +1,12 @@
 
 // testing data
-var odx = [
+const odx = [
   {type:'o',count:31300, list:[{stop_id:'70002',count:13400},{stop_id:'70007',count:10300},{stop_id:'8824',count:6500},{stop_id:'88335',count:1100}]},
   {type:'xo',count:7800,list:[{stop_id:'3683',count:4300},{stop_id:'70007',count:2200},{stop_id:'23835',count:1300}]},
   {type:'xd',count:22120,list:[{stop_id:'36842',count:11800},{stop_id:'2369',count:10320}]},
   {type:'d',count:11230,list:[{stop_id:'8820',count:5620},{stop_id:'87619',count:3610},{stop_id:'70124',count:2100},{stop_id:'36961',count:100}]}
 ]
-var transfer = [{from:'9',to:'1',count:32000},{from:'43',to:'44',count:7000},{from:'95',to:'1',count:6300},{from:'39',to:'110',count:4500},{from:'55',to:'66',count:3000},{from:'Green-E',to:'Red',count:2300}]
+const transfer = [{from:'9',to:'1',count:32000},{from:'43',to:'44',count:7000},{from:'95',to:'1',count:6300},{from:'39',to:'110',count:4500},{from:'55',to:'66',count:3000},{from:'Green-E',to:'Red',count:2300}]
 
 // global setting for preview
 var w = d3.select('#previewContainer').node().clientWidth;
@@ -72,8 +72,10 @@ function updatepreview(data){
     //update content
     updateService(data)
     //get the odx data and update
-    updateOdx(odx)
-    updateTransfer(transfer)
+    const odxData = odx.slice()
+    updateOdx(odxData)
+    const transferData = transfer.slice()
+    updateTransfer(transferData)
   }
 
 }
@@ -122,12 +124,13 @@ function updateService(data){
   updateFilters()
 }
 //update odx
-function updateOdx(data){
-  //remove preview checkpoint
+function clearODXMarker(){
+    //remove preview checkpoint
   if(document.querySelectorAll('.odxStop')){
     d3.selectAll('.odxStop').remove()
   }
-
+}
+function updateOdx(data){
   //update the barchart
   fullWidthLabelScale.domain([0,d3.max(data,function(d){return d.count})])
   let updateodx = d3.select('#odx').select('svg')
@@ -203,14 +206,16 @@ function updateOdx(data){
 }
 //update the transfer table
 function updateTransfer(data){
-  data.map(function(d){
-    let fromRoute = allData.route.find(function(route){return route.route_id == d.from})
-    let toRoute = allData.route.find(function(route){return route.route_id == d.to})
-    d.from = fromRoute.route_short_name || fromRoute.route_long_name
-    d.to = toRoute.route_short_name || toRoute.route_long_name
+  clearODXMarker()
+  let updateData = data.map(function(d){
+    const fromRoute = allData.route.find(function(route){return route.route_id == d.from})
+    const toRoute = allData.route.find(function(route){return route.route_id == d.to})
+    const fromName = fromRoute.route_short_name || fromRoute.route_long_name
+    const toName = toRoute.route_short_name || toRoute.route_long_name
+    return {from:fromName,to:toName,count:d.count}
   })
   //create the table
-  document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML =  data.map(function(d){
+  document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML =  updateData.map(function(d){
     return `
       <tr>
         <td>${d.from}</td>
@@ -219,7 +224,7 @@ function updateTransfer(data){
       </tr>
       `}).join('')
   //prepare the download
-  const downloadData = data.map(function(d){return Object.values(d)})
+  const downloadData = updateData.map(function(d){return Object.values(d)})
   document.querySelector('#downloadTransfer').addEventListener('click',function(){download('transfer',downloadData)})
 
 }
@@ -264,10 +269,12 @@ function updateSelectionBox(){
 }
 //clear selection
 function clearSelectionBox(){
+  clearODXMarker()
   selection = [], display = {stops:[],routes:[]};
   // updatepreview(display)
   updateSelection(display)
   $('#mySelection').modal('hide')
+  map.setView(new L.LatLng(42.351486,-71.066829), 15);
 }
 
 //synic selection box update to selection

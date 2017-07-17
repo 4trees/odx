@@ -14,15 +14,28 @@ map.on('click',function(){
 })
 
 function displayMatches() {
-  if(this.value == ''){
+  //set the route search only mode
+  let searchValue,searchArray
+  if(this.value.match(new RegExp('^route.*$','i'))){
+    console.log(this.value)
+    searchValue = this.value.replace(new RegExp('^route.','i'),'')
+    console.log(searchValue)
+    searchArray = stopAndRoute.filter(function(d){console.log(d.type);return d.type == 'route'})
+    console.log(searchArray)
+  }else{
+    searchValue = this.value
+    searchArray = stopAndRoute
+  }
+
+  if(searchValue == ''){
       suggestions.classList.add('hidden')
       return
   }
   suggestions.classList.remove('hidden')
-  const matchArray = findMatches(this.value, stopAndRoute);
+  const matchArray = findMatches(searchValue, searchArray);
   const html = matchArray.map(item => {
-    const regex = new RegExp(this.value, 'gi');
-    const itemName = item.name.replace(regex, `<span class="hl">${this.value}</span>`);
+    const regex = new RegExp(searchValue, 'gi');
+    const itemName = item.name.replace(regex, `<span class="hl">${searchValue}</span>`);
     const children = item.type == 'stop' ? allData.stop.filter(function(d){return d.parent_station == item.id}).map(function(d){return d.stop_name}).join(', ') : ''
     return `
       <li data-id="${item.type + item.id}"" data-type="${item.type}">
