@@ -6,10 +6,8 @@ drawRectangle.setAttribute('title','Draw a rectangle to select stops')
 
 
 //GLOBEL VARIABLES
-var selection = [], display = {};
-var routeScale =  d3.scaleLinear()
-    .range([0,1])
-    .domain([0,1])
+var selection = [], display = {}, filter = {};
+
 
 //MAP GLOBAL VIEW OPTION
 const showAllVariants = document.querySelector('input[name=showallVariants]')

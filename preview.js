@@ -45,7 +45,15 @@ var odxPairs = d3.scaleOrdinal()
 //toggle subcheckbox by checkbox
 function toggleCheckAll(e){
   let timeOptions = document.querySelectorAll('input[name="timePeriod"]')
-  timeOptions.forEach(function(time){return time.checked = e.checked ? true : false;})
+  if(e.name == 'datePeriod'){
+    timeOptions.forEach(function(time){return time.checked = e.checked ? true : false;})
+  }else{
+    const ifAllUnchecked = Array.from(timeOptions).map(function(option){return !option.checked}).reduce(function(result,option){
+      return result && option
+    }) 
+    //if all subchecks are unchecked, uncheck the parent checkbox
+    ifAllUnchecked == true ? document.querySelector('#weekdays').checked = false : document.querySelector('#weekdays').checked = true;
+  }
 }
 
 // update the content
@@ -72,14 +80,16 @@ function updatepreview(data){
 //update service content
 function updateService(data){
   //show routes and variants
-  let routeList,modeText;
+  let routeList,modeText,ifCheckRoute;
   let childrenStops = getChildrenStop(data.stops).map(function(d){return d.stop_id})
   if(data.routes.length == 0 ){
     modeText = 'touching'
+    ifCheckRoute = ''
     routeList = getRelationships(childrenStops,'stop_route')[1]  
     document.querySelector('#displayOption').querySelector('#showVariants').classList.add('hidden')
   }else{
     modeText = 'on'
+    ifCheckRoute = 'checked'
     document.querySelector('#displayOption').querySelector('#showVariants').classList.remove('hidden')
     //reset the touching route checkbox
     let touchroutes = document.querySelector('input[name=showTouchRoutes]')
@@ -107,11 +117,17 @@ function updateService(data){
   document.querySelector('#routeDetail').innerHTML = 
     '<select>' + routeList.map(function(route){return `<option>${route.route_short_name || route.route_long_name}</option>`}).join(', ') + '</select>' + 
     '<svg></svg>'
-  //update route filter
-  document.querySelector('#routeFilter').innerHTML = '<ul class="list-inline">' + routeList.map(function(route){return `<li class="checkbox"><input type="checkbox" name="routefilter" value="routefilter${route.id}" id="routefilter${route.id}" checked><label for="routefilter${route.id}">${route.route_short_name || route.route_long_name}</label></li>`}).join('') + '<ul>'
+  //set route filter and update the filters
+  document.querySelector('#routeFilter').innerHTML = '<ul class="list-inline">' + routeList.map(function(route){return `<li class="checkbox"><input type="checkbox" name="routefilter" value="routefilter${route.route_id}" id="routefilter${route.route_id}" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>`}).join('') + '<ul>'
+  updateFilters()
 }
 //update odx
 function updateOdx(data){
+  //remove preview checkpoint
+  if(document.querySelectorAll('.odxStop')){
+    d3.selectAll('.odxStop').remove()
+  }
+
   //update the barchart
   fullWidthLabelScale.domain([0,d3.max(data,function(d){return d.count})])
   let updateodx = d3.select('#odx').select('svg')
@@ -135,13 +151,12 @@ function updateOdx(data){
     .attr('transform',function(){const distance = this.parentNode.querySelector('.odxLable').getBBox();return `translate(${distance.width + 10},0)`})
     .attr('cursor','pointer')
     .on('click',function(d){
+      if(d.type == 'xo' || d.type == 'xd'){return}
       //remove previews markers
       d3.selectAll('.odxStop').remove()
       d3.selectAll('.hlStop').classed('hlStop',false)
       //get new markers data
       const stopList = d.list.map(function(e){return e.stop_id})
-      //highlight the stop
-      setStopsDisplay('hover',stopList)
       const stops = allData.stop.filter(function(e){return stopList.includes(e.stop_id)})
       RadiusForODX.domain([0,d3.max(d.list,function(e){return e.count})])
       const stopCount = stops.length
@@ -154,8 +169,12 @@ function updateOdx(data){
         let radius = RadiusForODX(d.list.find(function(e){return e.stop_id == stop.stop_id}).count)
         let odxMarker = L.circle([stop.stop_lat,stop.stop_lon], {radius:stopRadius.default,weight:radius,className:'odxStop odx' + slugStr(stop.stop_id),color:fillColor})
         .on('mouseover',function(){
+          //highlight the stop
+          setStopsDisplay('hover',[stop.stop_id])
+
         })
         .on('mouseout',function(){
+          setStopsDisplay('default',[stop.stop_id])
         })
         markers.push(odxMarker)
       }
@@ -201,9 +220,29 @@ function updateTransfer(data){
 }
 //update filters
 function updateFilters(){
-  // document.querySelector('#filterBox')
-  // document.querySelector('#filters').innerHTML = 
+  const modeTypefilter = getCheckedAttr('modeType','innerHTML')
+  const routefilter = getCheckedAttr('routefilter','innerHTML')
+  const datePeriodfilter = getCheckedAttr('datePeriod','innerHTML')
+  const timePeriodfilter = getCheckedAttr('timePeriod','innerHTML')
+  const fareUserTypefilter = getCheckedAttr('fareUserType','innerHTML')
+  const fareMethodfilter = getCheckedAttr('fareMethod','innerHTML')
+  //construct the timeframe format to 'weekday-time,saturday,sunday'
+  const timeFramefilter = timePeriodfilter == '' ? '': timePeriodfilter.map(function(time){return `${datePeriodfilter[0]} ${time}`}).concat(datePeriodfilter.slice(1))
+  //update filter variable
+  filters = {modeType:modeTypefilter,route:routefilter,timeframe:timeFramefilter, fareUserType:fareUserTypefilter, fareMethod:fareMethodfilter}
+  //update filter description on the preview panel
+  const filterDes = Object.values(filters).filter(function(filter){return filter != ''}).map(function(filter){return filter.join(', ')}).join(' | ')
+  document.querySelector('#filters').innerHTML = filterDes
+  $('#filterBox').modal('hide')
 }
+
+//get the checked value from checkbox
+function getCheckedAttr(inputName,attrName){
+  const checked = document.querySelectorAll(`input[name="${inputName}"]:checked`)
+  const checkedValue = checked ? Array.from(checked).map(function(d){d = attrName == 'innerHTML' ? d.nextSibling : d;return d[attrName]}) : ''
+  return checkedValue
+}
+
 
 //update selection box
 function updateSelectionBox(){
@@ -228,8 +267,8 @@ function clearSelectionBox(){
 
 //synic selection box update to selection
 function synicSelection(){
-  let selectedRoutes = Array.from(document.querySelectorAll('input[name=route]:checked')).map(function(d){return d.value})
-  let selectedStops = Array.from(document.querySelectorAll('input[name=stop]:checked')).map(function(d){return d.value})
+  let selectedRoutes = getCheckedAttr('route','value')
+  let selectedStops = getCheckedAttr('stop','value')
   populateSelection(false,{stops:selectedStops,routes:selectedRoutes})
   $('#mySelection').modal('hide')
 }
