@@ -61,6 +61,7 @@ select{
   background: #333;
   color:#fff;
   border-color:#787878;
+  margin-bottom: 5px;
 }
 .btn-default:hover,.btn-default:active,.btn-default:focus{
   background: rgba(34,34,34,.8) !important;

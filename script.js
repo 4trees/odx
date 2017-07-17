@@ -6,7 +6,7 @@ drawRectangle.setAttribute('title','Draw a rectangle to select stops')
 
 
 //GLOBEL VARIABLES
-var selection = [], display = {}, filter = {};
+var selection = [], display = {}, filters = {};
 
 
 //MAP GLOBAL VIEW OPTION
@@ -250,7 +250,7 @@ function selectionPopup(layer,drawSelection){
     		<h5>${drawSelection.length} stop(s)</h5>
     		<hr>
     		<a id="addDraw" class="btn btn-default btn-xs ${isHidden}" >${hint}</a>
-    		<a id="replaceDraw" class="btn btn-default btn-xs">Set as new selection</a>
+    		<a id="replaceDraw" class="btn btn-default btn-xs">Set all as new selection</a>
         `)
         .openOn(map);
     
