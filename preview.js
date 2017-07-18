@@ -282,11 +282,10 @@ function saveFilters(){
   const fareUserTypefilter = getCheckedAttr('fareUserType','value')
   const fareMethodfilter = getCheckedAttr('fareMethod','value')
   filters = {'modeType':modeTypefilter,'routefilter':routefilter,'datePeriod':datePeriodfilter, 'timePeriod':timePeriodfilter,'fareUserType':fareUserTypefilter, 'fareMethod':fareMethodfilter}
-  return filters
 }
 function updateFilters(){
   Object.keys(filters).forEach(function(filter){
-    document.querySelectorAll(`input[name="$filter"]`).forEach(function(d){return d.checked = false});
+    document.querySelectorAll(`input[name="${filter}"]`).forEach(function(d){return d.checked = false});
   })
   Object.values(filters).forEach(function(filter){
     filter.forEach(function(d){
