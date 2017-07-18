@@ -242,20 +242,38 @@ function routePopup(location,route,stopLength){
 function selectionPopup(layer,drawSelection){
 	let location = layer.getBounds().getCenter()
 	let hint = getHint(drawSelection,'stop','draw')
-	let isHidden = hint == '' ? 'hidden' : ''
-	console.log(hint)
-	let selection = {stops:drawSelection,routes:[]}
+	let isHiddenAdd = hint == '' ? 'hidden' : ''
+	let updateselection,isHiddenLimit
+	//if any route selected, add one option to limit stops to the routes
+	if(display.routes.length != 0){
+		//check if the selected stops are on these routes
+		let selectedRoutes = display.routes
+		let stopsOnRoutes = drawSelection.filter(function(d){return getRelationships(selectedRoutes,'route_stop')[0].includes(d)})
+		if(stopsOnRoutes.length != 0){
+			isHiddenLimit = ''
+			updateselection = {stops:stopsOnRoutes,routes:selectedRoutes}
+		}else{
+			isHiddenLimit = 'hidden'
+			updateselection = {stops:drawSelection,routes:[]}
+		}
+	}else{
+		isHiddenLimit = 'hidden'
+		updateselection = {stops:drawSelection,routes:[]}
+	}
+	
 	popup.setLatLng(location)
         .setContent(`
     		<h5>${drawSelection.length} stop(s)</h5>
     		<hr>
-    		<a id="addDraw" class="btn btn-default btn-xs ${isHidden}" >${hint}</a>
+    		<a id="addDraw" class="btn btn-default btn-xs ${isHiddenAdd}" >${hint}</a>
     		<a id="replaceDraw" class="btn btn-default btn-xs">Set all as new selection</a>
+    		<a id="limitDraw" class="btn btn-default btn-xs ${isHiddenLimit}">Limit to current selection</a>
         `)
         .openOn(map);
     
-	document.querySelector('#addDraw').addEventListener('click',function(d){populateSelection(true,selection);layer.remove();map.closePopup();})
-	document.querySelector('#replaceDraw').addEventListener('click',function(d){populateSelection(false,selection);layer.remove();map.closePopup();})
+	document.querySelector('#addDraw').addEventListener('click',function(d){populateSelection(true,updateselection);layer.remove();map.closePopup();})
+	document.querySelector('#replaceDraw').addEventListener('click',function(d){populateSelection(false,updateselection);layer.remove();map.closePopup();})
+	document.querySelector('#limitDraw').addEventListener('click',function(d){populateSelection(false,updateselection);layer.remove();map.closePopup();})
     
 }
 

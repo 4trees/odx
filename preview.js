@@ -43,16 +43,44 @@ var odxPairs = d3.scaleOrdinal()
 // 	}
 // }
 //toggle subcheckbox by checkbox
-function toggleCheckAll(e){
-  let timeOptions = document.querySelectorAll('input[name="timePeriod"]')
-  if(e.name == 'datePeriod'){
-    timeOptions.forEach(function(time){return time.checked = e.checked ? true : false;})
+function toggleCheckAll(e,itemName){
+  let parentName, parentID
+  switch (itemName){
+    case 'timePeriod':
+      parentName = 'datePeriod'
+      parentID = '#weekdays'
+      break
+    case 'routefilter':
+      parentName = 'allroutes'
+      parentID = '#allroutes'
+      break
+  }
+
+  let childOptions = document.querySelectorAll(`input[name="${itemName}"]`)
+  if(e.name == parentName){
+    //check all subchecks following their parent
+    childOptions.forEach(function(time){return time.checked = e.checked ? true : false;})
   }else{
-    const ifAllUnchecked = Array.from(timeOptions).map(function(option){return !option.checked}).reduce(function(result,option){
+    const ifAllUnchecked = Array.from(childOptions).map(function(option){return !option.checked}).reduce(function(result,option){
       return result && option
     }) 
+    const ifAllChecked = Array.from(childOptions).map(function(option){return option.checked}).reduce(function(result,option){
+      return result && option
+    })
     //if all subchecks are unchecked, uncheck the parent checkbox
-    ifAllUnchecked == true ? document.querySelector('#weekdays').checked = false : document.querySelector('#weekdays').checked = true;
+    if(ifAllUnchecked){
+      document.querySelector(parentID).checked = false
+    }else{
+      //any subchecks checked in time period filter, check the parent
+      if(itemName == 'timePeriod'){document.querySelector(parentID).checked = true;} 
+    }
+    if(!ifAllChecked){
+      if(itemName == 'routefilter'){document.querySelector(parentID).checked = false} 
+    }
+    //if all subchecks are checked, check the parent
+    else{
+      document.querySelector(parentID).checked = true
+    }
   }
 }
 
@@ -120,8 +148,8 @@ function updateService(data){
     '<select>' + routeList.map(function(route){return `<option>${route.route_short_name || route.route_long_name}</option>`}).join(', ') + '</select>' + 
     '<svg></svg>'
   //set route filter and update the filters
-  document.querySelector('#routeFilter').innerHTML = '<ul class="list-inline">' + routeList.map(function(route){return `<li class="checkbox"><input type="checkbox" name="routefilter" value="routefilter${route.route_id}" id="routefilter${route.route_id}" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>`}).join('') + '<ul>'
-  updateFilters()
+  document.querySelector('#routeFilter').innerHTML = '<ul class="list-inline">' + routeList.map(function(route){return `<li class="checkbox"><input type="checkbox" name="routefilter" value="routefilter${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'routefilter')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>`}).join('') + '<ul>'
+  updateDataFromFilters()
 }
 //update odx
 function clearODXMarker(){
@@ -229,7 +257,7 @@ function updateTransfer(data){
 
 }
 //update filters
-function updateFilters(){
+function updateDataFromFilters(){
   const modeTypefilter = getCheckedAttr('modeType','innerHTML')
   const routefilter = getCheckedAttr('routefilter','innerHTML')
   const datePeriodfilter = getCheckedAttr('datePeriod','innerHTML')
@@ -238,14 +266,34 @@ function updateFilters(){
   const fareMethodfilter = getCheckedAttr('fareMethod','innerHTML')
   //construct the timeframe format to 'weekday-time,saturday,sunday'
   const timeFramefilter = timePeriodfilter == '' ? '': timePeriodfilter.map(function(time){return `${datePeriodfilter[0]} ${time}`}).concat(datePeriodfilter.slice(1))
-  //update filter variable
-  filters = {modeType:modeTypefilter,route:routefilter,timeframe:timeFramefilter, fareUserType:fareUserTypefilter, fareMethod:fareMethodfilter}
+  //update filter variables
+  saveFilters()
   //update filter description on the preview panel
-  const filterDes = Object.values(filters).filter(function(filter){return filter != ''}).map(function(filter){return filter.join(', ')}).join(' | ')
+  const filterForDes = {'modeType':modeTypefilter,'route':routefilter,'timeframe':timeFramefilter, 'fareUserType':fareUserTypefilter, 'fareMethod':fareMethodfilter}
+  const filterDes = Object.values(filterForDes).filter(function(filter){return filter != ''}).map(function(filter){return filter.join(', ')}).join(' | ')
   document.querySelector('#filters').innerHTML = filterDes
   $('#filterBox').modal('hide')
 }
-
+function saveFilters(){
+  const modeTypefilter = getCheckedAttr('modeType','value')
+  const routefilter = getCheckedAttr('routefilter','value')
+  const datePeriodfilter = getCheckedAttr('datePeriod','value')
+  const timePeriodfilter = getCheckedAttr('timePeriod','value')
+  const fareUserTypefilter = getCheckedAttr('fareUserType','value')
+  const fareMethodfilter = getCheckedAttr('fareMethod','value')
+  filters = {'modeType':modeTypefilter,'routefilter':routefilter,'datePeriod':datePeriodfilter, 'timePeriod':timePeriodfilter,'fareUserType':fareUserTypefilter, 'fareMethod':fareMethodfilter}
+  return filters
+}
+function updateFilters(){
+  Object.keys(filters).forEach(function(filter){
+    document.querySelectorAll(`input[name="$filter"]`).forEach(function(d){return d.checked = false});
+  })
+  Object.values(filters).forEach(function(filter){
+    filter.forEach(function(d){
+      document.querySelector(`input[value="${d}"]`).checked = true;
+    })
+  })
+}
 //get the checked value from checkbox
 function getCheckedAttr(inputName,attrName){
   const checked = document.querySelectorAll(`input[name="${inputName}"]:checked`)

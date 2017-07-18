@@ -426,3 +426,11 @@ input[type="checkbox"] {
   padding-left: 20px;
   font-size: 85%;
 }
+
+.selectionTitle .checkbox{
+  display: inline-block;
+  margin-left: 20px;
+}
+.selectionTitle .checkbox input[type="checkbox"] + label{
+  margin-bottom: 0;
+}
