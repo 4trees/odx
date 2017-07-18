@@ -268,6 +268,7 @@ function updateDataFromFilters(){
   const timeFramefilter = timePeriodfilter == '' ? '': timePeriodfilter.map(function(time){return `${datePeriodfilter[0]} ${time}`}).concat(datePeriodfilter.slice(1))
   //update filter variables
   saveFilters()
+  updateFilters()
   //update filter description on the preview panel
   const filterForDes = {'modeType':modeTypefilter,'route':routefilter,'timeframe':timeFramefilter, 'fareUserType':fareUserTypefilter, 'fareMethod':fareMethodfilter}
   const filterDes = Object.values(filterForDes).filter(function(filter){return filter != ''}).map(function(filter){return filter.join(', ')}).join(' | ')
