@@ -132,10 +132,11 @@ function updateService(data){
     document.querySelector('#variantsList').innerHTML = variantsList.map(function(route){
         return route.values.map(function(variant){
             let shapeId =  variant.key
+            let shapeTripCount = numberWithCommas(allData.trip.filter(function(trip){return trip.shape_id == shapeId}).length)
             let shapeInfo = getShapeInfo(shapeId)
             let isChecked = routeMarkers.map(function(d){return d.marker.options.className.split(' ')[2].replace('hlShape','')}).includes(shapeId) ? 'checked' : ''
             return `<li class="checkbox">
-                        <input type="checkbox" name="variants" onchange="showVariants(this)" value=${shapeId} id="checkshape${shapeId}" ${isChecked}><label for="checkshape${shapeId}"><p>${shapeInfo[0]}  <small>${shapeInfo[1]}</small></p></label>
+                        <input type="checkbox" name="variants" onchange="showVariants(this)" value=${shapeId} id="checkshape${shapeId}" ${isChecked}><label for="checkshape${shapeId}"><p>${shapeInfo[0]}</p><p class="description">${shapeInfo[1]}<br>Trips: ${shapeTripCount}</p></label>
                     </li>`
           }).join('')
     }).join('')
@@ -224,6 +225,14 @@ function updateOdx(data){
     // .style('fill',function(d){return colorForODX(odxPairs(d.type))})
     .style('fill','#787878')
     .style('fill-opacity',.4)
+  //add download button
+  enterodx.append('text')
+    .attr('class',function(d){return d.type == 'o' || d.type == 'd' ? 'iconfont' : 'iconfont hidden'})
+    .attr('x',w-42)
+    .text('\uf019')
+    .on('click',function(d){
+      d.type == 'o' ?download('origin','') : download('destination','')
+    })
   let mergeodx = updateodx.merge(enterodx)
   mergeodx.select('rect')
     .attr('width', function(d){return fullWidthLabelScale(d.count)})

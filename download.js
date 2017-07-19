@@ -47,10 +47,12 @@ function download(dataType,data){
             exportToCsv('odx-transfer.csv', downloadData)
             break
         case 'origin':
-            stopItem.classList.add('selectStop');
+            downloadData = [['Journey Origin Stop','Journey Origin Route','Journey Destination Stop','Journey Destination Route','Date-Time','Fare User Type','Fare Method','Count of Journeys']].concat(data)
+            exportToCsv('odx-origin.csv', downloadData)
             break
         case 'destination':
-            
+            downloadData = [['Journey Origin Stop','Journey Origin Route','Journey Destination Stop','Journey Destination Route','Date-Time','Fare User Type','Fare Method','Count of Journeys']].concat(data)
+            exportToCsv('odx-destination.csv', downloadData)
             break
     }
     
