@@ -9,12 +9,12 @@ const odx = [
 const transfer = [{from:'9',to:'1',count:32000},{from:'43',to:'44',count:7000},{from:'95',to:'1',count:6300},{from:'39',to:'110',count:4500},{from:'55',to:'66',count:3000},{from:'Green-E',to:'Red',count:2300}]
 
 // global setting for preview
-var w = d3.select('#previewContainer').node().clientWidth;
+var w = d3.select('#previewContainer').node().clientWidth - 30;
 
 var fullWidthScale = d3.scaleLinear()
   .range([0,w])
 var fullWidthLabelScale = d3.scaleLinear()
-  .range([0,w - 70])
+  .range([0,w - 55])
 var RadiusForODX = d3.scaleLinear()
   .range([28,60])
 
@@ -144,7 +144,7 @@ function updateService(data){
   }
   //count the stops and populate content
 
-  document.querySelector('#selectionInfo').innerHTML = `${data.stops.length} stop(s) <small>${modeText}</small> ` + routeList.map(function(route){return route.route_short_name || route.route_long_name}).join(', ');
+  document.querySelector('#selectionInfo').innerHTML = `<i class="fa fa-circle" aria-hidden="true"></i> ${data.stops.length} stop(s) <small>${modeText}</small> ` + routeList.map(function(route){return route.route_short_name || route.route_long_name}).join(', ');
   document.querySelector('#routeDetail').innerHTML = 
     '<select>' + routeList.map(function(route){return `<option>${route.route_short_name || route.route_long_name}</option>`}).join(', ') + '</select>' + 
     '<svg></svg>'
@@ -163,20 +163,20 @@ function updateOdx(data){
   //update the barchart
   fullWidthLabelScale.domain([0,d3.max(data,function(d){return d.count})])
   let updateodx = d3.select('#odx').select('svg')
-    .attr('width',w - 30)
-    .attr('height',160)
+    .attr('width',w)
+    .attr('height',185)
     .selectAll('.odx').data(data)
   let enterodx = updateodx.enter().append('g').attr('class','odx')
-    .attr('transform',function(d,i){return `translate(0,${20 + i * 40})`})
+    .attr('transform',function(d,i){return `translate(0,${20 + i * 45})`})
   enterodx.append('rect')
-    .attr('y', 7)
+    .attr('y', 10)
     .attr('height',10)
     .style('fill',function(d){return colorForODX(d.type)})
   enterodx.append('text')
     .attr('class','odxLable')
     .text(function(d){return odxLable(d.type)})
   enterodx.append('text')
-    .attr('y',15)
+    .attr('y',20)
     .attr('class','odxCount')
   let odCheckpoint = enterodx.append('g')
     .attr('class',function(d){return d.type == 'o' || d.type == 'd' ? '' : 'hidden'})
@@ -219,16 +219,16 @@ function updateOdx(data){
     .attr('x',3)
     .text(function(d,i){return i % 2 ? 'from...' : 'to...'})
   odCheckpoint.insert('rect','.checkpoint')
-    .attr('y',-8)
-    .attr('width',function(){const distance = this.parentNode.querySelector('.checkpoint').getBBox();return distance.width + 5})
-    .attr('height',10)
+    .attr('y',-12)
+    .attr('width',function(){const distance = this.parentNode.querySelector('.checkpoint').getBBox();return distance.width + 7})
+    .attr('height',16)
     // .style('fill',function(d){return colorForODX(odxPairs(d.type))})
     .style('fill','#787878')
     .style('fill-opacity',.4)
   //add download button
   enterodx.append('text')
     .attr('class',function(d){return d.type == 'o' || d.type == 'd' ? 'iconfont' : 'iconfont hidden'})
-    .attr('x',w-42)
+    .attr('x',w - 13)
     .text('\uf019')
     .on('click',function(d){
       d.type == 'o' ?download('origin','') : download('destination','')

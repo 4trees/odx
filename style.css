@@ -1,7 +1,7 @@
 /* GLOBAL STYLE */
 html, body {
   height: 100%;
-  font-size:10px;
+  font-size:12px;
   font-family: Verdana, Geneva, sans-serif;
   background-color: #333;
   color:#fff;
@@ -16,9 +16,7 @@ ul{
 li{
   list-style: none;
 }
-p{
-  margin: 0;
-}
+
 hr{
   margin-top: 10px;
   margin-bottom: 10px;
@@ -46,6 +44,9 @@ select{
 }
 .table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
   border-color:rgba(120,120,120,.8);
+}
+.input-group-addon, .input-group-btn{
+  width: 0 !important;
 }
 
 .iconfont{
@@ -81,11 +82,17 @@ select{
   min-width: 800px;
   height: 100%;
 }
+.content{
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row; 
+}
 .iconButton{
   margin-left: 8px;
   cursor: pointer;
   font-size:120%;
-  color:#fff;
+  color:#fff !important;
 }
 .active{
   color:#ccc;
@@ -109,7 +116,9 @@ nav{
 /* MAP */
 #mapContainer{
   height: 100%;
-  padding: 0px 15px 15px 0px;
+  padding: 0px 15px 5px 0px;
+  -webkit-flex: auto;
+  flex: auto;
 }
 #mapid{
   width: 100%;
@@ -123,12 +132,14 @@ nav{
   stroke: #333;
   fill:#38c0df;
   stroke-width:1;
-  transition: fill-opacity .5s;
+  opacity: 1;
+  transition: opacity .5s, fill-opacity .5s;
 }
 .hlStop{
   stroke-width:8;
   stroke: #38c0df !important;
-  fill-opacity: 1;
+  opacity: .7;
+  fill-opacity:.7;
 }
 .selectStop{
   stroke: #38c0df !important;
@@ -142,7 +153,7 @@ nav{
 .shape,.route{
 	fill:none;
   opacity: .5;
-  transition: stroke-width .5s, stroke .5s;
+  transition: stroke-width .5s, stroke .5s, opacity .5s;
 }
 .route{
   stroke: #666;
@@ -154,10 +165,10 @@ nav{
 }
 .hlShape{
   stroke-width:4;
-  opacity: 1 !important;
+  opacity: .7 !important;
 }
 .hlRoute{
-  opacity: 1 !important;
+  opacity: .7 !important;
   stroke-width:7;
 }
 .selectRoute{
@@ -221,15 +232,17 @@ nav{
 
 /* PREVIEW PANEL */
 #previewContainer{
-  /*padding-top: 60px;*/
   height: 100%;
+  width: 280px;
+  padding-left:15px;
+  padding-right: 15px;
 }
 #preview{
   height: 100%;
   width: 100%;
 }
 .description{
-  font-size:9px;
+  /*font-size:10px;*/
   color:#B6B6B4;
   margin-top: 8px;
 }
@@ -239,9 +252,13 @@ nav{
   transform: translateY(350%);
 }
 .sectionTitle,.selectionTitle{
-  font-size: 120%;
-  opacity: .5;
+  margin:0 0 12px 0;
+  color:#787878;
 }
+#selectionInfo i{
+  color:#38c0df;
+}
+
 .collapseBt{
   width: 18px;
   height: 30px;
@@ -292,15 +309,15 @@ nav{
   /*margin-top: 10px;*/
 }
 .odxCount{
-  font-size:70%;
+  /*font-size:70%;*/
   fill:#999;
 }
 .odxLable{
-  font-size:90%;
+  /*font-size:90%;*/
   fill:#fff;
 }
 .checkpoint{
-  font-size:80%;
+  /*font-size:80%;*/
   fill:#fff;
 }
 
@@ -308,10 +325,13 @@ nav{
 #searchBar{
   z-index: 1000;
 }
+#searchBar .input-group{
+  width: 100%;
+}
 .suggestions {
-  font-size: 70%;
+  font-size: 80%;
   color: #333;
-  margin-top: 27px;
+  margin-top: 0;
   padding: 0;
   position: relative;
   margin-bottom: 0;
@@ -396,6 +416,20 @@ input[type="checkbox"] {
   display: none; 
 }
 
+.subCheckboxs{
+  padding-left: 20px;
+  font-size: 85%;
+}
+
+.selectionTitle .checkbox{
+  display: inline-block;
+  margin-left: 20px;
+}
+.selectionTitle .checkbox input[type="checkbox"] + label{
+  margin-bottom: 0;
+}
+
+
 .checkbox input[type="checkbox"] + label {
   display: block;
   position: relative;
@@ -414,7 +448,7 @@ input[type="checkbox"] {
   height: 12px;
   border: 1px solid #6cc0e5;
   position: absolute;
-  left: 0;
+  left: 2px;
   top: 2px;
   opacity: .6;
   -webkit-transition: all .12s, border-color .08s;
@@ -422,8 +456,8 @@ input[type="checkbox"] {
 }
 
 .checkbox input[type="checkbox"]:checked + label:before {
-  width: 10px;
-  top: -3px;
+  width: 8px;
+  top: -2px;
   border-radius: 0;
   opacity: 1;
   border-top-color: transparent;
@@ -431,15 +465,4 @@ input[type="checkbox"] {
   -webkit-transform: rotate(45deg);
   transform: rotate(45deg);
 }
-.subCheckboxs{
-  padding-left: 20px;
-  font-size: 85%;
-}
-
-.selectionTitle .checkbox{
-  display: inline-block;
-  margin-left: 20px;
-}
-.selectionTitle .checkbox input[type="checkbox"] + label{
-  margin-bottom: 0;
-}
+ 
