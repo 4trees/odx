@@ -40,7 +40,7 @@ var searchMap = L.Control.extend({
     		<div id="searchBar">
     		<div class="input-group input-group-sm" >  
     			<label class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></label>			
-                <input type="text" class="form-control" name="search" placeholder="stop, route..." title="Limit to routes only by starting with 'route'">               
+                <input type="text" class="form-control" name="search" placeholder="stop id, stop name, or route" title="Limit to route only by starting with 'route'">               
             </div>
             <div><ul class="suggestions hidden"></ul></div>
             </div>`
@@ -169,12 +169,11 @@ function drawStops(){
 				setTimeout(function(){
 					let stopinfo = getStopInfo(stop);
 					setStopsDisplay('default',[stop.stop_id]);
-					map.closePopup();
+					// map.closePopup();
 				},500)
 			})
 			.on('click',function(e){
-				makeSelection('stop',e.originalEvent.shiftKey,stop.stop_id)
-				// populateSelection(e.originalEvent.shiftKey,{stops:[stop.stop_id],routes:[]})
+				populateSelectionByStop(e.originalEvent.shiftKey,stop.stop_id)
 			})
 			.addTo(map);
 		stopMarkers.push({id:slugStr(stop.stop_id),marker:stopMarker})
@@ -261,7 +260,7 @@ function drawRoutes(){
 				},500)
 			})
 			.on('click',function(e){
-				makeSelection('route',e.originalEvent.shiftKey,route.key)
+				populateSelectionByRoute(e.originalEvent.shiftKey,route.key)
 			})
 			.addTo(map);
 		routeMarkers.push({id:slugStr(route.key),marker:routeMarker})

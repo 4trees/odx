@@ -17,11 +17,8 @@ function displayMatches() {
   //set the route search only mode
   let searchValue,searchArray
   if(this.value.match(new RegExp('^route.*$','i'))){
-    console.log(this.value)
     searchValue = this.value.replace(new RegExp('^route.','i'),'')
-    console.log(searchValue)
     searchArray = stopAndRoute.filter(function(d){console.log(d.type);return d.type == 'route'})
-    console.log(searchArray)
   }else{
     searchValue = this.value
     searchArray = stopAndRoute
@@ -55,7 +52,7 @@ function findMatches(wordToMatch, stopAndRoute) {
   //get the first 6 matchs
   return stopAndRoute.filter(function(item){
     const regex = new RegExp(wordToMatch, 'gi');
-    return item.name.match(regex)
+    return item.name.match(regex) || item.id.match(regex)
   }).slice(0, 12);
 }
 

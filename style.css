@@ -133,7 +133,7 @@ nav{
   fill:#38c0df;
   stroke-width:1;
   opacity: 1;
-  transition: opacity .5s, fill-opacity .5s;
+  transition: opacity .2s, fill-opacity .2s;
 }
 .hlStop{
   stroke-width:8;
@@ -153,7 +153,7 @@ nav{
 .shape,.route{
 	fill:none;
   opacity: .5;
-  transition: stroke-width .5s, stroke .5s, opacity .5s;
+  transition: stroke-width .2s, stroke .2s, opacity .2s;
 }
 .route{
   stroke: #666;

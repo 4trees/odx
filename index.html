@@ -9,7 +9,7 @@
   	<link rel="stylesheet" href="https://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
   	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
-    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.03" >
+    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.04" >
     <script src="https://use.fontawesome.com/bb7d7deb27.js"></script>
   	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
@@ -71,7 +71,7 @@
             <!-- <section id="analysis">  -->
               <!-- <div class="row"><hr></div>              -->
               <section id="odx">
-                <div><h5 class="sectionTitle">Trips</h5></div>
+                <div><h5 class="sectionTitle">Rides</h5></div>
                 <svg></svg>
               </section>
               <!-- <hr class="dash"> -->
@@ -154,7 +154,7 @@
             </div>
             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p class="selectionTitle">Date - Time</p>
+                <p class="selectionTitle">Day Type - Time</p>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                   <ul>
                     <li class="checkbox"><input type="checkbox" name="datePeriod" value="weekdays" id="weekdays" onchange="toggleCheckAll(this,'timePeriod')"><label for="weekdays">Weekdays</label></li>
@@ -202,7 +202,7 @@
             </div>
           </div>
           <div class="modal-footer">           
-            <button type="button" class="btn btn-default" onclick="updateDataFromFilters()">Confirm</button>
+            <button type="button" class="btn btn-default" onclick="saveFilters();updatepreview();updateMap()">Confirm</button>
           </div>
         </div><!-- /.modal-content -->
       </div><!-- /.modal-dialog -->
@@ -210,10 +210,10 @@
 </div>
 <script src="lib/d3.min.js"></script>
 <script src="dataload.js?version=0.0.01"></script>
-<script src="map.js?version=0.0.03"></script>
-<script src="script.js?version=0.0.02"></script>
-<script src="search.js?version=0.0.02"></script>
-<script src="preview.js?version=0.0.06"></script>
+<script src="map.js?version=0.0.04"></script>
+<script src="script.js?version=0.0.03"></script>
+<script src="search.js?version=0.0.03"></script>
+<script src="preview.js?version=0.0.07"></script>
 <script src="download.js?version=0.0.02"></script>
 </body>
 </html>
