@@ -18,7 +18,7 @@ function displayMatches() {
   let searchValue,searchArray
   if(this.value.match(new RegExp('^route.*$','i'))){
     searchValue = this.value.replace(new RegExp('^route.','i'),'')
-    searchArray = stopAndRoute.filter(function(d){console.log(d.type);return d.type == 'route'})
+    searchArray = stopAndRoute.filter(function(d){return d.type == 'route'})
   }else{
     searchValue = this.value
     searchArray = stopAndRoute
@@ -68,7 +68,11 @@ function listenMatches(){
     item.addEventListener('click',function(e){
       let type = this.getAttribute('data-type')
       fireMatches(this,'click')
-      makeSelection(type,e.shiftKey,this.getAttribute('data-id').replace(type,''))
+      if(type == 'stop'){
+        populateSelectionByStop(e.shiftKey,this.getAttribute('data-id').replace(type,''))
+      }else{
+        populateSelectionByRoute(e.shiftKey,this.getAttribute('data-id').replace(type,''))
+      }
 
     })
   })

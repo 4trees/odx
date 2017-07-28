@@ -4,7 +4,8 @@ var	stopsUrl = './data/stops.txt',
 	tripsUrl = './data/trips.txt',
 	routesUrl = './data/routes.txt',
 	shapestoprouteUrl = './data/route_shape_stop.csv',
-  shapename = './data/shape-id_route-variant_lookup_fall16.csv';
+  shapename = './data/shape-id_route-variant_lookup_fall16.csv',
+  nonODXrouteUrl = './data/gtfs_route_ids_not_in_odx.csv';
 
 d3.queue()
   .defer(d3.csv,shapename,parseshapeName)
@@ -13,12 +14,13 @@ d3.queue()
 	.defer(d3.csv,tripsUrl,parseTrip)
 	.defer(d3.csv,routesUrl,parseRoute)
 	.defer(d3.csv,shapestoprouteUrl,parse)
+  .defer(d3.csv,nonODXrouteUrl,parseNonODXroute)
 	.await(dataloaded);
 
 var allShapesData, allShapes, shapeStopRoute,variantsName, stopAndRoute,subwayLines;
 var allData = {}, allNest = {};
 
-function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute){
+function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes){
 //nest shape data by shape id
 allShapes = d3.nest()
 	.key(function(d){return d.shape_id})
@@ -26,8 +28,9 @@ allShapes = d3.nest()
 	.entries(shapes)
 
 //data filter-out
-//route_type != 0,1,3 | trip has no shape_id | shape has no trip
-let nonRouteList = getIdlist(routes.filter(function(d){return ![0,1,3].includes(+d.route_type)}),'route')
+//route_type != 0,1,3 | trip has no shape_id | shape has no trip | route_id in non-odx route list
+let nonODXrouteList = nonODXroutes.map(function(d){return d.route_id})
+let nonRouteList = getIdlist(routes.filter(function(d){return ![0,1,3].includes(+d.route_type) || nonODXrouteList.includes(d.route_id)}),'route')
 shapeStopRoute = shapestoproute.filter(function(d){return d.shape_id !='' && !nonRouteList.includes(d.route_id)})
 let shapeList = getIdlist(shapestoproute,'shape')
 
@@ -137,5 +140,10 @@ function parseshapeName(d){
   return{
     shape_id: d.shape_id2,
     shape_name : d.route_id2 + d.variant,
+  }
+}
+function parseNonODXroute(d){
+  return{
+    route_id: d.gtfs_route_id,
   }
 }
