@@ -9,7 +9,7 @@
   	<link rel="stylesheet" href="https://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
   	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
-    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.04" >
+    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.05" >
     <script src="https://use.fontawesome.com/bb7d7deb27.js"></script>
   	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
@@ -43,38 +43,29 @@
             </div>
             <div>
               <p id="selectionInfo" class="h5"></p>
-            </div>
-            <section id="displayOption">
-              <ul>
-                <li class="checkbox" id="showTouchRoutes">
-                  <input type="checkbox" name="showTouchRoutes" id="touchroutes" onchange="showTouchRoutes(this)"><label for="touchroutes">show touching routes</label>
-                </li>
-                <li class="dropdown hidden" id="showVariants">
-                  <a role="button" data-toggle="collapse" aria-expanded="false" data-target="#variantsList" aria-controls="variantsList"><i class="fa fa-ellipsis-v" aria-hidden="true"></i> Variants</a>
-                  <ul class="collapse subCheckboxs" id="variantsList">
-                  </ul>
-                </li>
-              </ul>
-            </section>           
+            </div>       
             <section id="routesummary">
-              <!-- <div class="row"><hr></div> -->
               <p role="button" data-toggle="collapse" aria-expanded="false" data-target="#routeDetail" aria-controls="routeDetail"><i class="fa fa-ellipsis-v" aria-hidden="true"></i> Route Summary</p>
               <div class="collapse" id="routeDetail"></div>
             </section>            
             <section>
-              <!-- <div class="row"><hr></div> -->
               <div type="button" data-toggle="modal" data-target="#filterBox" id="filterBt" onclick="updateFilters()">
                 <p><i class="fa fa-filter" class="iconButton" aria-hidden="true"></i> Filters</p>
                 <p id="filters" class="description"></p>
               </div>      
             </section>           
             <!-- <section id="analysis">  -->
-              <!-- <div class="row"><hr></div>              -->
               <section id="odx">
-                <div><h5 class="sectionTitle">Rides</h5></div>
+                <div class="clearfix"> 
+                  <div class="pull-left">
+                    <h5 class="sectionTitle">Journeys</h5>
+                  </div>
+                  <div class="pull-right">
+                    <a type="button" id="downloadODX" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
+                  </div>
+                </div>
                 <svg></svg>
               </section>
-              <!-- <hr class="dash"> -->
               <section id="transfer">
                 <div class="clearfix">
                   <div class="pull-left">
@@ -82,10 +73,8 @@
                   </div>
                   <div class="pull-right">
                     <a type="button" id="downloadTransfer" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
-                    <!-- <a type="button" class="iconButton"><i class="fa fa-table" aria-hidden="true"></i></a> -->
                   </div>
                 </div>
-                <!-- <div class="transferChart"></div> -->
                 <div class="transferTable">
                   <table class="table">
                     <thead>
@@ -209,11 +198,11 @@
     </div><!-- /.modal -->
 </div>
 <script src="lib/d3.min.js"></script>
-<script src="dataload.js?version=0.0.01"></script>
-<script src="map.js?version=0.0.04"></script>
-<script src="script.js?version=0.0.03"></script>
+<script src="dataload.js?version=0.0.02"></script>
+<script src="map.js?version=0.0.05"></script>
+<script src="script.js?version=0.0.04"></script>
 <script src="search.js?version=0.0.04"></script>
-<script src="preview.js?version=0.0.07"></script>
+<script src="preview.js?version=0.0.08"></script>
 <script src="download.js?version=0.0.03"></script>
 </body>
 </html>

@@ -46,13 +46,9 @@ function download(dataType,data){
             downloadData = [['From','To','Trip Count']].concat(data)
             exportToCsv('odx-transfer.csv', downloadData)
             break
-        case 'origin':
+        case 'odx':
             downloadData = [['Journey Origin Stop','Journey Origin Route','Journey Destination Stop','Journey Destination Route','Date-Time','Fare User Type','Fare Method','Count of Journeys']].concat(data)
             exportToCsv('odx-origin.csv', downloadData)
-            break
-        case 'destination':
-            downloadData = [['Journey Origin Stop','Journey Origin Route','Journey Destination Stop','Journey Destination Route','Date-Time','Fare User Type','Fare Method','Count of Journeys']].concat(data)
-            exportToCsv('odx-destination.csv', downloadData)
             break
     }
     

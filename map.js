@@ -9,8 +9,6 @@ L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x
   // light_only_labels,
   // dark_nolabels,
   // dark_only_labels
-//set the zoomcontrol's position
-map.zoomControl.setPosition('bottomright')
 
 //reset map view
 var resetMap = L.Control.extend({
@@ -28,6 +26,9 @@ var resetMap = L.Control.extend({
   },
 });
 map.addControl(new resetMap());
+
+//set the zoomcontrol's position
+map.zoomControl.setPosition('bottomright')
 
 //search on the map
 var searchMap = L.Control.extend({
@@ -55,13 +56,13 @@ map.addControl(new searchMap());
 //visual map layer
 var VlayerMap = L.Control.extend({
   options: {
-    position: 'bottomleft' 
+    position: 'bottomright' 
   },
   onAdd: function (map) {
   	var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
     container.innerHTML = `
                 <a title = "Show all variants" role="button">
-                	<label><input type="checkbox" name="showallVariants"><i class="fa fa-road" aria-hidden="true"></i></label>
+                	<input type="checkbox" name="showallVariants" id="showallVariants"><label for="showallVariants"><i class="fa fa-road" aria-hidden="true"></i></label>
                 </a>`
     container.onclick = function(){
     	toggleVariants()
@@ -70,6 +71,28 @@ var VlayerMap = L.Control.extend({
   },
 });
 map.addControl(new VlayerMap());
+//Conditioned visual map layer
+var conditionedlayerMap = L.Control.extend({
+  options: {
+    position: 'bottomleft' 
+  },
+  onAdd: function (map) {
+  	var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+    container.innerHTML = `
+                <div class="dropup">
+                	<a title = "Show/Hidden filtered variants" class="dropdown-toggle" role="button" onclick="toggleVariantsBox(this)" aria-haspopup="true" aria-expanded="false">V</a>
+                	<ul class="dropdown-menu" id="variantsList">No Data</ul>
+                </div>
+                <div>
+                	<a title = "Show/Hidden filtered routes" role="button" onclick="togglefilteredRoutes()">
+                		<input type="checkbox" name="filteredRoutes" id="filteredRoutes" checked><label for="filteredRoutes">R</label>
+                	</a>
+                </div>`
+    return container;
+  },
+
+});
+map.addControl(new conditionedlayerMap());
 
 //set a drawcontrol
 var drawnItems = new L.FeatureGroup();

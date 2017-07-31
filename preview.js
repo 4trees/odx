@@ -114,17 +114,12 @@ function updateService(){
   //update touching routes and variants
   let childrenStops = getChildrenStop(display.selectedStops).map(function(d){return d.stop_id})
   let routeList = getRelationships(childrenStops,'stop_route')[1]  
-  //reset the touching route checkbox
-  let touchroutes = document.querySelector('input[name=showTouchRoutes]')
-  touchroutes.checked = false;
-  showTouchRoutes(touchroutes)
-  if(display.filter.routefilter.length == 0 ){  
-    document.querySelector('#displayOption').querySelector('#showVariants').classList.add('hidden')
-  }else{
-    document.querySelector('#displayOption').querySelector('#showVariants').classList.remove('hidden')
+  //show filtered routes based on checked status
+  togglefilteredRoutes()
+  //populate variants box
+  if(display.filter.routefilter.length > 0 ){     
+    console.log('i need to show',document.querySelector('#variantsList'))
     //populate the variants
-    // let routeIdList = routeList.map(function(d){return d.route_id});
-    // let variantsList = allNest.route_shape.filter(function(d){return routeIdList.includes(d.key)})
     let variantsList = allNest.route_shape.filter(function(d){return display.filter.routefilter.includes(d.key)})
     document.querySelector('#variantsList').innerHTML = variantsList.map(function(route){
         return route.values.map(function(variant){
@@ -133,11 +128,13 @@ function updateService(){
             let shapeInfo = getShapeInfo(shapeId)
             let isChecked = routeMarkers.map(function(d){return d.marker.options.className.split(' ')[2].replace('hlShape','')}).includes(shapeId) ? 'checked' : ''
             return `<li class="checkbox">
-                        <input type="checkbox" name="variants" onchange="showVariants(this)" value=${shapeId} id="checkshape${shapeId}" ${isChecked}><label for="checkshape${shapeId}"><p>${shapeInfo[0]}</p><p class="description">${shapeInfo[1]}<br>Trips: ${shapeTripCount}</p></label>
+                        <input type="checkbox" name="variants" onchange="showVariants(this)" value=${shapeId} id="checkshape${shapeId}" ${isChecked}><label for="checkshape${shapeId}"><p>${shapeInfo[0]}</p><p><small>${shapeInfo[1]}<br>Trips: ${shapeTripCount}</small></p></label>
                     </li>`
           }).join('')
     }).join('')
 
+  }else{
+    document.querySelector('#variantsList').innerHTML = 'No data'
   }
   //populate the selection box
 
@@ -157,6 +154,9 @@ function clearODXMarker(){
   }
 }
 function updateOdx(data){
+  //prepare the download
+  let downloadData = ''
+  document.querySelector('#downloadODX').addEventListener('click',function(){download('odx',downloadData)})
   //update the barchart
   fullWidthLabelScale.domain([0,d3.max(data,function(d){return d.count})])
   let updateodx = d3.select('#odx').select('svg')
@@ -222,14 +222,7 @@ function updateOdx(data){
     // .style('fill',function(d){return colorForODX(odxPairs(d.type))})
     .style('fill','#787878')
     .style('fill-opacity',.4)
-  //add download button
-  enterodx.append('text')
-    .attr('class',function(d){return d.type == 'o' || d.type == 'd' ? 'iconfont' : 'iconfont hidden'})
-    .attr('x',w - 13)
-    .text('\uf019')
-    .on('click',function(d){
-      d.type == 'o' ?download('origin','') : download('destination','')
-    })
+
   let mergeodx = updateodx.merge(enterodx)
   mergeodx.select('rect')
     .attr('width', function(d){return fullWidthLabelScale(d.count)})
@@ -355,13 +348,3 @@ function showVariants(e){
 }
 
 
-function showTouchRoutes(e){
-  if(e.checked){
-    let touchRoutes = getRelationships(getIdlist(getChildrenStop(display.selectedStops),'stop'),'stop_route')[0].filter(function(d){return !display.filter.routefilter.includes(d)})
-    console.log(touchRoutes)
-    setRoutesDisplay('touch',touchRoutes)
-  }else{
-    d3.selectAll('.touchRoute').classed('touchRoute',false).style('stroke','#666');
-  }
-  showSubway()
-}

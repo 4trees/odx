@@ -28,7 +28,19 @@ function toggleVariants(){
 		d3.selectAll('.shape').classed('hidden',true)
 	}
 }
-
+const showFilteredRoutes = document.querySelector('input[name=filteredRoutes]')
+function togglefilteredRoutes(){
+  if(showFilteredRoutes.checked){
+    setRoutesDisplay('select',display.filter.routefilter)
+  }else{
+    d3.selectAll('.selectRoute').classed('selectRoute',false).style('stroke','#666');
+  }
+  showSubway()
+}
+function toggleVariantsBox(e){
+	// console.log(document.querySelector(e))
+	e.parentElement.classList.toggle('open');
+}
 //GLOBEL FUNCTION
 //trunc the long word: for station name on the top right
 String.prototype.trunc = String.prototype.trunc ||
@@ -79,10 +91,6 @@ function setStopsDisplay(action,stopIdList){
 }
 //set the shape display(second para is a array of shape ids)
 function setShapesDisplay(action,shapeIdList){
-	// console.log(action)
-	// let hasMatchShape = shapeStopRoute.find(function(d){return d.shape_id == shapeIdList[0]});
-	// let itsRoute = hasMatchShape ? allData.route.find(function(route){return route.route_id == hasMatchShape.route_id}) : '';
-	// let itsRouteColor = itsRoute ? '#' + itsRoute.route_color : '';
 	let countshapes = shapeIdList.length;
 
 	switch (action){
@@ -94,38 +102,19 @@ function setShapesDisplay(action,shapeIdList){
 				shapeItem.parentNode.appendChild(shapeItem)
 				let shapeColor = allData.route.find(function(d){return d.route_id == shapeStopRoute.find(function(d){return d.shape_id == shapeId}).route_id}).route_color
 				shapeItem.style.stroke = '#' + shapeColor;
-				// shapeItem.addEventListener("mouseover", function(e){
-				// 	let location = map.layerPointToLatLng(L.point(e.screenX,e.screenY))
-				// 	let shapeInfo = getShapeInfo(shapeIdList[i]);
-				// 	shapePopup([location.lat,location.lng],shapeInfo)
-
-				// });
-				// shapeItem.addEventListener('mouseout',function(){map.closePopup();})
 			}
 			break
 		case 'default':
 			for(i=0;i<countshapes;i++){
 				let shapeItem = document.querySelector('.hlShape' + shapeIdList[i]);
 				shapeItem.classList.add('hidden')
-				// shapeItem.style.stroke = '#b2b2b2';
-				// shapeItem.classList.remove('hlShape');
-				// if(!showAllVariants.checked){
-				// 	shapeItem.classList.add('hidden');
-				// }else{
-				// 	shapeItem.classList.remove('hidden');
-				// }
 			}
 			break
 	}
 }
 //set route display
 function setRoutesDisplay(action,routeIdList){
-	// console.log(stopIdList)
-	// let touchingRoutes = shapeStopRoute.filter(function(d){return stopIdList.includes(d.stop_id)})
-	// let nestTouchingRoutes = getNest(touchingRoutes,'route','stop')
-	// console.log(nestTouchingRoutes)
 	let countRoutes = routeIdList.length
-	// let countRoutes = nestTouchingRoutes.length
 	switch (action){
 		case 'hover':
 			for(i=0;i<countRoutes;i++){
@@ -187,14 +176,17 @@ function setRoutesDisplay(action,routeIdList){
 //para are id of stop/route, type is 'stop'||'route'
 function getHint(id,type){
 	let hint = '';
-	// switch(type){
-	// 	case 'stop':
-	// 		hint = display.selectedStops.includes(id) ? 'Shift click to remove this stop' : ''
-	// 		break
-	// 	case 'route':
-	// 		break
-	// }
-	// hint = `Shift click to ${action} this ${type}`
+	if(display.selectedStops.length > 0)
+	switch(type){
+		case 'stop':
+			
+			hint = display.selectedStops.includes(id) ? 'Shift click to <strong>remove</strong> this stop' : 'Shift click to <strong>add</strong> this stop'
+			break
+		case 'route':
+			
+			hint = display.filter.routefilter.includes(id) ? 'Shift click to <strong>remove</strong> this route' : 'Shift click to <strong>add</strong> this route'
+			break
+	}
 	return hint;
 }
 
@@ -202,11 +194,7 @@ function getHint(id,type){
 //para are an object of the stop, an array of children stop, [a array of touching route ids, a array of touching routes]
 function stopPopup(stop,childrenStops,touchRoutes){
 	let children = stop.location_type == 1 ? '<p>' + childrenStops.map(function(stop){return stop.stop_name}).join(', ') + '</p>' : '';
-	// let routes = touchRoutes[1].map(function(route){return `
-	// 	<div class="routelabel" style="color:#${route.route_text_color};background:#${route.route_color}">${route.route_short_name || route.route_long_name}</div>
-	// 	`
-	// 	}).join('')
-	let hint =  getHint([stop.stop_id],'stop')
+	let hint =  getHint(stop.stop_id,'stop')
 	popup.setLatLng([stop.stop_lat,stop.stop_lon])
 		.setContent(`
 			<h5>${stop.stop_name}</h5> 
@@ -221,9 +209,20 @@ function stopPopup(stop,childrenStops,touchRoutes){
     	.html(function(d){return d.route_short_name || d.route_long_name})
     	.style('color',function(d){return `#${d.route_text_color}`})
     	.style('background',function(d){return `#${d.route_color}`})
+    	.style('opacity',function(d){return display.filter.routefilter.includes(d.route_id) ? .6 : 1})
     	.on('click',function(d){
     		populateSelectionByRoute(d3.event.shiftKey,d.route_id)
+    		d3.select(this).style('opacity',display.filter.routefilter.includes(d.route_id) ? .6 : 1)
     	})
+    	.on('mouseover',function(d){
+    		hint = getHint(d.route_id,'route')
+    		d3.select(this.parentNode.parentNode).select('.hint').html(hint);
+    	})
+    	.on('mouseout',function(d){
+    		hint = getHint(stop.stop_id,'stop')
+    		d3.select(this.parentNode.parentNode).select('.hint').html(hint);
+    	})
+
 	updateRoute.exit().remove()
 }
 //update popup for the shape
@@ -239,7 +238,7 @@ function shapePopup(location,shapeInfo){
 //update popup for the route
 function routePopup(location,route,stopLength){
 	let routeName = route.route_short_name || route.route_long_name;
-	let hint = getHint([route.route_id],'route')
+	let hint = getHint(route.route_id,'route')
 	popup.setLatLng(location)
         .setContent(`
     		<h5>${routeName}</h5>
@@ -252,34 +251,32 @@ function routePopup(location,route,stopLength){
 //update popup for the draw selection
 function selectionPopup(layer,drawSelection){
 	let location = layer.getBounds().getCenter()
-	let isHidden;
+	let isHiddenLimit,isHiddenAdd;
 	let overlapStops = drawSelection.filter(function(stop){return display.selectedStops.includes(stop)})
 	let overlapStopsCount = overlapStops.length
-	// if any of these stops in drawSelection is in current selection, show add/remove options in pop-up
-	if(overlapStopsCount > 0){
-		isHidden = ''
-	}else{
-		isHidden = 'hidden'
-	}
-	
+	// if any of these stops in drawSelection is in current selection, show remove option in pop-up
+	isHiddenLimit = overlapStopsCount > 0 ? '' : 'hidden'
+	//if current selection is not empty, show add option in pop-up
+	isHiddenAdd = display.selectedStops.length > 0 ? '' : 'hidden'
+
 	popup.setLatLng(location)
         .setContent(`
         	<div>
 	        	<h5><strong>${drawSelection.length}</strong> stop(s) in this area</h5>
 	        	<hr>
 	        	<a id="replaceDraw" class="btn btn-default btn-xs">Set all as new selection</a>
+	        	<a id="addDraw" class="btn btn-default btn-xs ${isHiddenAdd}" >Add all to selection</a>
 	        </div>
-    		<div class="${isHidden}">
+    		<div class="${isHiddenLimit}">
 	    		<h5><strong>${overlapStopsCount}</strong> stop(s) in current selection</h5>
-	    		<hr>
-	    		<a id="addDraw" class="btn btn-default btn-xs ${isHidden}" >Add them to selection</a>
-	    		<a id="limitDraw" class="btn btn-default btn-xs ${isHidden}">Limit selection to them</a>
+	    		<hr>		
+	    		<a id="limitDraw" class="btn btn-default btn-xs">Limit selection to them</a>
     		</div>
         `)
         .openOn(map);
     
-	document.querySelector('#addDraw').addEventListener('click',function(d){populateSelectionByDraw(drawSelection,'add');layer.remove();map.closePopup();})
 	document.querySelector('#replaceDraw').addEventListener('click',function(d){populateSelectionByDraw(drawSelection,'replace');layer.remove();map.closePopup();})
+	document.querySelector('#addDraw').addEventListener('click',function(d){populateSelectionByDraw(drawSelection,'add');layer.remove();map.closePopup();})
 	document.querySelector('#limitDraw').addEventListener('click',function(d){populateSelectionByDraw(overlapStops,'replace');layer.remove();map.closePopup();})
     
 }
@@ -363,7 +360,7 @@ function getRelationships(idList,relationship){
 
 //UPDATE SELECTION
 function populateSelectionByStop(key,stopId){
-	let touchingRouteIdList = getRelationships([stopId],'stop_route')[0]
+	let touchingRouteIdList = getRelationships(getIdlist(getChildrenStop([stopId]),'stop'),'stop_route')[0]
 	if(key){
 		if(display.selectedStops.includes(stopId)){
 			display.selectedStops.splice(display.selectedStops.indexOf(stopId),1)
@@ -438,13 +435,14 @@ function updateMap(){
 	//highlight the selection stops and filtered routes
 	d3.selectAll('.selectStop').classed('selectStop',false)
 	d3.selectAll('.selectRoute').classed('selectRoute',false).style('stroke','#666');
+	showSubway()
 	if(display.selectedStops.length == 0)return
 	setStopsDisplay('select',display.selectedStops)
-	setRoutesDisplay('select',display.filter.routefilter)
+	if(showFilteredRoutes.checked){setRoutesDisplay('select',display.filter.routefilter)}
 	//hidden highlight variants, reshow routes and subway
 	d3.selectAll('.hlShape').classed('hidden',true)
 	d3.selectAll('.route').classed('hidden',false)
-	showSubway()
+	
 }
 
 
