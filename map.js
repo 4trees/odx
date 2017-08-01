@@ -81,7 +81,7 @@ var conditionedlayerMap = L.Control.extend({
     container.innerHTML = `
                 <div class="dropup">
                 	<a title = "Show/Hidden filtered variants" class="dropdown-toggle" role="button" onclick="toggleVariantsBox(this)" aria-haspopup="true" aria-expanded="false">V</a>
-                	<ul class="dropdown-menu" id="variantsList">No Data</ul>
+                	<ul class="dropdown-menu" id="variantsList">Select a route firsts</ul>
                 </div>
                 <div>
                 	<a title = "Show/Hidden filtered routes" role="button" onclick="togglefilteredRoutes()">
@@ -196,7 +196,10 @@ function drawStops(){
 				},500)
 			})
 			.on('click',function(e){
-				populateSelectionByStop(e.originalEvent.shiftKey,stop.stop_id)
+				let stopinfo = getStopInfo(stop);
+				if(!stopinfo[2][0].every(function(d){return nonRouteList.includes(d)})){
+					populateSelectionByStop(e.originalEvent.shiftKey,stop.stop_id)
+				}
 			})
 			.addTo(map);
 		stopMarkers.push({id:slugStr(stop.stop_id),marker:stopMarker})
@@ -240,6 +243,7 @@ function drawShapes(shapeId){
 		}
 	}
 }
+
 var routeMarkers = []
 function drawRoutes(){
 	let countRoutes = allNest.route_direction_shape.length
@@ -283,15 +287,19 @@ function drawRoutes(){
 				},500)
 			})
 			.on('click',function(e){
-				populateSelectionByRoute(e.originalEvent.shiftKey,route.key)
+				if(!nonRouteList.includes(route.key)){
+					populateSelectionByRoute(e.originalEvent.shiftKey,route.key)
+				}
 			})
 			.addTo(map);
 		routeMarkers.push({id:slugStr(route.key),marker:routeMarker})
 	}
 }
+
 function showSubway(){
 	setRoutesDisplay('subway',subwayLines)
 }
+
 
 
 function isMarkerInsidePolygon(marker, poly) {

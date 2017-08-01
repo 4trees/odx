@@ -9,7 +9,7 @@
   	<link rel="stylesheet" href="https://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
   	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
-    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.05" >
+    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.06" >
     <script src="https://use.fontawesome.com/bb7d7deb27.js"></script>
   	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
@@ -123,7 +123,7 @@
             <h4 class="modal-title">Filters</h4>
           </div>
           <div class="modal-body">
-            <div class="row">
+<!--             <div class="row">
               <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
                 <p class="selectionTitle">Mode</p>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
@@ -133,10 +133,10 @@
                   </ul>
                 </div>
               </div>
-            </div>
+            </div> -->
             <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p class="selectionTitle">Route <span class="checkbox"><input type="checkbox" name="allroutes" value="allroutes" id="allroutes" onchange="toggleCheckAll(this,'routefilter')"><label for="allroutes">All</label></span></p>
+              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <p class="selectionTitle">Route</p>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="routeFilter"> 
                 </div>
               </div>
@@ -146,18 +146,19 @@
                 <p class="selectionTitle">Day Type - Time</p>
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                   <ul>
-                    <li class="checkbox"><input type="checkbox" name="datePeriod" value="weekdays" id="weekdays" onchange="toggleCheckAll(this,'timePeriod')"><label for="weekdays">Weekdays</label></li>
+                    <li class="checkbox"><input type="checkbox" name="datePeriod" data-child="timePeriod" value="weekdays" id="weekdays" onchange="toggleCheckAll(this,'sub','parent')"><label for="weekdays">Weekdays</label>
                       <ul class="subCheckboxs list-inline">
-                        <li class="checkbox" title="03:00 AM – 05:59 AM"><input type="checkbox" name="timePeriod" value="sunrise" id="sunrise" onchange="toggleCheckAll(this,'timePeriod')"><label for="sunrise">Sunrise</label></li>
-                        <li class="checkbox" title="6:00 AM – 06:59 AM"><input type="checkbox" name="timePeriod" value="earlyAM" id="earlyAM" onchange="toggleCheckAll(this,'timePeriod')"><label for="earlyAM">Early AM</label></li>
-                        <li class="checkbox" title="07:00 AM – 08:59 AM"><input type="checkbox" name="timePeriod" value="AMPeak" id="AMPeak" onchange="toggleCheckAll(this,'timePeriod')"><label for="AMPeak">AM Peak</label></li>
-                        <li class="checkbox" title="09:00 AM – 01:29 PM"><input type="checkbox" name="timePeriod" value="middayBase" id="middayBase" onchange="toggleCheckAll(this,'timePeriod')"><label for="middayBase">Midday Base</label></li>
-                        <li class="checkbox" title="01:30 PM – 03:59 PM"><input type="checkbox" name="timePeriod" value="middaySchool" id="middaySchool" onchange="toggleCheckAll(this,'timePeriod')"><label for="middaySchool">Midday School</label></li>
-                        <li class="checkbox" title="04:00 PM – 06:29 PM"><input type="checkbox" name="timePeriod" value="PMPeak" id="PMPeak" onchange="toggleCheckAll(this,'timePeriod')"><label for="PMPeak">PM Peak</label></li>
-                        <li class="checkbox" title="06:30 PM – 09:59 PM"><input type="checkbox" name="timePeriod" value="evening" id="evening" onchange="toggleCheckAll(this,'timePeriod')"><label for="evening">Evening</label></li>
-                        <li class="checkbox" title="10:00 PM – 11:59 PM"><input type="checkbox" name="timePeriod" value="lateEvening" id="lateEvening" onchange="toggleCheckAll(this,'timePeriod')"><label for="lateEvening">Late Evening</label></li>
-                        <li class="checkbox" title="12:00 AM – 02:59 AM"><input type="checkbox" name="timePeriod" value="night" id="night" onchange="toggleCheckAll(this,'timePeriod')"><label for="night">Night</label></li>
+                        <li class="checkbox" title="03:00 AM – 05:59 AM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="sunrise" id="sunrise" onchange="toggleCheckAll(this,'sub','child')"><label for="sunrise">Sunrise</label></li>
+                        <li class="checkbox" title="6:00 AM – 06:59 AM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="earlyAM" id="earlyAM" onchange="toggleCheckAll(this,'sub','child')"><label for="earlyAM">Early AM</label></li>
+                        <li class="checkbox" title="07:00 AM – 08:59 AM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="AMPeak" id="AMPeak" onchange="toggleCheckAll(this,'sub','child')"><label for="AMPeak">AM Peak</label></li>
+                        <li class="checkbox" title="09:00 AM – 01:29 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="middayBase" id="middayBase" onchange="toggleCheckAll(this,'sub','child')"><label for="middayBase">Midday Base</label></li>
+                        <li class="checkbox" title="01:30 PM – 03:59 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="middaySchool" id="middaySchool" onchange="toggleCheckAll(this,'sub','child')"><label for="middaySchool">Midday School</label></li>
+                        <li class="checkbox" title="04:00 PM – 06:29 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="PMPeak" id="PMPeak" onchange="toggleCheckAll(this,'sub','child')"><label for="PMPeak">PM Peak</label></li>
+                        <li class="checkbox" title="06:30 PM – 09:59 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="evening" id="evening" onchange="toggleCheckAll(this,'sub','child')"><label for="evening">Evening</label></li>
+                        <li class="checkbox" title="10:00 PM – 11:59 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="lateEvening" id="lateEvening" onchange="toggleCheckAll(this,'sub','child')"><label for="lateEvening">Late Evening</label></li>
+                        <li class="checkbox" title="12:00 AM – 02:59 AM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="night" id="night" onchange="toggleCheckAll(this,'sub','child')"><label for="night">Night</label></li>
                       </ul>
+                    </li>
                     <li class="checkbox"><input type="checkbox" name="datePeriod" value="saturdays" id="saturdays"><label for="saturdays">Saturdays</label></li>
                     <li class="checkbox"><input type="checkbox" name="datePeriod" value="sundays" id="sundays"><label for="sundays">Sundays</label></li>
                   </ul>
@@ -198,11 +199,11 @@
     </div><!-- /.modal -->
 </div>
 <script src="lib/d3.min.js"></script>
-<script src="dataload.js?version=0.0.02"></script>
-<script src="map.js?version=0.0.05"></script>
-<script src="script.js?version=0.0.04"></script>
-<script src="search.js?version=0.0.04"></script>
-<script src="preview.js?version=0.0.08"></script>
+<script src="dataload.js?version=0.0.03"></script>
+<script src="map.js?version=0.0.06"></script>
+<script src="script.js?version=0.0.05"></script>
+<script src="search.js?version=0.0.05"></script>
+<script src="preview.js?version=0.0.09"></script>
 <script src="download.js?version=0.0.03"></script>
 </body>
 </html>

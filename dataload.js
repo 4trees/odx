@@ -17,7 +17,7 @@ d3.queue()
   .defer(d3.csv,nonODXrouteUrl,parseNonODXroute)
 	.await(dataloaded);
 
-var allShapesData, allShapes, shapeStopRoute,variantsName, stopAndRoute,subwayLines;
+var allShapesData, allShapes, shapeStopRoute,variantsName, stopAndRoute,subwayLines,nonRouteList;
 var allData = {}, allNest = {};
 
 function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes){
@@ -30,15 +30,18 @@ allShapes = d3.nest()
 //data filter-out
 //route_type != 0,1,3 | trip has no shape_id | shape has no trip | route_id in non-odx route list
 let nonODXrouteList = nonODXroutes.map(function(d){return d.route_id})
-let nonRouteList = getIdlist(routes.filter(function(d){return ![0,1,3].includes(+d.route_type) || nonODXrouteList.includes(d.route_id)}),'route')
-shapeStopRoute = shapestoproute.filter(function(d){return d.shape_id !='' && !nonRouteList.includes(d.route_id)})
+nonRouteList = getIdlist(routes.filter(function(d){return ![0,1,3].includes(+d.route_type) || nonODXrouteList.includes(d.route_id)}),'route')
+// shapeStopRoute = shapestoproute.filter(function(d){return d.shape_id !='' && !nonRouteList.includes(d.route_id)})
+shapeStopRoute = shapestoproute.filter(function(d){return d.shape_id !=''})
 let shapeList = getIdlist(shapestoproute,'shape')
 
 //filt data by filter as above
 allData.stop = stops
 allData.shape = allShapes.filter(function(d){return shapeList.includes(d.key)})
-allData.trip = trips.filter(function(d){return !nonRouteList.includes(d.route_id) && shapeList.includes(d.shape_id) && d.shape_id !=''})
-allData.route = routes.filter(function(d){return !nonRouteList.includes(d.route_id)})
+// allData.trip = trips.filter(function(d){return !nonRouteList.includes(d.route_id) && shapeList.includes(d.shape_id) && d.shape_id !=''})
+allData.trip = trips.filter(function(d){return shapeList.includes(d.shape_id) && d.shape_id !=''})
+// allData.route = routes.filter(function(d){return !nonRouteList.includes(d.route_id)})
+allData.route = routes
 variantsName = variants
 
 //get a nest list

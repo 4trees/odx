@@ -30,7 +30,7 @@ function displayMatches() {
   }
   suggestions.classList.remove('hidden')
   const matchArray = findMatches(searchValue, searchArray);
-  const html = matchArray.map(item => {
+  const html = matchArray.slice(0, 10).map(item => {
     const regex = new RegExp(searchValue, 'gi');
     const itemName = item.name.replace(regex, `<span class="hl">${searchValue}</span>`);
     const children = item.type == 'stop' ? allData.stop.filter(function(d){return d.parent_station == item.id}).map(function(d){return d.stop_name}).join(', ') : ''
@@ -53,7 +53,7 @@ function findMatches(wordToMatch, stopAndRoute) {
   return stopAndRoute.filter(function(item){
     const regex = new RegExp(wordToMatch, 'gi');
     return item.name.match(regex) || item.id.match(regex)
-  }).slice(0, 12);
+  });
 }
 
 function listenMatches(){
@@ -69,9 +69,15 @@ function listenMatches(){
       let type = this.getAttribute('data-type')
       fireMatches(this,'click')
       if(type == 'stop'){
-        populateSelectionByStop(e.shiftKey,this.getAttribute('data-id').replace(type,''))
+        let stopId = this.getAttribute('data-id').replace(type,'')
+        let touchRoutes = getStopInfo(stopId)[2][0];
+        if(touchRoutes.some(function(d){return nonRouteList.includes(d)})){
+          populateSelectionByStop(e.shiftKey,stopId)
+        }   
       }else{
-        populateSelectionByRoute(e.shiftKey,this.getAttribute('data-id').replace(type,''))
+        let routeId = this.getAttribute('data-id').replace(type,'')
+        if(nonRouteList.includes(routeId))return
+        populateSelectionByRoute(e.shiftKey,routeId.replace(type,''))
       }
 
     })

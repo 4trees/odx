@@ -41,47 +41,6 @@ var odxPairs = d3.scaleOrdinal()
 // 		previewPanel.style.left = 0;
 // 	}
 // }
-//toggle subcheckbox by checkbox
-function toggleCheckAll(e,itemName){
-  let parentName, parentID
-  switch (itemName){
-    case 'timePeriod':
-      parentName = 'datePeriod'
-      parentID = '#weekdays'
-      break
-    case 'routefilter':
-      parentName = 'allroutes'
-      parentID = '#allroutes'
-      break
-  }
-
-  let childOptions = document.querySelectorAll(`input[name="${itemName}"]`)
-  if(e.name == parentName){
-    //check all subchecks following their parent
-    childOptions.forEach(function(time){return time.checked = e.checked ? true : false;})
-  }else{
-    const ifAllUnchecked = Array.from(childOptions).map(function(option){return !option.checked}).reduce(function(result,option){
-      return result && option
-    }) 
-    const ifAllChecked = Array.from(childOptions).map(function(option){return option.checked}).reduce(function(result,option){
-      return result && option
-    })
-    //if all subchecks are unchecked, uncheck the parent checkbox
-    if(ifAllUnchecked){
-      document.querySelector(parentID).checked = false
-    }else{
-      //any subchecks checked in time period filter, check the parent
-      if(itemName == 'timePeriod'){document.querySelector(parentID).checked = true;} 
-    }
-    if(!ifAllChecked){
-      if(itemName == 'routefilter'){document.querySelector(parentID).checked = false} 
-    }
-    //if all subchecks are checked, check the parent
-    else{
-      document.querySelector(parentID).checked = true
-    }
-  }
-}
 
 // update the content
 function updatepreview(){
@@ -113,12 +72,11 @@ function updatepreview(){
 function updateService(){
   //update touching routes and variants
   let childrenStops = getChildrenStop(display.selectedStops).map(function(d){return d.stop_id})
-  let routeList = getRelationships(childrenStops,'stop_route')[1]  
+  let routeList = getRelationships(childrenStops,'stop_route')[1].filter(function(d){return !nonRouteList.includes(d.route_id)})
   //show filtered routes based on checked status
   togglefilteredRoutes()
   //populate variants box
   if(display.filter.routefilter.length > 0 ){     
-    console.log('i need to show',document.querySelector('#variantsList'))
     //populate the variants
     let variantsList = allNest.route_shape.filter(function(d){return display.filter.routefilter.includes(d.key)})
     document.querySelector('#variantsList').innerHTML = variantsList.map(function(route){
@@ -134,7 +92,7 @@ function updateService(){
     }).join('')
 
   }else{
-    document.querySelector('#variantsList').innerHTML = 'No data'
+    document.querySelector('#variantsList').innerHTML = 'Select a route first'
   }
   //populate the selection box
 
@@ -143,7 +101,27 @@ function updateService(){
     '<select>' + routeList.map(function(route){return `<option>${route.route_short_name || route.route_long_name}</option>`}).join(', ') + '</select>' + 
     '<svg></svg>'
   //set route filter and update the filters
-  document.querySelector('#routeFilter').innerHTML = '<ul class="list-inline">' + routeList.map(function(route){let ifCheckRoute = display.filter.routefilter.includes(route);return `<li class="checkbox"><input type="checkbox" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'routefilter')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>`}).join('') + '<ul>'
+  let subwayRouteList = routeList.filter(function(route){return subwayLines.includes(route.route_id)});
+  let busRouteList = routeList.filter(function(route){return route.route_type == 3});
+  let ifhasSubway = subwayRouteList.length > 0;
+  let ifhasBus = busRouteList.length > 0;
+  let subwayOptions ='',busOptions = '';
+  if(ifhasSubway){
+    subwayOptions = `<li class="checkbox"><input type="checkbox" name="modeType" value="subway" id="subway" data-child="subwayroute" onchange="toggleCheckAll(this,'sub','parent')"><label for="subway">Subway</label>
+            <ul class="subCheckboxs list-inline">` +
+            subwayRouteList.map(function(route){let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : '';return `<li class="checkbox"><input type="checkbox" data-name="subwayroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>`}).join('') + 
+            '</ul></li>'
+  }
+  if(ifhasBus){
+    busOptions =  `<li class="checkbox"><input type="checkbox" name="modeType" value="bus" id="bus" data-child="busroute" onchange="toggleCheckAll(this,'sub','parent')"><label for="bus">Bus</label>
+          <ul class="subCheckboxs list-inline">` + 
+            busRouteList.map(function(route){let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : '';return `<li class="checkbox"><input type="checkbox"  data-name="busroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>`}).join('') + 
+          '</ul></li>'
+  }
+  document.querySelector('#routeFilter').innerHTML = `<ul>${subwayOptions}${busOptions}</ul>`
+  //synic the parent checkboxes
+  if(ifhasSubway){document.querySelector('input[data-name="subwayroute"]').onchange()}
+  if(ifhasBus){document.querySelector('input[data-name="busroute"]').onchange()}
   
 }
 //update odx
@@ -257,7 +235,7 @@ function updateTransfer(data){
 }
 //update filters
 function updateFiltersDes(){
-  const modeTypefilter = getCheckedAttr('modeType','innerHTML')
+  // const modeTypefilter = getCheckedAttr('modeType','innerHTML')
   const routefilter = getCheckedAttr('routefilter','innerHTML')
   const datePeriodfilter = getCheckedAttr('datePeriod','innerHTML')
   const timePeriodfilter = getCheckedAttr('timePeriod','innerHTML')
@@ -266,19 +244,19 @@ function updateFiltersDes(){
   //construct the timeframe format to 'weekday-time,saturday,sunday'
   const timeFramefilter = timePeriodfilter == '' ? '': timePeriodfilter.map(function(time){return `${datePeriodfilter[0]} ${time}`}).concat(datePeriodfilter.slice(1))
   //update filter description on the preview panel
-  const filterForDes = {'modeType':modeTypefilter,'route':routefilter,'timeframe':timeFramefilter, 'fareUserType':fareUserTypefilter, 'fareMethod':fareMethodfilter}
+  const filterForDes = {'route':routefilter,'timeframe':timeFramefilter, 'fareUserType':fareUserTypefilter, 'fareMethod':fareMethodfilter}
   const filterDes = Object.values(filterForDes).filter(function(filter){return filter != ''}).map(function(filter){return filter.join(', ')}).join(' | ')
   document.querySelector('#filters').innerHTML = filterDes
   $('#filterBox').modal('hide')
 }
 function saveFilters(){
-  const modeTypefilter = getCheckedAttr('modeType','value')
+  // const modeTypefilter = getCheckedAttr('modeType','value')
   const routefilter = getCheckedAttr('routefilter','value')
   const datePeriodfilter = getCheckedAttr('datePeriod','value')
   const timePeriodfilter = getCheckedAttr('timePeriod','value')
   const fareUserTypefilter = getCheckedAttr('fareUserType','value')
   const fareMethodfilter = getCheckedAttr('fareMethod','value')
-  display.filter = {'modeType':modeTypefilter,'routefilter':routefilter,'datePeriod':datePeriodfilter, 'timePeriod':timePeriodfilter,'fareUserType':fareUserTypefilter, 'fareMethod':fareMethodfilter}
+  display.filter = {'routefilter':routefilter,'datePeriod':datePeriodfilter, 'timePeriod':timePeriodfilter,'fareUserType':fareUserTypefilter, 'fareMethod':fareMethodfilter}
 
 }
 function updateFilters(){
@@ -311,7 +289,7 @@ function updateSelectionBox(){
 //clear selection
 function clearSelectionBox(){
   clearODXMarker()
-  selectionHisory = [], display = {'selectedStops':[],'filter':{'modeType':[],'routefilter':[],'datePeriod':[], 'timePeriod':[],'fareUserType':[], 'fareMethod':[]}};
+  selectionHisory = [], display = {'selectedStops':[],'filter':{'routefilter':[],'datePeriod':[], 'timePeriod':[],'fareUserType':[], 'fareMethod':[]}};
   updateSelection()
   $('#mySelection').modal('hide')
   map.setView(new L.LatLng(42.351486,-71.066829), 15);

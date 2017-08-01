@@ -7,9 +7,9 @@ drawRectangle.setAttribute('title','Draw a rectangle to select stops')
 
 //GLOBEL VARIABLES
 // selection is an array of history display: [{selectedStops:[],filter:{}},...]
-// selectedStops is an array of stop_id; filter is an object: {'modeType':[],'routefilter':[],'datePeriod':[], 'timePeriod':[],'fareUserType':[], 'fareMethod':[]}
+// selectedStops is an array of stop_id; filter is an object: {'routefilter':[],'datePeriod':[], 'timePeriod':[],'fareUserType':[], 'fareMethod':[]}
 var selectionHisory = [];
-var display = {'selectedStops':[],'filter':{'modeType':[],'routefilter':[],'datePeriod':[], 'timePeriod':[],'fareUserType':[], 'fareMethod':[]}}
+var display = {'selectedStops':[],'filter':{'routefilter':[],'datePeriod':[], 'timePeriod':[],'fareUserType':[], 'fareMethod':[]}}
 
 
 
@@ -53,7 +53,7 @@ function numberWithCommas(x) {
 }
 
 function slugStr(str){
-	str = str.replace(/\s+/g, '-');
+	str = str.replace(/\s+/g, '-').replace('/','-');
 	return str
 }
 
@@ -66,6 +66,38 @@ function getMatch(a, b) {
         }
     }
     return matches;
+}
+//toggle subcheckbox by checkbox
+function toggleCheckAll(e,type,who){
+  	let childOptions
+	if(who == 'parent'){
+		childOptions = document.querySelectorAll(`input[data-name="${e.dataset.child}"]`)
+		//check all subchecks following their parent
+		childOptions.forEach(function(el){return el.checked = e.checked ? true : false;})
+	}else{
+		let parent = document.querySelector(`input[data-child="${e.dataset.name}"]`)
+		childOptions = document.querySelectorAll(`input[data-name="${e.dataset.name}"]`)
+		const ifAllUnchecked = Array.from(childOptions).map(function(option){return !option.checked}).reduce(function(result,option){
+	 		return result && option
+		}) 
+		const ifAllChecked = Array.from(childOptions).map(function(option){return option.checked}).reduce(function(result,option){
+	 		return result && option
+		})
+		//if all subchecks are unchecked, uncheck the parent checkbox
+		if(ifAllUnchecked){
+			parent.checked = false
+		}else if(ifAllChecked){
+			parent.checked = true
+		}
+		else{
+			// if it's a subcheck, always check the parent
+			if(type == 'sub'){
+				parent.checked = true;
+			} else{
+				parent.checked = false
+			}
+		}
+	}
 }
 
 // SET DISPLAY
@@ -194,7 +226,7 @@ function getHint(id,type){
 //para are an object of the stop, an array of children stop, [a array of touching route ids, a array of touching routes]
 function stopPopup(stop,childrenStops,touchRoutes){
 	let children = stop.location_type == 1 ? '<p>' + childrenStops.map(function(stop){return stop.stop_name}).join(', ') + '</p>' : '';
-	let hint =  getHint(stop.stop_id,'stop')
+	let hint = touchRoutes[0].every(function(d){return nonRouteList.includes(d)}) ? 'No ODX data for this stop' : getHint(stop.stop_id,'stop')
 	popup.setLatLng([stop.stop_lat,stop.stop_lon])
 		.setContent(`
 			<h5>${stop.stop_name}</h5> 
@@ -207,15 +239,21 @@ function stopPopup(stop,childrenStops,touchRoutes){
     let enterRoute = updateRoute.enter().append('div').attr('class','routelabel')
     updateRoute.merge(enterRoute)
     	.html(function(d){return d.route_short_name || d.route_long_name})
-    	.style('color',function(d){return `#${d.route_text_color}`})
-    	.style('background',function(d){return `#${d.route_color}`})
+    	.style('color',function(d){return nonRouteList.includes(d.route_id) ? '#333' : `#${d.route_text_color}`})
+    	.style('background',function(d){return nonRouteList.includes(d.route_id) ? '' : `#${d.route_color}`})
     	.style('opacity',function(d){return display.filter.routefilter.includes(d.route_id) ? .6 : 1})
     	.on('click',function(d){
-    		populateSelectionByRoute(d3.event.shiftKey,d.route_id)
-    		d3.select(this).style('opacity',display.filter.routefilter.includes(d.route_id) ? .6 : 1)
+    		if(!nonRouteList.includes(d.route_id)){
+    			populateSelectionByRoute(d3.event.shiftKey,d.route_id)
+    			d3.select(this).style('opacity',display.filter.routefilter.includes(d.route_id) ? .6 : 1)
+    		}
     	})
     	.on('mouseover',function(d){
-    		hint = getHint(d.route_id,'route')
+    		if(nonRouteList.includes(d.route_id)){
+    			hint = 'No ODX data for this route'
+    		}else{
+    			hint = getHint(d.route_id,'route')
+    		}
     		d3.select(this.parentNode.parentNode).select('.hint').html(hint);
     	})
     	.on('mouseout',function(d){
@@ -238,7 +276,7 @@ function shapePopup(location,shapeInfo){
 //update popup for the route
 function routePopup(location,route,stopLength){
 	let routeName = route.route_short_name || route.route_long_name;
-	let hint = getHint(route.route_id,'route')
+	let hint = nonRouteList.includes(route.route_id) ? 'No ODX data for this route' : getHint(route.route_id,'route')
 	popup.setLatLng(location)
         .setContent(`
     		<h5>${routeName}</h5>
@@ -360,7 +398,7 @@ function getRelationships(idList,relationship){
 
 //UPDATE SELECTION
 function populateSelectionByStop(key,stopId){
-	let touchingRouteIdList = getRelationships(getIdlist(getChildrenStop([stopId]),'stop'),'stop_route')[0]
+	let touchingRouteIdList = getRelationships(getIdlist(getChildrenStop([stopId]),'stop'),'stop_route')[0].filter(function(d){return nonRouteList.includes(d)})
 	if(key){
 		if(display.selectedStops.includes(stopId)){
 			display.selectedStops.splice(display.selectedStops.indexOf(stopId),1)
