@@ -33,7 +33,7 @@ function displayMatches() {
   const html = matchArray.slice(0, 10).map(item => {
     const regex = new RegExp(searchValue, 'gi');
     const itemName = item.name.replace(regex, `<span class="hl">${searchValue}</span>`);
-    const children = item.type == 'stop' ? allData.stop.filter(function(d){return d.parent_station == item.id}).map(function(d){return d.stop_name}).join(', ') : ''
+    const children = item.type == 'stop' ? allData.stop.filter(function(d){return d.parent_station == item.id}).map(function(d){return d.stop_name}).join(', ') : '';
     return `
       <li data-id="${item.type + item.id}"" data-type="${item.type}">
         <p><span class="name">${itemName}</span>
@@ -66,31 +66,43 @@ function listenMatches(){
       fireMatches(this,'out')
     })
     item.addEventListener('click',function(e){
-      let type = this.getAttribute('data-type')
-      fireMatches(this,'click')
-      if(type == 'stop'){
-        let stopId = this.getAttribute('data-id').replace(type,'')
-        let touchRoutes = getStopInfo(stopId)[2][0];
-        if(touchRoutes.some(function(d){return nonRouteList.includes(d)})){
-          populateSelectionByStop(e.shiftKey,stopId)
-        }   
-      }else{
-        let routeId = this.getAttribute('data-id').replace(type,'')
-        if(nonRouteList.includes(routeId))return
-        populateSelectionByRoute(e.shiftKey,routeId.replace(type,''))
-      }
+      // let type = this.getAttribute('data-type')
+      fireMatches(this,'click',e.shiftKey)
+      // if(type == 'stop'){
+      //   let stopId = this.getAttribute('data-id').replace(type,'')
+      //   let touchRoutes = getStopInfo(stopId)[2][0];
+      //   if(touchRoutes.some(function(d){return nonRouteList.includes(d)})){
+      //     populateSelectionByStop(e.shiftKey,stopId)
+      //   }   
+      // }else{
+      //   let routeId = this.getAttribute('data-id').replace(type,'')
+      //   if(nonRouteList.includes(routeId))return
+      //   populateSelectionByRoute(e.shiftKey,routeId.replace(type,''))
+      // }
 
     })
   })
 }
-function fireMatches(e,type){
+//type: 'enter' || 'out' || 'click'
+function fireMatches(e,type,key){
   let itemId = e.getAttribute('data-id')
   let datatype = e.getAttribute('data-type')
   let itemPath = datatype == 'stop' ? stopMarkers.find(function(stop){return ('stop' + stop.id) == slugStr(itemId)}) : routeMarkers.find(function(route){return ('route' + route.id) == slugStr(itemId)})
   if(type == 'enter'){
-    map.setView(itemPath.marker.getBounds().getCenter(), 14);
+    map.fitBounds(itemPath.marker.getBounds());
     itemPath.marker.fire('mouseover')
-  }else{
+  }else if(type == 'out'){
     itemPath.marker.fire('mouseout')
+  }else{
+    // itemPath.marker.fire('click')
+    // console.log()
+    if(datatype == 'route'){
+      if(!nonRouteList.includes(itemId.replace(datatype,''))){
+        populateSelectionByRoute(key,itemId.replace(datatype,''))
+      }
+    }else{
+      populateSelectionByStop(key,itemId.replace(datatype,''))
+    }
+
   }
 }

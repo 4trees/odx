@@ -9,7 +9,7 @@
   	<link rel="stylesheet" href="https://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
   	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
-    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.06" >
+    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.07" >
     <script src="https://use.fontawesome.com/bb7d7deb27.js"></script>
   	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
@@ -30,7 +30,7 @@
 <div class="container-fluid">
     <div class="row content">
       <div class="" id="previewContainer">
-        <div id="emptyHint"><h5>Select</h5><h5>a stop or a route</h5><h5>to start</h5></div>
+        <div id="emptyHint" class="row"><h5>Select<br><br>a stop or a route<br><br>to start</h5></div>
         <div id="preview" class="hidden scrollbar scroll">
             <div class="clearfix">
               <div class="pull-left">
@@ -58,7 +58,7 @@
               <section id="odx">
                 <div class="clearfix"> 
                   <div class="pull-left">
-                    <h5 class="sectionTitle">Journeys</h5>
+                    <h5 class="sectionTitle">Station Uses</h5>
                   </div>
                   <div class="pull-right">
                     <a type="button" id="downloadODX" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
@@ -200,10 +200,10 @@
 </div>
 <script src="lib/d3.min.js"></script>
 <script src="dataload.js?version=0.0.03"></script>
-<script src="map.js?version=0.0.06"></script>
-<script src="script.js?version=0.0.05"></script>
-<script src="search.js?version=0.0.05"></script>
-<script src="preview.js?version=0.0.09"></script>
+<script src="map.js?version=0.0.07"></script>
+<script src="script.js?version=0.0.06"></script>
+<script src="search.js?version=0.0.06"></script>
+<script src="preview.js?version=0.0.10"></script>
 <script src="download.js?version=0.0.03"></script>
 </body>
 </html>

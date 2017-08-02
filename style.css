@@ -267,7 +267,9 @@ nav{
 #emptyHint{
   opacity: .4;
   text-align: center;
-  transform: translateY(350%);
+  transform: translateY(250%);
+  position: fixed;
+  width: 280px;
 }
 .sectionTitle,.selectionTitle{
   margin:0 0 12px 0;

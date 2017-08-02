@@ -46,7 +46,8 @@ var odxPairs = d3.scaleOrdinal()
 function updatepreview(){
   if(display == '' || display.selectedStops.length == 0){
     document.querySelector('#preview').classList.add('hidden');
-    document.querySelector('#emptyHint').classList.remove('hidden');
+    document.querySelector('#emptyHint').innerHTML = noSelection;
+     document.querySelector('#emptyHint').classList.remove('hidden')
   }else{
     document.querySelector('#emptyHint').classList.add('hidden');
     document.querySelector('#preview').classList.remove('hidden');
@@ -58,13 +59,22 @@ function updatepreview(){
     //update selection box, service info(variants, route summary, touching routes)
     updateSelectionBox()
     updateService()
-    //request the data
-    const odxData = odx.slice()
-    const transferData = transfer.slice()
-    //update the data
-    updateFilters()
-    updateOdx(odxData)
-    updateTransfer(transferData)
+    let touchRoutes = getRelationships(getIdlist(getChildrenStop(display.selectedStops),'stop'),'stop_route')[0]
+    if(touchRoutes.some(function(d){return !nonRouteList.includes(d)})){
+        d3.selectAll('section').classed('hidden',false)
+        document.querySelector('#emptyHint').classList.add('hidden');
+        //request the data
+        const odxData = odx.slice()
+        const transferData = transfer.slice()
+        //update the data
+        updateFilters()
+        updateOdx(odxData)
+        updateTransfer(transferData)
+    }else{
+      d3.selectAll('section').classed('hidden',true)
+      document.querySelector('#emptyHint').innerHTML = noDataForPanel;
+      document.querySelector('#emptyHint').classList.remove('hidden')
+    }
   }
 
 }

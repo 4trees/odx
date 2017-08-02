@@ -196,10 +196,10 @@ function drawStops(){
 				},500)
 			})
 			.on('click',function(e){
-				let stopinfo = getStopInfo(stop);
-				if(!stopinfo[2][0].every(function(d){return nonRouteList.includes(d)})){
+				// let stopinfo = getStopInfo(stop);
+				// if(!stopinfo[2][0].every(function(d){return nonRouteList.includes(d)})){
 					populateSelectionByStop(e.originalEvent.shiftKey,stop.stop_id)
-				}
+				// }
 			})
 			.addTo(map);
 		stopMarkers.push({id:slugStr(stop.stop_id),marker:stopMarker})
@@ -267,8 +267,9 @@ function drawRoutes(){
 					let routeData = allData.route.find(function(d){return d.route_id == route.key})
 					let touchStops = getRelationships([route.key],'route_stop')
 					// show the popup
-					if(e.latlng){
-						routePopup([e.latlng.lat,e.latlng.lng],routeData,touchStops[0].length)
+					let latlng = e.latlng ? [e.latlng.lat,e.latlng.lng] : ''
+					if(e.latlng || nonRouteList.includes(route.key)){
+						routePopup(latlng,routeData,touchStops[0].length)
 					}
 					
 					//highlight the stops on the route

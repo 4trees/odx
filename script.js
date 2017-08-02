@@ -11,7 +11,12 @@ drawRectangle.setAttribute('title','Draw a rectangle to select stops')
 var selectionHisory = [];
 var display = {'selectedStops':[],'filter':{'routefilter':[],'datePeriod':[], 'timePeriod':[],'fareUserType':[], 'fareMethod':[]}}
 
-
+//hint
+var noDataForRoute = 'No ODX data for this route'
+var noDataForStop = 'No ODX data for this stop'
+var noDataForArea = 'No ODX data for this area'
+var noDataForPanel = '<h5>No ODX data</h5>'
+var noSelection = '<h5>Select<br><br>a stop or a route<br><br>to start</h5>'
 
 //MAP GLOBAL VIEW OPTION
 const showAllVariants = document.querySelector('input[name=showallVariants]')
@@ -226,7 +231,7 @@ function getHint(id,type){
 //para are an object of the stop, an array of children stop, [a array of touching route ids, a array of touching routes]
 function stopPopup(stop,childrenStops,touchRoutes){
 	let children = stop.location_type == 1 ? '<p>' + childrenStops.map(function(stop){return stop.stop_name}).join(', ') + '</p>' : '';
-	let hint = touchRoutes[0].every(function(d){return nonRouteList.includes(d)}) ? 'No ODX data for this stop' : getHint(stop.stop_id,'stop')
+	let hint = touchRoutes[0].every(function(d){return nonRouteList.includes(d)}) ? noDataForStop : getHint(stop.stop_id,'stop')
 	popup.setLatLng([stop.stop_lat,stop.stop_lon])
 		.setContent(`
 			<h5>${stop.stop_name}</h5> 
@@ -250,7 +255,7 @@ function stopPopup(stop,childrenStops,touchRoutes){
     	})
     	.on('mouseover',function(d){
     		if(nonRouteList.includes(d.route_id)){
-    			hint = 'No ODX data for this route'
+    			hint = noDataForRoute
     		}else{
     			hint = getHint(d.route_id,'route')
     		}
@@ -276,32 +281,50 @@ function shapePopup(location,shapeInfo){
 //update popup for the route
 function routePopup(location,route,stopLength){
 	let routeName = route.route_short_name || route.route_long_name;
-	let hint = nonRouteList.includes(route.route_id) ? 'No ODX data for this route' : getHint(route.route_id,'route')
-	popup.setLatLng(location)
-        .setContent(`
-    		<h5>${routeName}</h5>
-    		<hr>
-    		<p>${stopLength} stop(s)</p>
-    		<p class="hint">${hint}</p>
-        `)
-        .openOn(map);
+	let hint = nonRouteList.includes(route.route_id) ? noDataForRoute : getHint(route.route_id,'route')
+	if(location){
+		popup.setLatLng(location)
+	        .setContent(`
+	    		<h5>${routeName}</h5>
+	    		<hr>
+	    		<p>${stopLength} stop(s)</p>
+	    		<p class="hint">${hint}</p>
+	        `)
+	        .openOn(map);
+	}else{		
+		popup.setLatLng(map.getCenter())
+	        .setContent(`
+	    		<h5>${noDataForRoute}</h5>
+	        `)
+	        .openOn(map);
+	}
+
 }
 //update popup for the draw selection
+//drawSelection is an array of stop ids
 function selectionPopup(layer,drawSelection){
 	let location = layer.getBounds().getCenter()
-	let isHiddenLimit,isHiddenAdd;
+	let isHiddenNew,isHiddenLimit,isHiddenAdd,hint;
 	let overlapStops = drawSelection.filter(function(stop){return display.selectedStops.includes(stop)})
 	let overlapStopsCount = overlapStops.length
-	// if any of these stops in drawSelection is in current selection, show remove option in pop-up
+	let touchRoutes = getRelationships(getIdlist(getChildrenStop(drawSelection),'stop'),'stop_route')[0]
+	//if any of these stops in drawSelection is in current selection, show remove option in pop-up
 	isHiddenLimit = overlapStopsCount > 0 ? '' : 'hidden'
 	//if current selection is not empty, show add option in pop-up
 	isHiddenAdd = display.selectedStops.length > 0 ? '' : 'hidden'
+	//if all the stops are touching no-odx data routes, hide set as new option and give a hint
+	let ifnodataArea = touchRoutes.every(function(d){return nonRouteList.includes(d)})
+	isHiddenNew = ifnodataArea ? 'hidden' : ''
+	hint = ifnodataArea ? noDataForArea : ''
 
 	popup.setLatLng(location)
         .setContent(`
         	<div>
 	        	<h5><strong>${drawSelection.length}</strong> stop(s) in this area</h5>
 	        	<hr>
+	        	<p class="hint">${hint}</p>
+	        </div>
+	        <div class="${isHiddenNew}">	        	
 	        	<a id="replaceDraw" class="btn btn-default btn-xs">Set all as new selection</a>
 	        	<a id="addDraw" class="btn btn-default btn-xs ${isHiddenAdd}" >Add all to selection</a>
 	        </div>
@@ -318,7 +341,6 @@ function selectionPopup(layer,drawSelection){
 	document.querySelector('#limitDraw').addEventListener('click',function(d){populateSelectionByDraw(overlapStops,'replace');layer.remove();map.closePopup();})
     
 }
-
 
 //GET DATA
 //get stops, shapes, routes for a stop
@@ -398,7 +420,9 @@ function getRelationships(idList,relationship){
 
 //UPDATE SELECTION
 function populateSelectionByStop(key,stopId){
-	let touchingRouteIdList = getRelationships(getIdlist(getChildrenStop([stopId]),'stop'),'stop_route')[0].filter(function(d){return nonRouteList.includes(d)})
+	let touchingRouteIdList = getRelationships(getIdlist(getChildrenStop([stopId]),'stop'),'stop_route')[0]
+	let displayTouchRoutes = touchingRouteIdList.filter(function(d){return !nonRouteList.includes(d)})
+	let ifdataStop = touchingRouteIdList.some(function(d){return !nonRouteList.includes(d)})
 	if(key){
 		if(display.selectedStops.includes(stopId)){
 			display.selectedStops.splice(display.selectedStops.indexOf(stopId),1)
@@ -407,15 +431,19 @@ function populateSelectionByStop(key,stopId){
 				display.filter.routefilter = display.filter.routefilter.filter(function(route){return !touchingRouteIdList.includes(route)})
 			}
 		}else{
-			display.selectedStops = add(display.selectedStops,[stopId])
-			//if there's any route in filter, add the touching route of this stop to current fitler
-			if(display.filter.routefilter.length > 0){
-				display.filter.routefilter = add(display.filter.routefilter,touchingRouteIdList)
+			if(ifdataStop){
+				display.selectedStops = add(display.selectedStops,[stopId])
+				//if there's any route in filter, add the touching route of this stop to current fitler
+				if(display.filter.routefilter.length > 0){
+					display.filter.routefilter = add(display.filter.routefilter,displayTouchRoutes)
+				}
 			}
 		}
 	}else{
-		display.selectedStops = [stopId]
-		display.filter.routefilter = []
+		if(ifdataStop){
+			display.selectedStops = [stopId]
+			display.filter.routefilter = []
+		}
 	}	
 	updateSelection(display)
 }
@@ -446,7 +474,6 @@ function populateSelectionByRoute(key,routeId){
 	
 }
 function populateSelectionByDraw(data,action){
-	console.log(data)
 	switch (action){
 		case 'add':
 			display.selectedStops = add(display.selectedStops,data)
@@ -461,9 +488,10 @@ function populateSelectionByDraw(data,action){
 }
 
 function updateSelection(){
-
 	//populate selection history
-	selectionHisory.push(display)
+	let saveStops = Array.from(display.selectedStops)
+	let saveFilter = Object.assign({}, display.filter)
+	selectionHisory.push({'selectedStops':saveStops,'filter':saveFilter})
 	//update preview panel
 	updatepreview()
 	//update stop and route status on map
@@ -485,12 +513,13 @@ function updateMap(){
 
 
 function undoSelection(){
-		console.log(selectionHisory,display)
 	//back to last selection
 	selectionHisory.pop()
-		console.log(selectionHisory,display)
 	display = selectionHisory[selectionHisory.length - 1]
-	updateSelection()
+	//update preview panel
+	updatepreview()
+	//update stop and route status on map
+	updateMap()
 
 }
 
