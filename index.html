@@ -1,209 +1,263 @@
 <!DOCTYPE html>
 
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=yes">
     <meta charset="utf-8">
     <title>ODX</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="lib/bootstrap-3.3.5/bootstrap.min.css" >
-  	<link rel="stylesheet" href="https://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
-  	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css"/>
-    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.07" >
+    <link rel="stylesheet" type="text/css" href="lib/bootstrap-3.3.5/bootstrap.min.css">
+    <link rel="stylesheet" href="https://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.css" />
+    <link rel="stylesheet" type="text/css" href="style.css?version=0.0.08">
     <script src="https://use.fontawesome.com/bb7d7deb27.js"></script>
-  	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="lib/bootstrap-3.3.5/bootstrap.min.js"></script>
 </head>
 <nav class="navbar navbar-fixed-top">
-  <div class="navbar-header">
-    <a class="navbar-brand" href="#">ODX Viewer</a>
-  </div>
-  <ul class="nav navbar-nav navbar-right">
-      <li>
-      <a href="#">About</a>
-      </li>
-  </ul>
-</nav>
-<body>
-<div class="container-fluid">
-    <div class="row content">
-      <div class="" id="previewContainer">
-        <div id="emptyHint" class="row"><h5>Select<br><br>a stop or a route<br><br>to start</h5></div>
-        <div id="preview" class="hidden scrollbar scroll">
-            <div class="clearfix">
-              <div class="pull-left">
-                <h5 class="sectionTitle">Selected <span><a type="button" class="iconButton" data-toggle="modal" data-target="#mySelection" id="selection" title="edit" onclick="updateSelectionBox()"><i class="fa fa-pencil" aria-hidden="true"></i></a></span></h5>
-              </div>
-              <div class="pull-right">
-                <a type="button" id="clear" class="iconButton" title="clear all" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
-                <a type="button" id="undo" class="hidden iconButton" title="undo" onclick="undoSelection()"><i class="fa fa-reply" aria-hidden="true"></i></a>
-              </div>
-            </div>
-            <div>
-              <p id="selectionInfo" class="h5"></p>
-            </div>       
-            <section id="routesummary">
-              <p role="button" data-toggle="collapse" aria-expanded="false" data-target="#routeDetail" aria-controls="routeDetail"><i class="fa fa-ellipsis-v" aria-hidden="true"></i> Route Summary</p>
-              <div class="collapse" id="routeDetail"></div>
-            </section>            
-            <section>
-              <div type="button" data-toggle="modal" data-target="#filterBox" id="filterBt" onclick="updateFilters()">
-                <p><i class="fa fa-filter" class="iconButton" aria-hidden="true"></i> Filters</p>
-                <p id="filters" class="description"></p>
-              </div>      
-            </section>           
-            <!-- <section id="analysis">  -->
-              <section id="odx">
-                <div class="clearfix"> 
-                  <div class="pull-left">
-                    <h5 class="sectionTitle">Station Uses</h5>
-                  </div>
-                  <div class="pull-right">
-                    <a type="button" id="downloadODX" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
-                  </div>
-                </div>
-                <svg></svg>
-              </section>
-              <section id="transfer">
-                <div class="clearfix">
-                  <div class="pull-left">
-                      <h5 class="sectionTitle">Transfer</h5>
-                  </div>
-                  <div class="pull-right">
-                    <a type="button" id="downloadTransfer" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
-                  </div>
-                </div>
-                <div class="transferTable">
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>From</th>
-                        <th>To</th>
-                        <th>Transfers</th>
-                      </tr>
-                    </thead>
-                    <tbody></tbody>
-                  </table>
-                </div>
-              </section>
-            <!-- </section> -->
-        </div>
-          <!-- end panel -->
-          <!-- <div class="collapseBt"><button onclick="toggleCollapse()"><i class="fa fa-caret-left" aria-label="Collapse side panel"></i></button> </div> -->
-      </div>
-      <div  id="mapContainer" class="">
-        <div id="mapid" class="shadow" ></div>
-      </div>
+    <div class="navbar-header">
+        <a class="navbar-brand" href="#">ODX Viewer</a>
     </div>
-    <!-- selection Box -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="mySelection">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title">Selection</h4>
-          </div>
-          <div class="modal-body">
-            <!-- <p>One fine body&hellip;</p> -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" onclick="synicSelection()">Save changes</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- filter Box -->
-    <div class="modal fade" tabindex="-1" role="dialog" id="filterBox">
-      <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" onclick="updateFilters()">&times;</span></button>
-            <h4 class="modal-title">Filters</h4>
-          </div>
-          <div class="modal-body">
-<!--             <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p class="selectionTitle">Mode</p>
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                  <ul class="list-inline">
-                    <li class="checkbox"><input type="checkbox" name="modeType" value="subway" id="subway"><label for="subway">Subway</label></li>
-                    <li class="checkbox"><input type="checkbox" name="modeType" value="bus" id="bus"><label for="bus">Bus</label></li>
-                  </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <a href="#">About</a>
+        </li>
+    </ul>
+</nav>
+
+<body>
+    <div class="container-fluid">
+        <div class="row content">
+            <div class="" id="previewContainer">
+                <div id="emptyHint" class="row">
+                    <h5>Select<br><br>a stop or a route<br><br>to start</h5></div>
+                <div id="preview" class="hidden scrollbar scroll">
+                    <div class="clearfix">
+                        <div class="pull-left">
+                            <h5 class="sectionTitle">Selected <span><a type="button" class="iconButton" data-toggle="modal" data-target="#mySelection" id="selection" title="edit" onclick="updateSelectionBox()"><i class="fa fa-pencil" aria-hidden="true"></i></a></span></h5>
+                        </div>
+                        <div class="pull-right">
+                            <a type="button" id="clear" class="iconButton" title="clear all" onclick="clearSelectionBox()"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                            <a type="button" id="undo" class="hidden iconButton" title="undo" onclick="undoSelection()"><i class="fa fa-reply" aria-hidden="true"></i></a>
+                        </div>
+                    </div>
+                    <div>
+                        <p id="selectionInfo" class="h5"></p>
+                    </div>
+                    <section id="routesummary">
+                        <p role="button" data-toggle="collapse" aria-expanded="false" data-target="#routeDetail" aria-controls="routeDetail"><i class="fa fa-ellipsis-v" aria-hidden="true"></i> Route Summary</p>
+                        <div class="collapse" id="routeDetail"></div>
+                    </section>
+                    <section>
+                        <div type="button" data-toggle="modal" data-target="#filterBox" id="filterBt" onclick="updateFilters()">
+                            <p><i class="fa fa-filter" class="iconButton" aria-hidden="true"></i> Filters</p>
+                            <p id="filters" class="description"></p>
+                        </div>
+                    </section>
+                    <!-- <section id="analysis">  -->
+                    <section id="odx">
+                        <div class="clearfix">
+                            <div class="pull-left">
+                                <h5 class="sectionTitle">Station Uses</h5>
+                            </div>
+                            <div class="pull-right">
+                                <a type="button" id="downloadODX" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                        <svg></svg>
+                    </section>
+                    <section id="transfer">
+                        <div class="clearfix">
+                            <div class="pull-left">
+                                <h5 class="sectionTitle">Transfer</h5>
+                            </div>
+                            <div class="pull-right">
+                                <a type="button" id="downloadTransfer" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
+                            </div>
+                        </div>
+                        <div class="transferTable">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>From</th>
+                                        <th>To</th>
+                                        <th>Transfers</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <!-- </section> -->
                 </div>
-              </div>
-            </div> -->
-            <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <p class="selectionTitle">Route</p>
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="routeFilter"> 
-                </div>
-              </div>
+                <!-- end panel -->
+                <!-- <div class="collapseBt"><button onclick="toggleCollapse()"><i class="fa fa-caret-left" aria-label="Collapse side panel"></i></button> </div> -->
             </div>
-            <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p class="selectionTitle">Day Type - Time</p>
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                  <ul>
-                    <li class="checkbox"><input type="checkbox" name="datePeriod" data-child="timePeriod" value="weekdays" id="weekdays" onchange="toggleCheckAll(this,'sub','parent')"><label for="weekdays">Weekdays</label>
-                      <ul class="subCheckboxs list-inline">
-                        <li class="checkbox" title="03:00 AM – 05:59 AM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="sunrise" id="sunrise" onchange="toggleCheckAll(this,'sub','child')"><label for="sunrise">Sunrise</label></li>
-                        <li class="checkbox" title="6:00 AM – 06:59 AM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="earlyAM" id="earlyAM" onchange="toggleCheckAll(this,'sub','child')"><label for="earlyAM">Early AM</label></li>
-                        <li class="checkbox" title="07:00 AM – 08:59 AM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="AMPeak" id="AMPeak" onchange="toggleCheckAll(this,'sub','child')"><label for="AMPeak">AM Peak</label></li>
-                        <li class="checkbox" title="09:00 AM – 01:29 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="middayBase" id="middayBase" onchange="toggleCheckAll(this,'sub','child')"><label for="middayBase">Midday Base</label></li>
-                        <li class="checkbox" title="01:30 PM – 03:59 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="middaySchool" id="middaySchool" onchange="toggleCheckAll(this,'sub','child')"><label for="middaySchool">Midday School</label></li>
-                        <li class="checkbox" title="04:00 PM – 06:29 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="PMPeak" id="PMPeak" onchange="toggleCheckAll(this,'sub','child')"><label for="PMPeak">PM Peak</label></li>
-                        <li class="checkbox" title="06:30 PM – 09:59 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="evening" id="evening" onchange="toggleCheckAll(this,'sub','child')"><label for="evening">Evening</label></li>
-                        <li class="checkbox" title="10:00 PM – 11:59 PM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="lateEvening" id="lateEvening" onchange="toggleCheckAll(this,'sub','child')"><label for="lateEvening">Late Evening</label></li>
-                        <li class="checkbox" title="12:00 AM – 02:59 AM"><input type="checkbox" data-name="timePeriod" name="timePeriod" value="night" id="night" onchange="toggleCheckAll(this,'sub','child')"><label for="night">Night</label></li>
-                      </ul>
-                    </li>
-                    <li class="checkbox"><input type="checkbox" name="datePeriod" value="saturdays" id="saturdays"><label for="saturdays">Saturdays</label></li>
-                    <li class="checkbox"><input type="checkbox" name="datePeriod" value="sundays" id="sundays"><label for="sundays">Sundays</label></li>
-                  </ul>
-                </div>
-              </div>
+            <div id="mapContainer" class="">
+                <div id="mapid" class="shadow"></div>
             </div>
-            <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p class="selectionTitle">Fare User Type</p>             
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                  <ul class="list-inline">
-                    <li class="checkbox"><input type="checkbox" name="fareUserType" value="regular" id="regular"><label for="regular">Regular</label></li>
-                    <li class="checkbox"><input type="checkbox" name="fareUserType" value="student" id="student"><label for="student">Student</label></li>
-                    <li class="checkbox"><input type="checkbox" name="fareUserType" value="senior" id="senior"><label for="senior">Senior</label></li>
-                    <li class="checkbox"><input type="checkbox" name="fareUserType" value="tap" id="tap"><label for="tap">TAP</label></li>
-                  </ul>
+        </div>
+        <!-- selection Box -->
+        <div class="modal fade" tabindex="-1" role="dialog" id="mySelection">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Selection</h4>
+                    </div>
+                    <div class="modal-body">
+                        <!-- <p>One fine body&hellip;</p> -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" onclick="synicSelection()">Save changes</button>
+                    </div>
                 </div>
-              </div>
+                <!-- /.modal-content -->
             </div>
-            <div class="row">
-              <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                <p class="selectionTitle">Fare Method</p>
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"> 
-                    <ul class="list-inline">
-                      <li class="checkbox"><input type="checkbox" name="fareMethod" value="cash" id="cash"><label for="cash">Cash</label></li>
-                      <li class="checkbox"><input type="checkbox" name="fareMethod" value="storedValue" id="storedValue"><label for="storedValue">Stored Value</label></li>
-                      <li class="checkbox"><input type="checkbox" name="fareMethod" value="pass" id="pass"><label for="pass">Pass</label></li>
-                    </ul>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+        <!-- filter Box -->
+        <div class="modal fade" tabindex="-1" role="dialog" id="filterBox">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" onclick="updateFilters()">&times;</span></button>
+                        <h4 class="modal-title">Filters</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <p class="selectionTitle">Route</p>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12" id="routeFilter">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <p class="selectionTitle">Day Type - Time</p>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <ul>
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="datePeriod" data-child="timePeriod" value="weekdays" id="weekdays" onchange="toggleCheckAll(this,'sub','parent')">
+                                            <label for="weekdays">Weekdays</label>
+                                            <ul class="subCheckboxs list-inline">
+                                                <li class="checkbox" title="03:00 AM – 05:59 AM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="sunrise" id="sunrise" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="sunrise">Sunrise</label>
+                                                </li>
+                                                <li class="checkbox" title="6:00 AM – 06:59 AM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="earlyAM" id="earlyAM" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="earlyAM">Early AM</label>
+                                                </li>
+                                                <li class="checkbox" title="07:00 AM – 08:59 AM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="AMPeak" id="AMPeak" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="AMPeak">AM Peak</label>
+                                                </li>
+                                                <li class="checkbox" title="09:00 AM – 01:29 PM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="middayBase" id="middayBase" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="middayBase">Midday Base</label>
+                                                </li>
+                                                <li class="checkbox" title="01:30 PM – 03:59 PM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="middaySchool" id="middaySchool" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="middaySchool">Midday School</label>
+                                                </li>
+                                                <li class="checkbox" title="04:00 PM – 06:29 PM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="PMPeak" id="PMPeak" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="PMPeak">PM Peak</label>
+                                                </li>
+                                                <li class="checkbox" title="06:30 PM – 09:59 PM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="evening" id="evening" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="evening">Evening</label>
+                                                </li>
+                                                <li class="checkbox" title="10:00 PM – 11:59 PM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="lateEvening" id="lateEvening" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="lateEvening">Late Evening</label>
+                                                </li>
+                                                <li class="checkbox" title="12:00 AM – 02:59 AM">
+                                                    <input type="checkbox" data-name="timePeriod" name="timePeriod" value="night" id="night" onchange="toggleCheckAll(this,'sub','child')">
+                                                    <label for="night">Night</label>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="datePeriod" value="saturdays" id="saturdays">
+                                            <label for="saturdays">Saturdays</label>
+                                        </li>
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="datePeriod" value="sundays" id="sundays">
+                                            <label for="sundays">Sundays</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <p class="selectionTitle">Fare User Type</p>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <ul class="list-inline">
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="fareUserType" value="regular" id="regular">
+                                            <label for="regular">Regular</label>
+                                        </li>
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="fareUserType" value="student" id="student">
+                                            <label for="student">Student</label>
+                                        </li>
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="fareUserType" value="senior" id="senior">
+                                            <label for="senior">Senior</label>
+                                        </li>
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="fareUserType" value="tap" id="tap">
+                                            <label for="tap">TAP</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                <p class="selectionTitle">Fare Method</p>
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <ul class="list-inline">
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="fareMethod" value="cash" id="cash">
+                                            <label for="cash">Cash</label>
+                                        </li>
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="fareMethod" value="storedValue" id="storedValue">
+                                            <label for="storedValue">Stored Value</label>
+                                        </li>
+                                        <li class="checkbox">
+                                            <input type="checkbox" name="fareMethod" value="pass" id="pass">
+                                            <label for="pass">Pass</label>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" onclick="saveFilters();updatepreview();updateMap()">Confirm</button>
+                    </div>
                 </div>
-              </div>
+                <!-- /.modal-content -->
             </div>
-          </div>
-          <div class="modal-footer">           
-            <button type="button" class="btn btn-default" onclick="saveFilters();updatepreview();updateMap()">Confirm</button>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-</div>
-<script src="lib/d3.min.js"></script>
-<script src="dataload.js?version=0.0.03"></script>
-<script src="map.js?version=0.0.07"></script>
-<script src="script.js?version=0.0.06"></script>
-<script src="search.js?version=0.0.06"></script>
-<script src="preview.js?version=0.0.10"></script>
-<script src="download.js?version=0.0.03"></script>
+            <!-- /.modal-dialog -->
+        </div>
+        <!-- /.modal -->
+    </div>
+    <script src="lib/d3.min.js"></script>
+    <script src="dataload.js?version=0.0.04"></script>
+    <script src="map.js?version=0.0.08"></script>
+    <script src="script.js?version=0.0.07"></script>
+    <script src="search.js?version=0.0.07"></script>
+    <script src="preview.js?version=0.0.11"></script>
+    <script src="download.js?version=0.0.04"></script>
 </body>
+
 </html>

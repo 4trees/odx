@@ -1,14 +1,35 @@
-gtfs_route_id
-710
-712
-713
-714
-716
-2427
-3233
-3738
-4050
-8993
-116117
-214216
-Mattapan
+gtfs_route_id,route_display_name
+710,710
+712,712
+713,713
+714,714
+716,716
+2427,24/27
+3233,32/33
+3738,37/38
+4050,40/50
+8993,89/93
+116117,116/117
+214216,214/216
+Boat-F1,Hingham Ferry
+Boat-F3,Hull Ferry
+Boat-F4,Charlestown Ferry
+CapeFlyer,CapeFLYER
+CR-Fairmount,Fairmount Line
+CR-Fitchburg,Fitchburg Line
+CR-Franklin,Franklin Line
+CR-Greenbush,Greenbush Line
+CR-Haverhill,Haverhill Line
+CR-Kingston,Kingston/Plymouth Line
+CR-Lowell,Lowell Line
+CR-Middleborough,Middleborough/Lakeville Line
+CR-Needham,Needham Line
+CR-Newburyport,Newburyport/Rockport Line
+CR-Providence,Providence/Stoughton Line
+CR-Worcester,Framingham/Worcester Line
+Logan-22,Massport Subway Shuttle (22)
+Logan-33,Massport Subway Shuttle (33)
+Logan-44,Massport Ferry Terminal Shuttle (44)
+Logan-55,Massport Subway Shuttle (55)
+Logan-66,Massport Subway / Ferry Terminal Shuttle (66)
+Mattapan,Mattapan
