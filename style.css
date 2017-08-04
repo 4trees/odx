@@ -39,6 +39,8 @@ a:hover {
 
 section {
     margin-top: 20px;
+    float: left;
+    width: 100%;
 }
 
 .dropdown-menu,
@@ -47,8 +49,6 @@ select {
 }
 
 select {
-    margin-bottom: 15px;
-    margin-top: 10px;
     padding: 1px 3px;
     border: 1px solid #787878;
     border-radius: 2px;
@@ -69,6 +69,7 @@ select {
 }
 
 
+
 /* model style */
 
 .modal-header,
@@ -79,6 +80,7 @@ select {
 .modal-content {
     background: #333;
 }
+
 
 
 /* button style */
@@ -122,6 +124,7 @@ select {
 }
 
 
+
 /* NAVIGATION BAR */
 
 .navbar {
@@ -142,6 +145,7 @@ select {
 nav {
     z-index: 999;
 }
+
 
 
 
@@ -231,6 +235,7 @@ nav {
 }
 
 
+
 /* Leaflet POPUP*/
 
 .leaflet-popup-content-wrapper,
@@ -291,6 +296,7 @@ nav {
 }
 
 
+
 /* Leaflet CUSTOM CONTROL -- BACK TO BOSTON BUTTON */
 
 .leaflet-control-custom {
@@ -316,6 +322,7 @@ nav {
     padding: 15px 10px;
     min-width: 200px;
 }
+
 
 
 /* PREVIEW PANEL */
@@ -389,7 +396,32 @@ nav {
     padding: 5px 8px;
 }
 
+#routeDetail div {
+    float: left;
+}
 
+.indicator {
+    color: #787878;
+    font-size: 10px;
+    padding-top: 10px;
+}
+
+.indicator>span {
+    float: right;
+    color: #fff;
+}
+.routeCategory{
+  float: right;
+}
+.legend{
+  font-size: 10px;
+  fill:#787878;
+}
+.noSummaryData{
+  color:#fff;
+  fill:#fff;
+  font-size: 9px;
+}
 #displayOption~ul {
     margin-bottom: 0;
     margin-top: 0;
@@ -414,6 +446,7 @@ nav {
 .checkpoint {
     fill: #fff;
 }
+
 
 
 /*search*/
@@ -469,6 +502,7 @@ nav {
 
 
 
+
 /* shadow for map*/
 
 .shadow {
@@ -505,6 +539,7 @@ nav {
 }
 
 
+
 /* SCROLL BAR */
 
 .scrollbar {
@@ -514,6 +549,7 @@ nav {
 .scroll::-webkit-scrollbar {
     display: none;
 }
+
 
 
 /* CHECK BOX LABELIZE*/

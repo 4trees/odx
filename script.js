@@ -65,6 +65,12 @@ function slugStr(str) {
     return str
 }
 
+function numToPer(number) {
+    //percentage is a string, here convert number to percentage
+    let percentage = `${number}%`
+    return percentage
+}
+
 function getMatch(a, b) {
     var matches = [];
 
@@ -106,7 +112,89 @@ function toggleCheckAll(e, type, who) {
         }
     }
 }
+//draw stacked chart
+var stack = d3.stack()
+    .order(d3.stackOrderNone)
+    .offset(d3.stackOffsetNone);
+var stackcolor = d3.scaleOrdinal().range(['#b1cbbb', '#f9ccac', '#eea29a', '#c94c4c'])
 
+function drawStackedChart(plot, data) {
+    plot.attr('width', w).attr('height', '20px')
+    const key = Object.keys(data)
+    stack.keys(key)
+
+    fullWidthScale.domain([0, 100])
+    stackcolor.domain(key)
+    var updateElement = plot.selectAll('.element')
+        .data(stack([data]))
+    updateElement.exit().remove()
+    var enterElement = updateElement.enter()
+        .append('g').attr('class', 'element')
+    enterElement.append('rect')
+        .attr('y', 0)
+        .attr('x', function(d, i) { return fullWidthScale(d[0][0]) })
+        .attr('width', function(d, i) { return fullWidthScale(d[0][1] - d[0][0]) })
+        .attr('height', '10px')
+        .style('fill', function(d) { return stackcolor(d.key) })
+        .style('cursor', 'pointer')
+        .on('mouseover', function(d) {
+            plot.selectAll('rect').style('opacity', .5)
+            d3.select(this).style('opacity', 1)
+            plot.node().parentElement.querySelector('.indicator').querySelector('span').innerHTML = `${numToPer(data[d.key])} <span style="color:${stackcolor(d.key)}">${d.key}</span> journeys`
+        })
+        .on('mouseout', function() {
+            plot.selectAll('rect').style('opacity', 1)
+            plot.node().parentElement.querySelector('.indicator').querySelector('span').innerHTML = ''
+        })
+    // enterElement.append('text')
+    //     .attr('y', '15px')
+    //     .attr('x', function(d, i) { return fullWidthScale((d[0][0] + d[0][1]) / 2) })
+    //     .text(function(d) { return d.key })
+}
+var pointlinecolor = d3.scaleOrdinal().range(['#588c7e', '#f2e394', '#f2ae72', '#d96459'])
+
+function drawPointLineChart(plot, data) {
+    plot.attr('width', w).attr('height', '70px')
+    plot.append('line').attr('x1', 15).attr('x2', w - 55 + 15).attr('y1', 10).attr('y2', 10).attr('stroke', '#fff').attr('stroke-width', '.5px')
+    plot.append('text').text('0').attr('class', 'legend').attr('transform', 'translate(0,13)')
+    plot.append('text').text('100%').attr('class', 'legend').attr('transform', `translate(${w},13)`).style('text-anchor', 'end')
+
+    const key = Object.keys(data)
+    console.log(data)
+    const dataToArray = key.map(function(d) { return { key: d, value: data[d] } }).filter(function(d) { return d.value !== '' })
+    pointlinecolor.domain(key)
+    fullWidthLabelScale.domain([0, 100])
+
+
+    var enter = plot.selectAll('.group').data(dataToArray).enter().append('g').attr('class', 'group')
+        .attr('transform', function(d) { return `translate(${fullWidthLabelScale(d.value) + 15},10)` }).style('cursor', 'pointer')
+        .on('mouseover', function(d) {
+            plot.selectAll('g').style('opacity', .5)
+            d3.select(this).style('opacity', 1)
+            plot.node().parentElement.querySelector('.indicator').querySelector('span').innerHTML = `${numToPer(d.value)} <span style="color:${pointlinecolor(d.key)}">${d.key}</span> riders`
+
+        })
+        .on('mouseleave', function() {
+            plot.selectAll('g').style('opacity', 1)
+            plot.node().parentElement.querySelector('.indicator').querySelector('span').innerHTML = ''
+        })
+    enter.append('line').attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('stroke', function(d) { return pointlinecolor(d.key) })
+        .attr('y2', function(d, i) { return (i + 1) * 12 + 6 })
+    enter.append('line').attr('x1', 0).attr('x2', 2).attr('stroke', function(d) { return pointlinecolor(d.key) })
+        .attr('y1', function(d, i) { return (i + 1) * 12 + 6 }).attr('y2', function(d, i) { return (i + 1) * 12 + 6 })
+    enter.append('text').text(function(d) { return numToPer(d.value) }).attr('fill', function(d) { return pointlinecolor(d.key) })
+        .attr('transform', function(d, i) { return `translate(3,${(i + 2) * 12})` }).style('font-size', '10px')
+    enter.append('circle').attr('r', 6).attr('stroke', function(d) { return pointlinecolor(d.key) }).attr('fill', '#333').attr('stroke-width', '1')
+    enter.append('text').text(function(d) { return d.key.slice(0, 1).toUpperCase() }).style('text-anchor', 'middle')
+        .attr('transform', 'translate(0,3)').attr('fill', function(d) { return pointlinecolor(d.key) })
+}
+
+function showNoSummaryData(plot) {
+    plot.attr('width', w).attr('height', '20px')
+    	.append('text').attr('class', 'noSummaryData').attr('x',w / 2).attr('y',10).style('text-anchor','middle')
+    	.text('No ODX or Service Delivery Policy Data Available')
+
+}
 // SET DISPLAY
 //set the stop display (second para is a array of stop ids)
 function setStopsDisplay(action, stopIdList) {
@@ -338,15 +426,21 @@ function selectionPopup(layer, drawSelection) {
         `)
         .openOn(map);
 
-    document.querySelector('#replaceDraw').addEventListener('click', function(d) { populateSelectionByDraw(drawSelection, 'replace');
+    document.querySelector('#replaceDraw').addEventListener('click', function(d) {
+        populateSelectionByDraw(drawSelection, 'replace');
         layer.remove();
-        map.closePopup(); })
-    document.querySelector('#addDraw').addEventListener('click', function(d) { populateSelectionByDraw(drawSelection, 'add');
+        map.closePopup();
+    })
+    document.querySelector('#addDraw').addEventListener('click', function(d) {
+        populateSelectionByDraw(drawSelection, 'add');
         layer.remove();
-        map.closePopup(); })
-    document.querySelector('#limitDraw').addEventListener('click', function(d) { populateSelectionByDraw(overlapStops, 'replace');
+        map.closePopup();
+    })
+    document.querySelector('#limitDraw').addEventListener('click', function(d) {
+        populateSelectionByDraw(overlapStops, 'replace');
         layer.remove();
-        map.closePopup(); })
+        map.closePopup();
+    })
 
 }
 

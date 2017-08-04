@@ -5,7 +5,8 @@ var stopsUrl = './data/stops.txt',
     routesUrl = './data/routes.txt',
     shapestoprouteUrl = './data/route_shape_stop.csv',
     shapename = './data/shape-id_route-variant_lookup_fall16.csv',
-    nonODXrouteUrl = './data/gtfs_route_ids_not_in_odx.csv';
+    nonODXrouteUrl = './data/gtfs_route_ids_not_in_odx.csv',
+routeSummaryUrl = './data/route_summary_data.csv';
 
 d3.queue()
     .defer(d3.csv, shapename, parseshapeName)
@@ -15,13 +16,14 @@ d3.queue()
     .defer(d3.csv, routesUrl, parseRoute)
     .defer(d3.csv, shapestoprouteUrl, parse)
     .defer(d3.csv, nonODXrouteUrl, parseNonODXroute)
+    .defer(d3.csv, routeSummaryUrl, parseRouteSummary)
     .await(dataloaded);
 
-var allShapesData, allShapes, shapeStopRoute, variantsName, stopAndRoute, subwayLines, nonRouteList;
+var allShapesData, allShapes, shapeStopRoute, variantsName, stopAndRoute, subwayLines, nonRouteList,routeSummary;
 var allData = {},
     allNest = {};
 
-function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes) {
+function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes,summary) {
     //nest shape data by shape id
     allShapes = d3.nest()
         .key(function(d) { return d.shape_id })
@@ -41,6 +43,8 @@ function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute,
     allData.trip = trips.filter(function(d) { return shapeList.includes(d.shape_id) && d.shape_id != '' })
     allData.route = routes
     variantsName = variants
+    routeSummary = summary
+console.log(routeSummary)
 
     //get a nest list
     allNest.stop_shape = getNest(shapeStopRoute, 'stop', 'shape')
@@ -149,5 +153,27 @@ function parseshapeName(d) {
 function parseNonODXroute(d) {
     return {
         route_id: d.gtfs_route_id,
+    }
+}
+
+function parseRouteSummary(d) {
+  if(d.data_node == 'No ODX or Service Delivery Policy Data Available')return
+    return {
+        route_id: d.gtfs_route_id,
+        data_node: d.data_node,
+        route_category: d.route_category,
+        cost_effectiveness_rank: d.cost_effectiveness_rank,
+        crowding_metric:d.crowding_metric != '' ? parseFloat(d.crowding_metric) : '',
+        reliability_metric:d.reliability_metric != '' ? parseFloat(d.reliability_metric) : '',
+        span_of_service_metric: d.span_of_service_metric,
+        frequency_metric: d.frequency_metric,
+        perc_low_income_riders: d.perc_low_income_riders != '' ? parseFloat(d.perc_low_income_riders) : '',
+        perc_minority_riders: d.perc_minority_riders != '' ? parseFloat(d.perc_minority_riders) : '',
+        perc_vulnerable_fare_riders: d.perc_vulnerable_fare_riders != '' ? parseFloat(d.perc_vulnerable_fare_riders) : '',
+        perc_1_ride_journeys: d.perc_1_ride_journeys != '' ? parseFloat(d.perc_1_ride_journeys) : '',
+        perc_2_ride_journeys: d.perc_2_ride_journeys != '' ? parseFloat(d.perc_2_ride_journeys) : '',
+        perc_3_ride_journeys: d.perc_3_ride_journeys != '' ? parseFloat(d.perc_3_ride_journeys) : '',
+        perc_4more_ride_journeys: d.perc_4more_ride_journeys != '' ? parseFloat(d.perc_4more_ride_journeys) : '',
+        average_daily_boardings: d.average_daily_boardings,
     }
 }

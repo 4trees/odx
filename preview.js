@@ -5,6 +5,7 @@ const odx = [
     { type: 'd', count: 11230, list: [{ stop_id: '8820', count: 5620 }, { stop_id: '87619', count: 3610 }, { stop_id: '70124', count: 2100 }, { stop_id: '36961', count: 100 }] }
 ]
 const transfer = [{ from: '9', to: '1', count: 32000 }, { from: '43', to: '44', count: 7000 }, { from: '95', to: '1', count: 6300 }, { from: '39', to: '110', count: 4500 }, { from: '55', to: '66', count: 3000 }, { from: 'Green-E', to: 'Red', count: 2300 }]
+const routesummary = { route_id: '9', data_note: 'No Service Delivery Policy Metrics Available', route_category: 'Key bus', cost_effectiveness_rank: 32, crowding_metric: .83, reliability_metric: .72, span_of_service_metric: 'Y', frequency_metric: 'N', perc_low_income_riders: 0, perc_minority_riders: 1, perc_vulnerable_fare_riders: .1, perc_1_ride_journeys: .68, perc_2_ride_journeys: .2, perc_3_ride_journeys: .1, perc_4more_ride_journeys: .02, average_daily_boardings: 32324 }
 
 // global setting for preview
 var w = d3.select('#previewContainer').node().clientWidth - 30;
@@ -18,11 +19,8 @@ var RadiusForODX = d3.scaleLinear()
 
 var colorForODX = d3.scaleOrdinal()
     .domain(['o', 'd', 'x'])
-    // .range(['#96ceb4','pink','ffcc5c'])
-    .range(['#559e83', '#ae6a41', '#ffcc5c'])
-// var colorForstage = d3.scaleOrdinal()
-//   .domain(stageKey)
-// .range(['#99d5cf','#66c0b7','#32ab9f','#009688'])
+    .range(['#618685', '#f18973', '#ffef96'])
+
 var odxLable = d3.scaleOrdinal()
     .domain(['o', 'd', 'x'])
     .range(['As origin', 'As destination', 'As transfer point'])
@@ -85,6 +83,17 @@ function updateService() {
     //show filtered routes based on checked status
     togglefilteredRoutes()
     //populate variants box
+    updateFilteredVariants()
+    //populate the selection box
+    document.querySelector('#selectionInfo').innerHTML = `<i class="fa fa-circle" aria-hidden="true"></i> ${display.selectedStops.length} stop(s)`;
+    //update route summary
+    updateRouteSummary(routeList)
+    //set route filter and update the filters
+    updateRouteFilter(routeList)
+
+}
+//update filtered variants
+function updateFilteredVariants() {
     if (display.filter.routefilter.length > 0) {
         //populate the variants
         let variantsList = allNest.route_shape.filter(function(d) { return display.filter.routefilter.includes(d.key) })
@@ -103,13 +112,69 @@ function updateService() {
     } else {
         document.querySelector('#variantsList').innerHTML = 'Select a route first'
     }
-    //populate the selection box
-
-    document.querySelector('#selectionInfo').innerHTML = `<i class="fa fa-circle" aria-hidden="true"></i> ${display.selectedStops.length} stop(s)`;
+}
+//update route summary
+function updateRouteSummary(routeList) {
+    //populate the route list
     document.querySelector('#routeDetail').innerHTML =
-        '<select>' + routeList.map(function(route) { return `<option>${route.route_short_name || route.route_long_name}</option>` }).join(', ') + '</select>' +
-        '<svg></svg>'
-    //set route filter and update the filters
+        '<p><span><select id="selectedRoute" onchange="updateRouteDetail()">' + routeList.map(function(route) { return `<option value=${route.route_id}>${route.route_short_name || route.route_long_name}</option>` }).join('') + '</select></span><span class="routeCategory">${dataFornowRoute.route_category}</span></p><div id="displayRouteDetail"></div>';
+    updateRouteDetail()
+}
+//update route detail in route summary
+function updateRouteDetail() {
+    const routeDetail = document.querySelector('#routeDetail')
+    const nowValue = document.querySelector('#selectedRoute').value;
+    //get the nowValue route data
+    const dataFornowRoute = routeSummary.find(function(d) { console.log(d); return d.route_id == nowValue });
+    //populate data
+    if (dataFornowRoute) {
+
+        routeDetail.querySelector('.routeCategory').innerHTML = dataFornowRoute.route_category;
+        routeDetail.querySelector('#displayRouteDetail').innerHTML = `
+        <div style="width:${w / 2}px">
+            <p class="indicator">Cost effectiveness<br>rank</p><p class="h5">${dataFornowRoute.cost_effectiveness_rank?dataFornowRoute.cost_effectiveness_rank:'-'}<p>
+        </div>
+        <div style="width:${w / 2}px">
+            <p class="indicator">Average daily<br>boardings</p><p class="h5">${dataFornowRoute.average_daily_boardings?numberWithCommas(dataFornowRoute.average_daily_boardings):'-'}<p>
+        </div>
+        <div style="width:${w / 4}px">
+            <p class="indicator">Crowding</p><p class="h5">${dataFornowRoute.crowding_metric?numToPer(dataFornowRoute.crowding_metric):'-'}<p>
+        </div>
+        <div style="width:${w / 4}px">
+            <p class="indicator">Reliability</p><p class="h5">${dataFornowRoute.reliability_metric?numToPer(dataFornowRoute.reliability_metric):'-'}<p>
+        </div>
+        <div style="width:${w / 4}px">
+            <p class="indicator">Span</p><p class="h5">${dataFornowRoute.span_of_service_metric?dataFornowRoute.span_of_service_metric:'-'}<p>
+        </div>
+        <div style="width:${w / 4}px">
+            <p class="indicator">Frequency</p><p class="h5">${dataFornowRoute.frequency_metric?dataFornowRoute.frequency_metric:'-'}<p>
+        </div>
+        <div style="width:${w}px">
+            <p class="indicator">Journey stage<span></span></p><svg id="routeJourney"></svg>
+        </div>
+        <div style="width:${w}px">
+            <p class="indicator">Rider type<span></span></p><svg id="routeRiders"></svg>
+        </div>
+    `
+        if (dataFornowRoute.perc_1_ride_journeys) {
+            const routeJourneyData = { '1 ride': dataFornowRoute.perc_1_ride_journeys, '2 ride': dataFornowRoute.perc_2_ride_journeys, '3 ride': dataFornowRoute.perc_3_ride_journeys, '4 more': dataFornowRoute.perc_4more_ride_journeys }
+            drawStackedChart(d3.select('#routeJourney'), routeJourneyData)
+        } else {
+            showNoSummaryData(d3.select('#routeJourney'))
+        }
+        if (dataFornowRoute.perc_low_income_riders != '' || dataFornowRoute.perc_minority_riders != '' || dataFornowRoute.perc_vulnerable_fare_riders != '') {
+            const routeRiderData = { 'low income': dataFornowRoute.perc_low_income_riders, 'minority': dataFornowRoute.perc_minority_riders, 'vulnerable fare': dataFornowRoute.perc_vulnerable_fare_riders }
+            drawPointLineChart(d3.select('#routeRiders'), routeRiderData)
+        } else {
+            showNoSummaryData(d3.select('#routeRiders'))
+        }
+    } else {
+        routeDetail.querySelector('.routeCategory').innerHTML = ''
+        routeDetail.querySelector('#displayRouteDetail').innerHTML = '<p class="noSummaryData">No ODX or Service Delivery Policy Data Available</p>'
+    }
+}
+//update route filter in filter box
+function updateRouteFilter(routeList) {
     let subwayRouteList = routeList.filter(function(route) { return subwayLines.includes(route.route_id) });
     let busRouteList = routeList.filter(function(route) { return route.route_type == 3 });
     let ifhasSubway = subwayRouteList.length > 0;
@@ -132,7 +197,6 @@ function updateService() {
     //synic the parent checkboxes
     if (ifhasSubway) { document.querySelector('input[data-name="subwayroute"]').onchange() }
     if (ifhasBus) { document.querySelector('input[data-name="busroute"]').onchange() }
-
 }
 //update odx
 function clearODXMarker() {
