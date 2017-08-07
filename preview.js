@@ -57,7 +57,7 @@ function updatepreview() {
         updateSelectionBox()
         updateService()
         let touchRoutes = getRelationships(getIdlist(getChildrenStop(display.selectedStops), 'stop'), 'stop_route')[0]
-        if (touchRoutes.some(function(d) { return !nonRouteList.includes(d) })) {
+        if (touchRoutes.some(d => !nonRouteList.includes(d))) {
             d3.selectAll('section').classed('hidden', false)
             document.querySelector('#emptyHint').classList.add('hidden');
             //request the data
@@ -78,8 +78,8 @@ function updatepreview() {
 //update selection box, service info(variants, route summary, touching routes)
 function updateService() {
     //update touching routes and variants
-    let childrenStops = getChildrenStop(display.selectedStops).map(function(d) { return d.stop_id })
-    let routeList = getRelationships(childrenStops, 'stop_route')[1].filter(function(d) { return !nonRouteList.includes(d.route_id) })
+    let childrenStops = getChildrenStop(display.selectedStops).map(d => d.stop_id)
+    let routeList = getRelationships(childrenStops, 'stop_route')[1].filter(d => !nonRouteList.includes(d.route_id))
     //show filtered routes based on checked status
     togglefilteredRoutes()
     //populate variants box
@@ -96,18 +96,18 @@ function updateService() {
 function updateFilteredVariants() {
     if (display.filter.routefilter.length > 0) {
         //populate the variants
-        let variantsList = allNest.route_shape.filter(function(d) { return display.filter.routefilter.includes(d.key) })
-        document.querySelector('#variantsList').innerHTML = variantsList.map(function(route) {
-            return route.values.map(function(variant) {
+        let variantsList = allNest.route_shape.filter(d => display.filter.routefilter.includes(d.key))
+        document.querySelector('#variantsList').innerHTML = variantsList.map(route => 
+             route.values.map(variant => {
                 let shapeId = variant.key
-                let shapeTripCount = numberWithCommas(allData.trip.filter(function(trip) { return trip.shape_id == shapeId }).length)
+                let shapeTripCount = numberWithCommas(allData.trip.filter(trip => trip.shape_id == shapeId).length)
                 let shapeInfo = getShapeInfo(shapeId)
-                let isChecked = routeMarkers.map(function(d) { return d.marker.options.className.split(' ')[2].replace('hlShape', '') }).includes(shapeId) ? 'checked' : ''
+                let isChecked = routeMarkers.map(d => d.marker.options.className.split(' ')[2].replace('hlShape', '')).includes(shapeId) ? 'checked' : ''
                 return `<li class="checkbox">
         <input type="checkbox" name="variants" onchange="showVariants(this)" value=${shapeId} id="checkshape${shapeId}" ${isChecked}><label for="checkshape${shapeId}"><p>${shapeInfo[0]}</p><p><small>${shapeInfo[1]}<br>Trips: ${shapeTripCount}</small></p></label>
         </li>`
             }).join('')
-        }).join('')
+        ).join('')
 
     } else {
         document.querySelector('#variantsList').innerHTML = 'Select a route first'
@@ -117,7 +117,7 @@ function updateFilteredVariants() {
 function updateRouteSummary(routeList) {
     //populate the route list
     document.querySelector('#routeDetail').innerHTML =
-        '<p><span><select id="selectedRoute" onchange="updateRouteDetail()">' + routeList.map(function(route) { return `<option value=${route.route_id}>${route.route_short_name || route.route_long_name}</option>` }).join('') + '</select></span><span class="routeCategory">${dataFornowRoute.route_category}</span></p><div id="displayRouteDetail"></div>';
+        '<p><span><select id="selectedRoute" onchange="updateRouteDetail()">' + routeList.map(route => `<option value=${route.route_id}>${route.route_short_name || route.route_long_name}</option>`).join('') + '</select></span><span class="routeCategory">${dataFornowRoute.route_category}</span></p><div id="displayRouteDetail"></div>';
     updateRouteDetail()
 }
 //update route detail in route summary
@@ -125,29 +125,29 @@ function updateRouteDetail() {
     const routeDetail = document.querySelector('#routeDetail')
     const nowValue = document.querySelector('#selectedRoute').value;
     //get the nowValue route data
-    const dataFornowRoute = routeSummary.find(function(d) { console.log(d); return d.route_id == nowValue });
+    const dataFornowRoute = routeSummary.find(d => d.route_id == nowValue);
     //populate data
     if (dataFornowRoute) {
 
         routeDetail.querySelector('.routeCategory').innerHTML = dataFornowRoute.route_category;
         routeDetail.querySelector('#displayRouteDetail').innerHTML = `
         <div style="width:${w / 2}px">
-            <p class="indicator">Cost effectiveness<br>rank</p><p class="h5">${dataFornowRoute.cost_effectiveness_rank?dataFornowRoute.cost_effectiveness_rank:'-'}<p>
+            <p class="indicator">Cost effectiveness<br>rank</p><p class="h6">${dataFornowRoute.cost_effectiveness_rank?dataFornowRoute.cost_effectiveness_rank:'-'}<p>
         </div>
         <div style="width:${w / 2}px">
-            <p class="indicator">Average daily<br>boardings</p><p class="h5">${dataFornowRoute.average_daily_boardings?numberWithCommas(dataFornowRoute.average_daily_boardings):'-'}<p>
+            <p class="indicator">Average daily<br>boardings</p><p class="h6">${dataFornowRoute.average_daily_boardings?numberWithCommas(dataFornowRoute.average_daily_boardings):'-'}<p>
         </div>
         <div style="width:${w / 4}px">
-            <p class="indicator">Crowding</p><p class="h5">${dataFornowRoute.crowding_metric?numToPer(dataFornowRoute.crowding_metric):'-'}<p>
+            <p class="indicator">Crowding</p><p class="h6">${dataFornowRoute.crowding_metric?(dataFornowRoute.crowding_metric+'%'):'-'}<p>
         </div>
         <div style="width:${w / 4}px">
-            <p class="indicator">Reliability</p><p class="h5">${dataFornowRoute.reliability_metric?numToPer(dataFornowRoute.reliability_metric):'-'}<p>
+            <p class="indicator">Reliability</p><p class="h6">${dataFornowRoute.reliability_metric?(dataFornowRoute.reliability_metric+'%'):'-'}<p>
         </div>
         <div style="width:${w / 4}px">
-            <p class="indicator">Span</p><p class="h5">${dataFornowRoute.span_of_service_metric?dataFornowRoute.span_of_service_metric:'-'}<p>
+            <p class="indicator">Span</p><p class="h6">${dataFornowRoute.span_of_service_metric?dataFornowRoute.span_of_service_metric:'-'}<p>
         </div>
         <div style="width:${w / 4}px">
-            <p class="indicator">Frequency</p><p class="h5">${dataFornowRoute.frequency_metric?dataFornowRoute.frequency_metric:'-'}<p>
+            <p class="indicator">Frequency</p><p class="h6">${dataFornowRoute.frequency_metric?dataFornowRoute.frequency_metric:'-'}<p>
         </div>
         <div style="width:${w}px">
             <p class="indicator">Journey stage<span></span></p><svg id="routeJourney"></svg>
@@ -158,7 +158,9 @@ function updateRouteDetail() {
     `
         if (dataFornowRoute.perc_1_ride_journeys) {
             const routeJourneyData = { '1 ride': dataFornowRoute.perc_1_ride_journeys, '2 ride': dataFornowRoute.perc_2_ride_journeys, '3 ride': dataFornowRoute.perc_3_ride_journeys, '4 more': dataFornowRoute.perc_4more_ride_journeys }
-            drawStackedChart(d3.select('#routeJourney'), routeJourneyData)
+            // drawStackedChart(d3.select('#routeJourney'), routeJourneyData)
+            // drawTreeMap(d3.select('#routeJourney'), routeJourneyData)
+            drawBubbleChart(d3.select('#routeJourney'), routeJourneyData)
         } else {
             showNoSummaryData(d3.select('#routeJourney'))
         }
@@ -175,8 +177,8 @@ function updateRouteDetail() {
 }
 //update route filter in filter box
 function updateRouteFilter(routeList) {
-    let subwayRouteList = routeList.filter(function(route) { return subwayLines.includes(route.route_id) });
-    let busRouteList = routeList.filter(function(route) { return route.route_type == 3 });
+    let subwayRouteList = routeList.filter(route => subwayLines.includes(route.route_id));
+    let busRouteList = routeList.filter(route => route.route_type == 3);
     let ifhasSubway = subwayRouteList.length > 0;
     let ifhasBus = busRouteList.length > 0;
     let subwayOptions = '',
@@ -184,13 +186,13 @@ function updateRouteFilter(routeList) {
     if (ifhasSubway) {
         subwayOptions = `<li class="checkbox"><input type="checkbox" name="modeType" value="subway" id="subway" data-child="subwayroute" onchange="toggleCheckAll(this,'sub','parent')"><label for="subway">Subway</label>
     <ul class="subCheckboxs list-inline">` +
-            subwayRouteList.map(function(route) { let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : ''; return `<li class="checkbox"><input type="checkbox" data-name="subwayroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>` }).join('') +
+            subwayRouteList.map(route => { let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : ''; return `<li class="checkbox"><input type="checkbox" data-name="subwayroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>` }).join('') +
             '</ul></li>'
     }
     if (ifhasBus) {
         busOptions = `<li class="checkbox"><input type="checkbox" name="modeType" value="bus" id="bus" data-child="busroute" onchange="toggleCheckAll(this,'sub','parent')"><label for="bus">Bus</label>
     <ul class="subCheckboxs list-inline">` +
-            busRouteList.map(function(route) { let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : ''; return `<li class="checkbox"><input type="checkbox"  data-name="busroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>` }).join('') +
+            busRouteList.map(route => { let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : ''; return `<li class="checkbox"><input type="checkbox"  data-name="busroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>` }).join('') +
             '</ul></li>'
     }
     document.querySelector('#routeFilter').innerHTML = `<ul>${subwayOptions}${busOptions}</ul>`
@@ -211,25 +213,25 @@ function updateOdx(data) {
     let downloadData = ''
     document.querySelector('#downloadODX').addEventListener('click', function() { download('odx', downloadData) })
     //update the barchart
-    fullWidthLabelScale.domain([0, d3.max(data, function(d) { return d.count })])
+    fullWidthLabelScale.domain([0, d3.max(data, d => d.count)])
     let updateodx = d3.select('#odx').select('svg')
         .attr('width', w)
         .attr('height', 145)
         .selectAll('.odx').data(data)
     let enterodx = updateodx.enter().append('g').attr('class', 'odx')
-        .attr('transform', function(d, i) { return `translate(0,${20 + i * 45})` })
+        .attr('transform', (d, i) => `translate(0,${20 + i * 45})`)
     enterodx.append('rect')
         .attr('y', 10)
         .attr('height', 10)
-        .style('fill', function(d) { return colorForODX(d.type) })
+        .style('fill', d => colorForODX(d.type))
     enterodx.append('text')
         .attr('class', 'odxLable')
-        .text(function(d) { return odxLable(d.type) })
+        .text(d => odxLable(d.type))
     enterodx.append('text')
         .attr('y', 20)
         .attr('class', 'odxCount')
     let odCheckpoint = enterodx.append('g')
-        .attr('class', function(d) { return d.type == 'o' || d.type == 'd' ? '' : 'hidden' })
+        .attr('class', d => d.type == 'o' || d.type == 'd' ? '' : 'hidden')
         .attr('transform', function() { const distance = this.parentNode.querySelector('.odxLable').getBBox(); return `translate(${distance.width + 10},0)` })
         .attr('cursor', 'pointer')
         .on('click', function(d) {
@@ -238,9 +240,9 @@ function updateOdx(data) {
             d3.selectAll('.odxStop').remove()
             d3.selectAll('.hlStop').classed('hlStop', false)
             //get new markers data
-            const stopList = d.list.map(function(e) { return e.stop_id })
-            const stops = allData.stop.filter(function(e) { return stopList.includes(e.stop_id) })
-            RadiusForODX.domain([0, d3.max(d.list, function(e) { return e.count })])
+            const stopList = d.list.map(e => e.stop_id)
+            const stops = allData.stop.filter(e => stopList.includes(e.stop_id))
+            RadiusForODX.domain([0, d3.max(d.list, e => e.count)])
             const stopCount = stops.length
             const fillColor = colorForODX(odxPairs(d.type))
             let markers = []
@@ -248,7 +250,7 @@ function updateOdx(data) {
                 let stop = stops[i]
 
                 //draw markers
-                let radius = RadiusForODX(d.list.find(function(e) { return e.stop_id == stop.stop_id }).count)
+                let radius = RadiusForODX(d.list.find(e => e.stop_id == stop.stop_id).count)
                 let odxMarker = L.circle([stop.stop_lat, stop.stop_lon], { radius: stopRadius.default, weight: radius, className: 'odxStop odx' + slugStr(stop.stop_id), color: fillColor })
                     .on('mouseover', function() {
                         //highlight the stop
@@ -267,7 +269,7 @@ function updateOdx(data) {
     odCheckpoint.append('text')
         .attr('class', 'checkpoint')
         .attr('x', 3)
-        .text(function(d, i) { return i % 2 ? 'from...' : 'to...' })
+        .text((d, i) => i % 2 ? 'from...' : 'to...')
     odCheckpoint.insert('rect', '.checkpoint')
         .attr('y', -12)
         .attr('width', function() { const distance = this.parentNode.querySelector('.checkpoint').getBBox(); return distance.width + 7 })
@@ -278,34 +280,34 @@ function updateOdx(data) {
 
     let mergeodx = updateodx.merge(enterodx)
     mergeodx.select('rect')
-        .attr('width', function(d) { return fullWidthLabelScale(d.count) })
+        .attr('width', d => fullWidthLabelScale(d.count))
     mergeodx.select('.odxCount')
-        .attr('x', function(d) { return 4 + fullWidthLabelScale(d.count) })
-        .text(function(d) { return numberWithCommas(d.count) })
+        .attr('x', d => 4 + fullWidthLabelScale(d.count))
+        .text(d => numberWithCommas(d.count))
 
 }
 //update the transfer table
 function updateTransfer(data) {
     clearODXMarker()
-    let updateData = data.map(function(d) {
-        const fromRoute = allData.route.find(function(route) { return route.route_id == d.from })
-        const toRoute = allData.route.find(function(route) { return route.route_id == d.to })
+    let updateData = data.map(d => {
+        const fromRoute = allData.route.find(route => route.route_id == d.from)
+        const toRoute = allData.route.find(route => route.route_id == d.to)
         const fromName = fromRoute.route_short_name || fromRoute.route_long_name
         const toName = toRoute.route_short_name || toRoute.route_long_name
         return { from: fromName, to: toName, count: d.count }
     })
     //create the table
-    document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML = updateData.map(function(d) {
-        return `
+    document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML = updateData.map(d =>
+     `
     <tr>
     <td>${d.from}</td>
     <td>${d.to}</td>
     <td class="text-right">${numberWithCommas(d.count)}</td>
     </tr>
     `
-    }).join('')
+    ).join('')
     //prepare the download
-    const downloadData = updateData.map(function(d) { return Object.values(d) })
+    const downloadData = updateData.map(d => Object.values(d))
     document.querySelector('#downloadTransfer').addEventListener('click', function() { download('transfer', downloadData) })
 
 }
@@ -318,10 +320,10 @@ function updateFiltersDes() {
     const fareUserTypefilter = getCheckedAttr('fareUserType', 'innerHTML')
     const fareMethodfilter = getCheckedAttr('fareMethod', 'innerHTML')
     //construct the timeframe format to 'weekday-time,saturday,sunday'
-    const timeFramefilter = timePeriodfilter == '' ? '' : timePeriodfilter.map(function(time) { return `${datePeriodfilter[0]} ${time}` }).concat(datePeriodfilter.slice(1))
+    const timeFramefilter = timePeriodfilter == '' ? '' : timePeriodfilter.map(time => `${datePeriodfilter[0]} ${time}`).concat(datePeriodfilter.slice(1))
     //update filter description on the preview panel
     const filterForDes = { 'route': routefilter, 'timeframe': timeFramefilter, 'fareUserType': fareUserTypefilter, 'fareMethod': fareMethodfilter }
-    const filterDes = Object.values(filterForDes).filter(function(filter) { return filter != '' }).map(function(filter) { return filter.join(', ') }).join(' | ')
+    const filterDes = Object.values(filterForDes).filter(filter => filter != '').map(filter => filter.join(', ')).join(' | ')
     document.querySelector('#filters').innerHTML = filterDes
     $('#filterBox').modal('hide')
 }
@@ -338,14 +340,12 @@ function saveFilters() {
 }
 
 function updateFilters() {
-    Object.keys(display.filter).forEach(function(filter) {
-        document.querySelectorAll(`input[name="${filter}"]`).forEach(function(d) { return d.checked = false });
-    })
-    Object.values(display.filter).forEach(function(filter) {
+    Object.keys(display.filter).forEach(filter =>
+        document.querySelectorAll(`input[name="${filter}"]`).forEach(d => d.checked = false)
+    )
+    Object.values(display.filter).forEach(filter => {
         if (filter.length > 0) {
-            filter.forEach(function(d) {
-                document.querySelector(`input[value="${d}"]`).checked = true;
-            })
+            filter.forEach(d => document.querySelector(`input[value="${d}"]`).checked = true)
         }
     })
     updateFiltersDes()
@@ -353,15 +353,16 @@ function updateFilters() {
 //get the checked value from checkbox
 function getCheckedAttr(inputName, attrName) {
     const checked = document.querySelectorAll(`input[name="${inputName}"]:checked`)
-    const checkedValue = checked ? Array.from(checked).map(function(d) { d = attrName == 'innerHTML' ? d.nextSibling : d; return d[attrName] }) : ''
+    const checkedValue = checked ? Array.from(checked).map(d => {d = attrName == 'innerHTML' ? d.nextSibling : d;
+        return d[attrName]}) : ''
     return checkedValue
 }
 
 
 //update selection box
 function updateSelectionBox() {
-    let stopsdata = allData.stop.filter(function(d) { return display.selectedStops.includes(d.stop_id) })
-    let stops = `<p class="selectionTitle">${display.selectedStops.length} stop(s)<p><ul class="list-inline">` + stopsdata.map(function(d) { return `<li class="checkbox"><input type="checkbox" name="stop" value="${d.stop_id}" id="checkstop${d.stop_id}" checked><label for="checkstop${d.stop_id}">${d.stop_name}</label></li>` }).join(' ') + '</ul>'
+    let stopsdata = allData.stop.filter(d => display.selectedStops.includes(d.stop_id))
+    let stops = `<p class="selectionTitle">${display.selectedStops.length} stop(s)<p><ul class="list-inline">` + stopsdata.map(d => `<li class="checkbox"><input type="checkbox" name="stop" value="${d.stop_id}" id="checkstop${d.stop_id}" checked><label for="checkstop${d.stop_id}">${d.stop_name}</label></li>`).join(' ') + '</ul>'
     document.querySelector('#mySelection').querySelector('.modal-body').innerHTML = stops
 }
 //clear selection
@@ -381,7 +382,7 @@ function synicSelection() {
     display.selectedStops = selectedStops
     //if there's any route in filter, remove all the touching routes of this stop from the filter 
     if (display.filter.routefilter.length > 0) {
-        display.filter.routefilter = display.filter.routefilter.filter(function(route) { return touchingRouteIdList.includes(route) })
+        display.filter.routefilter = display.filter.routefilter.filter(route => touchingRouteIdList.includes(route))
     }
     updateSelection(display)
     $('#mySelection').modal('hide')

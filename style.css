@@ -70,6 +70,7 @@ select {
 
 
 
+
 /* model style */
 
 .modal-header,
@@ -80,6 +81,7 @@ select {
 .modal-content {
     background: #333;
 }
+
 
 
 
@@ -125,6 +127,7 @@ select {
 
 
 
+
 /* NAVIGATION BAR */
 
 .navbar {
@@ -145,6 +148,7 @@ select {
 nav {
     z-index: 999;
 }
+
 
 
 
@@ -236,6 +240,7 @@ nav {
 
 
 
+
 /* Leaflet POPUP*/
 
 .leaflet-popup-content-wrapper,
@@ -297,6 +302,7 @@ nav {
 
 
 
+
 /* Leaflet CUSTOM CONTROL -- BACK TO BOSTON BUTTON */
 
 .leaflet-control-custom {
@@ -322,6 +328,7 @@ nav {
     padding: 15px 10px;
     min-width: 200px;
 }
+
 
 
 
@@ -410,18 +417,22 @@ nav {
     float: right;
     color: #fff;
 }
-.routeCategory{
-  float: right;
+
+.routeCategory {
+    float: right;
 }
-.legend{
-  font-size: 10px;
-  fill:#787878;
+
+.legend {
+    font-size: 10px;
+    fill: #787878;
 }
-.noSummaryData{
-  color:#fff;
-  fill:#fff;
-  font-size: 9px;
+
+.noSummaryData {
+    color: #fff;
+    fill: #fff;
+    font-size: 9px;
 }
+
 #displayOption~ul {
     margin-bottom: 0;
     margin-top: 0;
@@ -446,6 +457,7 @@ nav {
 .checkpoint {
     fill: #fff;
 }
+
 
 
 
@@ -503,6 +515,7 @@ nav {
 
 
 
+
 /* shadow for map*/
 
 .shadow {
@@ -540,6 +553,7 @@ nav {
 
 
 
+
 /* SCROLL BAR */
 
 .scrollbar {
@@ -549,6 +563,7 @@ nav {
 .scroll::-webkit-scrollbar {
     display: none;
 }
+
 
 
 

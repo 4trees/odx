@@ -18,7 +18,7 @@ function displayMatches() {
     let searchValue, searchArray
     if (this.value.match(new RegExp('^route.*$', 'i'))) {
         searchValue = this.value.replace(new RegExp('^route.', 'i'), '')
-        searchArray = stopAndRoute.filter(function(d) { return d.type == 'route' })
+        searchArray = stopAndRoute.filter(d => d.type == 'route')
     } else {
         searchValue = this.value
         searchArray = stopAndRoute
@@ -33,7 +33,7 @@ function displayMatches() {
     const html = matchArray.slice(0, 10).map(item => {
         const regex = new RegExp(searchValue, 'gi');
         const itemName = item.name.replace(regex, `<span class="hl">${searchValue}</span>`);
-        const children = item.type == 'stop' ? allData.stop.filter(function(d) { return d.parent_station == item.id }).map(function(d) { return d.stop_name }).join(', ') : '';
+        const children = item.type == 'stop' ? allData.stop.filter(d => d.parent_station == item.id).map(d => d.stop_name).join(', ') : '';
         return `
       <li data-id="${item.type + item.id}"" data-type="${item.type}">
         <p><span class="name">${itemName}</span>
@@ -50,7 +50,7 @@ function displayMatches() {
 
 function findMatches(wordToMatch, stopAndRoute) {
     //get the first 6 matchs
-    return stopAndRoute.filter(function(item) {
+    return stopAndRoute.filter(item => {
         const regex = new RegExp(wordToMatch, 'gi');
         return item.name.match(regex) || item.id.match(regex)
     });
@@ -58,7 +58,7 @@ function findMatches(wordToMatch, stopAndRoute) {
 
 function listenMatches() {
     let matchItems = document.querySelector('.suggestions').querySelectorAll('li')
-    matchItems.forEach(function(item) {
+    matchItems.forEach(item => {
         item.addEventListener('mouseover', function() {
             fireMatches(this, 'enter')
         })
@@ -74,7 +74,7 @@ function listenMatches() {
 function fireMatches(e, type, key) {
     let itemId = e.getAttribute('data-id')
     let datatype = e.getAttribute('data-type')
-    let itemPath = datatype == 'stop' ? stopMarkers.find(function(stop) { return ('stop' + stop.id) == slugStr(itemId) }) : routeMarkers.find(function(route) { return ('route' + route.id) == slugStr(itemId) })
+    let itemPath = datatype == 'stop' ? stopMarkers.find(stop => ('stop' + stop.id) == slugStr(itemId)) : routeMarkers.find(route => ('route' + route.id) == slugStr(itemId))
     if (type == 'enter') {
         map.fitBounds(itemPath.marker.getBounds());
         itemPath.marker.fire('mouseover')

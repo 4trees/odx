@@ -38,13 +38,13 @@ var searchMap = L.Control.extend({
     onAdd: function(map) {
         var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
         container.innerHTML = `
-		<div id="searchBar">
-		<div class="input-group input-group-sm" >  
-		<label class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></label>			
-		<input type="text" class="form-control" name="search" placeholder="stop id, stop name, or route" title="Limit to route only by starting with 'route'">               
-		</div>
-		<div><ul class="suggestions hidden"></ul></div>
-		</div>`
+        <div id="searchBar">
+        <div class="input-group input-group-sm" >  
+        <label class="input-group-addon"><i class="fa fa-search" aria-hidden="true"></i></label>            
+        <input type="text" class="form-control" name="search" placeholder="stop id, stop name, or route" title="Limit to route only by starting with 'route'">               
+        </div>
+        <div><ul class="suggestions hidden"></ul></div>
+        </div>`
         container.onclick = function() {
             this.querySelector('div').classList.remove('hidden')
         }
@@ -61,9 +61,9 @@ var VlayerMap = L.Control.extend({
     onAdd: function(map) {
         var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
         container.innerHTML = `
-		<a title = "Show all variants" role="button">
-		<input type="checkbox" name="showallVariants" id="showallVariants"><label for="showallVariants"><i class="fa fa-road" aria-hidden="true"></i></label>
-		</a>`
+        <a title = "Show all variants" role="button">
+        <input type="checkbox" name="showallVariants" id="showallVariants"><label for="showallVariants"><i class="fa fa-road" aria-hidden="true"></i></label>
+        </a>`
         container.onclick = function() {
             toggleVariants()
         }
@@ -79,15 +79,15 @@ var conditionedlayerMap = L.Control.extend({
     onAdd: function(map) {
         var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
         container.innerHTML = `
-		<div class="dropup">
-		<a title = "Show/Hidden filtered variants" class="dropdown-toggle" role="button" onclick="toggleVariantsBox(this)" aria-haspopup="true" aria-expanded="false">V</a>
-		<ul class="dropdown-menu" id="variantsList">Select a route firsts</ul>
-		</div>
-		<div>
-		<a title = "Show/Hidden filtered routes" role="button" onclick="togglefilteredRoutes()">
-		<input type="checkbox" name="filteredRoutes" id="filteredRoutes" checked><label for="filteredRoutes">R</label>
-		</a>
-		</div>`
+        <div class="dropup">
+        <a title = "Show/Hidden filtered variants" class="dropdown-toggle" role="button" onclick="toggleVariantsBox(this)" aria-haspopup="true" aria-expanded="false">V</a>
+        <ul class="dropdown-menu" id="variantsList">Select a route firsts</ul>
+        </div>
+        <div>
+        <a title = "Show/Hidden filtered routes" role="button" onclick="togglefilteredRoutes()">
+        <input type="checkbox" name="filteredRoutes" id="filteredRoutes" checked><label for="filteredRoutes">R</label>
+        </a>
+        </div>`
         return container;
     },
 
@@ -172,7 +172,7 @@ var stopMarkers = []
 
 function drawStops() {
     //get all parent stops and orphan stops
-    stops = allData.stop.filter(function(stop) { return stop.parent_station == '' })
+    stops = allData.stop.filter(stop => stop.parent_station == '')
 
     let countStops = stops.length
     for (i = 0; i < countStops; i++) {
@@ -212,7 +212,7 @@ function drawShapes(shapeId) {
         type = 'shape'
         pane = 'shapes'
     } else {
-        shapes = [allData.shape.find(function(d) { return d.key == shapeId })]
+        shapes = [allData.shape.find(d => d.key == shapeId)]
         type = 'hlShape'
         pane = 'hlshapes'
     }
@@ -220,9 +220,9 @@ function drawShapes(shapeId) {
     for (i = 0; i < countShapes; i++) {
         let shape = shapes[i];
         let shapepts = [];
-        shape.values.forEach(function(shapept) {
+        shape.values.forEach(shapept =>
             shapepts.push([shapept.shape_pt_lat, shapept.shape_pt_lon])
-        })
+        )
         let shapeMarker = L.polyline(shapepts, { className: type + ' ' + type + shape.key, pane: pane })
             .addTo(map);
         if (type == 'hlShape') {
@@ -249,14 +249,14 @@ function drawRoutes() {
     for (i = 0; i < countRoutes; i++) {
         let route = allNest.route_direction_shape[i];
         //find the top trips shape of this route
-        let topShapeId = route.values[0].values.sort(function(a, b) { return b.value - a.value })[0].key
-        let topShape = allData.shape.find(function(shape) { return shape.key == topShapeId })
+        let topShapeId = route.values[0].values.sort((a, b) => b.value - a.value)[0].key
+        let topShape = allData.shape.find(shape => shape.key == topShapeId)
 
         // console.log('topshapeid',route.key,topShape)
         let shapepts = [];
-        topShape.values.forEach(function(shapept) {
+        topShape.values.forEach(shapept =>
             shapepts.push([shapept.shape_pt_lat, shapept.shape_pt_lon])
-        })
+        )
         // console.log('shapedots',topShape,shapepts)
         //draw the top shape as this route
         let routeMarker = L.polyline(shapepts, { className: 'route route' + route.key + ' hlShape' + topShapeId, pane: 'routes' })
