@@ -39,8 +39,9 @@ function exportToCsv(filename, rows) {
     }
 }
 
-function download(dataType, data) {
-    let downloadData
+function download(dataType) {
+    let downloadData;
+    let data = '';
     switch (dataType) {
         case 'transfer':
             downloadData = [

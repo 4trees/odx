@@ -97,8 +97,8 @@ function updateFilteredVariants() {
     if (display.filter.routefilter.length > 0) {
         //populate the variants
         let variantsList = allNest.route_shape.filter(d => display.filter.routefilter.includes(d.key))
-        document.querySelector('#variantsList').innerHTML = variantsList.map(route => 
-             route.values.map(variant => {
+        document.querySelector('#variantsList').innerHTML = variantsList.map(route =>
+            route.values.map(variant => {
                 let shapeId = variant.key
                 let shapeTripCount = numberWithCommas(allData.trip.filter(trip => trip.shape_id == shapeId).length)
                 let shapeInfo = getShapeInfo(shapeId)
@@ -177,6 +177,7 @@ function updateRouteDetail() {
 }
 //update route filter in filter box
 function updateRouteFilter(routeList) {
+    console.log(routeList, display.filter.routefilter)
     let subwayRouteList = routeList.filter(route => subwayLines.includes(route.route_id));
     let busRouteList = routeList.filter(route => route.route_type == 3);
     let ifhasSubway = subwayRouteList.length > 0;
@@ -192,13 +193,17 @@ function updateRouteFilter(routeList) {
     if (ifhasBus) {
         busOptions = `<li class="checkbox"><input type="checkbox" name="modeType" value="bus" id="bus" data-child="busroute" onchange="toggleCheckAll(this,'sub','parent')"><label for="bus">Bus</label>
     <ul class="subCheckboxs list-inline">` +
-            busRouteList.map(route => { let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : ''; return `<li class="checkbox"><input type="checkbox"  data-name="busroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>` }).join('') +
+            busRouteList.map(route => { let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : '';
+                console.log(route.route_id, ifCheckRoute); return `<li class="checkbox"><input type="checkbox"  data-name="busroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>` }).join('') +
             '</ul></li>'
     }
     document.querySelector('#routeFilter').innerHTML = `<ul>${subwayOptions}${busOptions}</ul>`
     //synic the parent checkboxes
     if (ifhasSubway) { document.querySelector('input[data-name="subwayroute"]').onchange() }
     if (ifhasBus) { document.querySelector('input[data-name="busroute"]').onchange() }
+
+    //update the filter description
+    // updateFiltersDes()
 }
 //update odx
 function clearODXMarker() {
@@ -209,9 +214,6 @@ function clearODXMarker() {
 }
 
 function updateOdx(data) {
-    //prepare the download
-    let downloadData = ''
-    document.querySelector('#downloadODX').addEventListener('click', function() { download('odx', downloadData) })
     //update the barchart
     fullWidthLabelScale.domain([0, d3.max(data, d => d.count)])
     let updateodx = d3.select('#odx').select('svg')
@@ -298,7 +300,7 @@ function updateTransfer(data) {
     })
     //create the table
     document.querySelector('#transfer').querySelector('.transferTable').querySelector('tbody').innerHTML = updateData.map(d =>
-     `
+        `
     <tr>
     <td>${d.from}</td>
     <td>${d.to}</td>
@@ -306,9 +308,6 @@ function updateTransfer(data) {
     </tr>
     `
     ).join('')
-    //prepare the download
-    const downloadData = updateData.map(d => Object.values(d))
-    document.querySelector('#downloadTransfer').addEventListener('click', function() { download('transfer', downloadData) })
 
 }
 //update filters
@@ -341,20 +340,24 @@ function saveFilters() {
 
 function updateFilters() {
     Object.keys(display.filter).forEach(filter =>
-        document.querySelectorAll(`input[name="${filter}"]`).forEach(d => d.checked = false)
+        document.querySelector('#filterBox').querySelectorAll(`input[name="${filter}"]`).forEach(d => d.checked = false)
     )
     Object.values(display.filter).forEach(filter => {
         if (filter.length > 0) {
-            filter.forEach(d => document.querySelector(`input[value="${d}"]`).checked = true)
+            console.log(filter)
+            filter.forEach(d => document.querySelector('#filterBox').querySelector(`input[value="${d}"]`).checked = true)
         }
     })
+
     updateFiltersDes()
 }
-//get the checked value from checkbox
+//get the checked value from filter checkbox
 function getCheckedAttr(inputName, attrName) {
-    const checked = document.querySelectorAll(`input[name="${inputName}"]:checked`)
-    const checkedValue = checked ? Array.from(checked).map(d => {d = attrName == 'innerHTML' ? d.nextSibling : d;
-        return d[attrName]}) : ''
+    const checked = document.querySelector('#filterBox').querySelectorAll(`input[name="${inputName}"]:checked`)
+    const checkedValue = checked ? Array.from(checked).map(d => {
+        let t = attrName == 'innerHTML' ? d.nextSibling : d;
+        return t[attrName]
+    }) : '';
     return checkedValue
 }
 

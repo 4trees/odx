@@ -63,7 +63,7 @@
                                 <h5 class="sectionTitle">Station Uses</h5>
                             </div>
                             <div class="pull-right">
-                                <a type="button" id="downloadODX" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                <a type="button" id="downloadODX" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true" onClick="download('odx')"></i></a>
                             </div>
                         </div>
                         <svg></svg>
@@ -74,7 +74,7 @@
                                 <h5 class="sectionTitle">Transfer</h5>
                             </div>
                             <div class="pull-right">
-                                <a type="button" id="downloadTransfer" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                <a type="button" id="downloadTransfer" class="iconButton" title="Export to CSV"><i class="fa fa-download" aria-hidden="true" onClick="download('transfer')"></i></a>
                             </div>
                         </div>
                         <div class="transferTable">
@@ -252,12 +252,12 @@
         <!-- /.modal -->
     </div>
     <script src="lib/d3.min.js"></script>
-    <script src="dataload.js?version=0.0.06"></script>
+    <script src="dataload.js?version=0.0.07"></script>
     <script src="map.js?version=0.0.09"></script>
     <script src="script.js?version=0.0.09"></script>
     <script src="search.js?version=0.0.08"></script>
-    <script src="preview.js?version=0.0.13"></script>
-    <script src="download.js?version=0.0.05"></script>
+    <script src="preview.js?version=0.0.14"></script>
+    <script src="download.js?version=0.0.06"></script>
 </body>
 
 </html>

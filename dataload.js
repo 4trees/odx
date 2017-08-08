@@ -44,7 +44,6 @@ function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute,
     allData.route = routes
     variantsName = variants
     routeSummary = summary
-    console.log(routeSummary)
 
     //get a nest list
     allNest.stop_shape = getNest(shapeStopRoute, 'stop', 'shape')
