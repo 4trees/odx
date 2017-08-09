@@ -11,6 +11,8 @@ drawRectangle.setAttribute('title', 'Draw a rectangle to select stops')
 var selectionHisory = [];
 var display = { 'selectedStops': [], 'filter': { 'routefilter': [], 'datePeriod': [], 'timePeriod': [], 'fareUserType': [], 'fareMethod': [] } }
 
+var ClusterColor = d3.scaleLinear().domain([0,100]).range(['#f6da91','#f69590'])
+
 //hint
 var noDataForRoute = 'No ODX data for this route'
 var noDataForStop = 'No ODX data for this stop'
@@ -432,9 +434,10 @@ function routePopup(location, route, stopLength) {
     }
 
 }
-//update popup for the draw selection
+//update popup for the draw selection or cluster selection
 //drawSelection is an array of stop ids
-function selectionPopup(layer, drawSelection) {
+//geo is false/true 
+function selectionPopup(layer, drawSelection,geo) {
     let location = layer.getBounds().getCenter()
     let isHiddenNew, isHiddenLimit, isHiddenAdd, hint;
     let overlapStops = drawSelection.filter(stop => display.selectedStops.includes(stop))
@@ -470,17 +473,17 @@ function selectionPopup(layer, drawSelection) {
 
     document.querySelector('#replaceDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(drawSelection, 'replace');
-        layer.remove();
+        if(!geo){layer.remove()};
         map.closePopup();
     })
     document.querySelector('#addDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(drawSelection, 'add');
-        layer.remove();
+        if(!geo){layer.remove()};
         map.closePopup();
     })
     document.querySelector('#limitDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(overlapStops, 'replace');
-        layer.remove();
+        if(!geo){layer.remove()};
         map.closePopup();
     })
 

@@ -81,7 +81,7 @@ var conditionedlayerMap = L.Control.extend({
         container.innerHTML = `
         <div class="dropup">
         <a title = "Show/Hidden filtered variants" class="dropdown-toggle" role="button" onclick="toggleVariantsBox(this)" aria-haspopup="true" aria-expanded="false">V</a>
-        <ul class="dropdown-menu" id="variantsList">Select a route firsts</ul>
+        <ul class="dropdown-menu scroll scrollbar scrollNormal" id="variantsList">Select a route firsts</ul>
         </div>
         <div>
         <a title = "Show/Hidden filtered routes" role="button" onclick="togglefilteredRoutes()">
@@ -93,6 +93,12 @@ var conditionedlayerMap = L.Control.extend({
 
 });
 map.addControl(new conditionedlayerMap());
+var VariantDropdown = L.DomUtil.get('variantsList');
+L.DomEvent.on(VariantDropdown, 'mousewheel', L.DomEvent.stopPropagation);
+
+//add clusters
+var clusterLayer = L.geoJSON().addTo(map);
+clusterLayer.options.pane = 'cluster';
 
 //set a drawcontrol
 var drawnItems = new L.FeatureGroup();
@@ -132,29 +138,22 @@ shapePanes.style.pointerEvents = 'none';
 var drawPanes = map.createPane('draw');
 drawPanes.style.zIndex = 555;
 drawPanes.style.pointerEvents = 'none';
+//create panes for cluster 
+var clusterPanes = map.createPane('cluster');
+clusterPanes.style.zIndex = 390;
+clusterPanes.style.pointerEvents = 'none';
 
 
 //TOOLTIP EDIT
 map.on('draw:created', function(e) {
-    let drawSelection = []
-    let layer = e.layer;
-    let countMarkers = stopMarkers.length
-    console.log(layer.getBounds().getCenter())
-
-    for (i = 0; i < countMarkers; i++) {
-        let isInside = isMarkerInsidePolygon(stopMarkers[i].marker, layer)
-        if (isInside) {
-            // console.log('found!'),console.log(stopMarkers[i])
-            let foundStopId = stopMarkers[i].marker.options.className.split(' ')[1].replace('stop', '')
-            drawSelection.push(foundStopId)
-            // console.log(drawSelection)
-        }
-    }
+    
+    let layer = e.layer;console.log(layer)
+    let drawSelection = getInsideMarkers(layer)
     if (drawSelection.length == 0) return
 
     drawnItems.addLayer(layer)
-    selectionPopup(layer, drawSelection)
-    layer.on('mouseover', function() { selectionPopup(layer, drawSelection) })
+    selectionPopup(layer, drawSelection,false)
+    layer.on('mouseover', function() { selectionPopup(layer, drawSelection,false) })
 });
 //add a cover layer when drawing to avoid other events fire
 map.on('draw:drawstart', function(e) {
@@ -302,23 +301,38 @@ function showSubway() {
 
 
 
-function isMarkerInsidePolygon(marker, poly) {
+function isMarkerInsidePolygon(marker, poly,geo) {
     var inside = false;
     var x = marker.getLatLng().lat,
         y = marker.getLatLng().lng;
     for (var ii = 0; ii < poly.getLatLngs().length; ii++) {
-        var polyPoints = poly.getLatLngs()[ii];
+        var polyPoints = geo ? poly.getLatLngs()[ii][0] : poly.getLatLngs()[ii];
         for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
             var xi = polyPoints[i].lat,
                 yi = polyPoints[i].lng;
             var xj = polyPoints[j].lat,
                 yj = polyPoints[j].lng;
-
             var intersect = ((yi > y) != (yj > y)) &&
                 (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
             if (intersect) inside = !inside;
         }
     }
-
     return inside;
 };
+//geo is true/false
+function getInsideMarkers(layer,geo) {
+    let insideMarkers = []
+    let countMarkers = stopMarkers.length
+
+    for (i = 0; i < countMarkers; i++) {
+        let isInside = isMarkerInsidePolygon(stopMarkers[i].marker, layer,geo)
+        if (isInside) {
+            // console.log('found!'),console.log(stopMarkers[i])
+            let foundStopId = stopMarkers[i].marker.options.className.split(' ')[1].replace('stop', '')
+            insideMarkers.push(foundStopId)
+            // console.log(drawSelection)
+        }
+    }
+    return insideMarkers
+
+}

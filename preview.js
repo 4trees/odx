@@ -19,7 +19,7 @@ var RadiusForODX = d3.scaleLinear()
 
 var colorForODX = d3.scaleOrdinal()
     .domain(['o', 'd', 'x'])
-    .range(['#618685', '#f18973', '#ffef96'])
+    .range(['#618685', '#6590b0', '#ffef96'])
 
 var odxLable = d3.scaleOrdinal()
     .domain(['o', 'd', 'x'])
@@ -177,7 +177,6 @@ function updateRouteDetail() {
 }
 //update route filter in filter box
 function updateRouteFilter(routeList) {
-    console.log(routeList, display.filter.routefilter)
     let subwayRouteList = routeList.filter(route => subwayLines.includes(route.route_id));
     let busRouteList = routeList.filter(route => route.route_type == 3);
     let ifhasSubway = subwayRouteList.length > 0;
@@ -193,8 +192,10 @@ function updateRouteFilter(routeList) {
     if (ifhasBus) {
         busOptions = `<li class="checkbox"><input type="checkbox" name="modeType" value="bus" id="bus" data-child="busroute" onchange="toggleCheckAll(this,'sub','parent')"><label for="bus">Bus</label>
     <ul class="subCheckboxs list-inline">` +
-            busRouteList.map(route => { let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : '';
-                console.log(route.route_id, ifCheckRoute); return `<li class="checkbox"><input type="checkbox"  data-name="busroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>` }).join('') +
+            busRouteList.map(route => {
+                let ifCheckRoute = display.filter.routefilter.includes(route.route_id) ? 'checked' : '';
+                return `<li class="checkbox"><input type="checkbox"  data-name="busroute" name="routefilter" value="${route.route_id}" id="routefilter${route.route_id}" onchange="toggleCheckAll(this,'sub','child')" ${ifCheckRoute}><label for="routefilter${route.route_id}">${route.route_short_name || route.route_long_name}</label></li>`
+            }).join('') +
             '</ul></li>'
     }
     document.querySelector('#routeFilter').innerHTML = `<ul>${subwayOptions}${busOptions}</ul>`
@@ -214,6 +215,8 @@ function clearODXMarker() {
 }
 
 function updateOdx(data) {
+    //remove the clusters
+    clusterLayer.clearLayers();
     //update the barchart
     fullWidthLabelScale.domain([0, d3.max(data, d => d.count)])
     let updateodx = d3.select('#odx').select('svg')
@@ -237,7 +240,7 @@ function updateOdx(data) {
         .attr('transform', function() { const distance = this.parentNode.querySelector('.odxLable').getBBox(); return `translate(${distance.width + 10},0)` })
         .attr('cursor', 'pointer')
         .on('click', function(d) {
-            if (d.type == 'xo' || d.type == 'xd') { return }
+            if (d.type == 'x') { return }
             //remove previews markers
             d3.selectAll('.odxStop').remove()
             d3.selectAll('.hlStop').classed('hlStop', false)
@@ -267,11 +270,26 @@ function updateOdx(data) {
             //show the stops on the map and center the view of them
             const group = new L.featureGroup(markers).addTo(map);;
             map.fitBounds(group.getBounds());
+            //show clusters on the map
+            // var clusterLayer = new L.geoJSON(allData.clusters, {
+            //     style: function (feature) { return { fillColor: ClusterColor(Math.random() * 100), fillOpacity: .5, color: "#333", opacity: .6, weight: 1 } },
+            //     onEachFeature: function (feature,layer){layer.on('mouseover', e => console.log( getInsideMarkers(layer)))}
+            // })
+            // clusterLayer.options.pane = 'cluster';
+            // clusterLayer.addTo(map);
+            clusterLayer.addData(allData.clusters);
+            // clusterLayer.setStyle(feature => {return {fillColor:ClusterColor(feature.properties.fid),fillOpacity:.8,color:"#333",opacity:.6,weight:1}})
+            clusterLayer.setStyle(feature => {return { fillColor: ClusterColor(Math.random() * 100), fillOpacity: .5, color: "#333", opacity: .6, weight: 1 }})
+            // clusterLayer.options.onEachFeature = function (feature, layer) {console.log(feature,layer)}
+            // clusterLayer.on('mouseover', function(d) { d => { console.log(d) } })
+            clusterLayer.eachLayer(function(layer) {
+                layer.on('mouseover', e => {let clusterSelection = getInsideMarkers(layer,true); selectionPopup(layer, clusterSelection,true)})
+            });
         })
     odCheckpoint.append('text')
         .attr('class', 'checkpoint')
         .attr('x', 3)
-        .text((d, i) => i % 2 ? 'from...' : 'to...')
+        .text(d => d.type == 'o' ? 'where people go' : 'where people come from')
     odCheckpoint.insert('rect', '.checkpoint')
         .attr('y', -12)
         .attr('width', function() { const distance = this.parentNode.querySelector('.checkpoint').getBBox(); return distance.width + 7 })
@@ -313,11 +331,11 @@ function updateTransfer(data) {
 //update filters
 function updateFiltersDes() {
     // const modeTypefilter = getCheckedAttr('modeType','innerHTML')
-    const routefilter = getCheckedAttr('routefilter', 'innerHTML')
-    const datePeriodfilter = getCheckedAttr('datePeriod', 'innerHTML')
-    const timePeriodfilter = getCheckedAttr('timePeriod', 'innerHTML')
-    const fareUserTypefilter = getCheckedAttr('fareUserType', 'innerHTML')
-    const fareMethodfilter = getCheckedAttr('fareMethod', 'innerHTML')
+    const routefilter = getCheckedAttr('filterBox', 'routefilter', 'innerHTML')
+    const datePeriodfilter = getCheckedAttr('filterBox', 'datePeriod', 'innerHTML')
+    const timePeriodfilter = getCheckedAttr('filterBox', 'timePeriod', 'innerHTML')
+    const fareUserTypefilter = getCheckedAttr('filterBox', 'fareUserType', 'innerHTML')
+    const fareMethodfilter = getCheckedAttr('filterBox', 'fareMethod', 'innerHTML')
     //construct the timeframe format to 'weekday-time,saturday,sunday'
     const timeFramefilter = timePeriodfilter == '' ? '' : timePeriodfilter.map(time => `${datePeriodfilter[0]} ${time}`).concat(datePeriodfilter.slice(1))
     //update filter description on the preview panel
@@ -329,11 +347,11 @@ function updateFiltersDes() {
 
 function saveFilters() {
     // const modeTypefilter = getCheckedAttr('modeType','value')
-    const routefilter = getCheckedAttr('routefilter', 'value')
-    const datePeriodfilter = getCheckedAttr('datePeriod', 'value')
-    const timePeriodfilter = getCheckedAttr('timePeriod', 'value')
-    const fareUserTypefilter = getCheckedAttr('fareUserType', 'value')
-    const fareMethodfilter = getCheckedAttr('fareMethod', 'value')
+    const routefilter = getCheckedAttr('filterBox', 'routefilter', 'value')
+    const datePeriodfilter = getCheckedAttr('filterBox', 'datePeriod', 'value')
+    const timePeriodfilter = getCheckedAttr('filterBox', 'timePeriod', 'value')
+    const fareUserTypefilter = getCheckedAttr('filterBox', 'fareUserType', 'value')
+    const fareMethodfilter = getCheckedAttr('filterBox', 'fareMethod', 'value')
     display.filter = { 'routefilter': routefilter, 'datePeriod': datePeriodfilter, 'timePeriod': timePeriodfilter, 'fareUserType': fareUserTypefilter, 'fareMethod': fareMethodfilter }
 
 }
@@ -344,7 +362,6 @@ function updateFilters() {
     )
     Object.values(display.filter).forEach(filter => {
         if (filter.length > 0) {
-            console.log(filter)
             filter.forEach(d => document.querySelector('#filterBox').querySelector(`input[value="${d}"]`).checked = true)
         }
     })
@@ -352,10 +369,10 @@ function updateFilters() {
     updateFiltersDes()
 }
 //get the checked value from filter checkbox
-function getCheckedAttr(inputName, attrName) {
-    const checked = document.querySelector('#filterBox').querySelectorAll(`input[name="${inputName}"]:checked`)
+function getCheckedAttr(container, inputName, attrName) {
+    const checked = document.querySelector(`#${container}`).querySelectorAll(`input[name="${inputName}"]:checked`)
     const checkedValue = checked ? Array.from(checked).map(d => {
-        let t = attrName == 'innerHTML' ? d.nextSibling : d;
+        let t = attrName == 'innerHTML' ? d.nextElementSibling : d;
         return t[attrName]
     }) : '';
     return checkedValue
@@ -364,7 +381,7 @@ function getCheckedAttr(inputName, attrName) {
 
 //update selection box
 function updateSelectionBox() {
-    let stopsdata = allData.stop.filter(d => display.selectedStops.includes(d.stop_id))
+    let stopsdata = allData.stop.filter(d => display.selectedStops.includes(d.stop_id)).sort((a, b) => a.stop_name.localeCompare(b.stop_name));
     let stops = `<p class="selectionTitle">${display.selectedStops.length} stop(s)<p><ul class="list-inline">` + stopsdata.map(d => `<li class="checkbox"><input type="checkbox" name="stop" value="${d.stop_id}" id="checkstop${d.stop_id}" checked><label for="checkstop${d.stop_id}">${d.stop_name}</label></li>`).join(' ') + '</ul>'
     document.querySelector('#mySelection').querySelector('.modal-body').innerHTML = stops
 }
@@ -379,7 +396,7 @@ function clearSelectionBox() {
 
 //synic selection box update to selection
 function synicSelection() {
-    let selectedStops = getCheckedAttr('stop', 'value')
+    let selectedStops = getCheckedAttr('mySelection', 'stop', 'value')
     let touchingRouteIdList = getRelationships(getIdlist(getChildrenStop(selectedStops), 'stop'), 'stop_route')[0]
 
     display.selectedStops = selectedStops

@@ -7,6 +7,7 @@ var stopsUrl = './data/stops.txt',
     shapename = './data/shape-id_route-variant_lookup_fall16.csv',
     nonODXrouteUrl = './data/gtfs_route_ids_not_in_odx.csv',
     routeSummaryUrl = './data/route_summary_data.csv';
+    clusterUrl = './data/clusters.geojson';
 
 d3.queue()
     .defer(d3.csv, shapename, parseshapeName)
@@ -17,13 +18,16 @@ d3.queue()
     .defer(d3.csv, shapestoprouteUrl, parse)
     .defer(d3.csv, nonODXrouteUrl, parseNonODXroute)
     .defer(d3.csv, routeSummaryUrl, parseRouteSummary)
+    .defer(d3.json, clusterUrl)
     .await(dataloaded);
 
 var allShapesData, allShapes, shapeStopRoute, variantsName, stopAndRoute, subwayLines, nonRouteList, routeSummary;
 var allData = {},
     allNest = {};
 
-function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes, summary) {
+function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes, summary,clusters) {
+  console.log(clusters)
+  allData.clusters = clusters;
     //nest shape data by shape id
     allShapes = d3.nest()
         .key(d => d.shape_id)
@@ -62,6 +66,7 @@ function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute,
     drawStops()
     drawRoutes()
     showSubway()
+
 
 }
 
