@@ -35,7 +35,7 @@ function displayMatches() {
         const itemName = item.name.replace(regex, `<span class="hl">${searchValue}</span>`);
         const children = item.type == 'stop' ? allData.stop.filter(d => d.parent_station == item.id).map(d => d.stop_name).join(', ') : '';
         return `
-      <li data-id="${item.type + item.id}"" data-type="${item.type}">
+      <li data-id="${item.type + item.id}" data-type="${item.type}">
         <p><span class="name">${itemName}</span>
         <span class="type">${item.type}</span></p>
         <p><small>${children}</small></p>
@@ -74,7 +74,7 @@ function listenMatches() {
 function fireMatches(e, type, key) {
     let itemId = e.getAttribute('data-id')
     let datatype = e.getAttribute('data-type')
-    let itemPath = datatype == 'stop' ? stopMarkers.find(stop => ('stop' + stop.id) == slugStr(itemId)) : routeMarkers.find(route => ('route' + route.id) == slugStr(itemId))
+    let itemPath = datatype == 'stop' ? stopMarkers.find(stop => ('stop' + stop.id) == itemId) : routeMarkers.find(route => ('route' + route.id) == itemId)
     if (type == 'enter') {
         map.fitBounds(itemPath.marker.getBounds());
         itemPath.marker.fire('mouseover')

@@ -256,7 +256,7 @@ function updateOdx(data) {
 
                 //draw markers
                 let radius = RadiusForODX(d.list.find(e => e.stop_id == stop.stop_id).count)
-                let odxMarker = L.circle([stop.stop_lat, stop.stop_lon], { radius: stopRadius.default, weight: radius, className: 'odxStop odx' + slugStr(stop.stop_id), color: fillColor })
+                let odxMarker = L.circle([stop.stop_lat, stop.stop_lon], { radius: stopRadius.default, weight: radius, className: 'odxStop odx' + stop.stop_id, color: fillColor })
                     .on('mouseover', function() {
                         //highlight the stop
                         setStopsDisplay('hover', [stop.stop_id])

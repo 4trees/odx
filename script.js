@@ -62,16 +62,6 @@ function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-function slugStr(str) {
-    str = str.replace(/\s+/g, '-').replace('/', '-');
-    return str
-}
-
-// function numToPer(number) {
-//     //percentage is a string, here convert number to percentage
-//     let percentage = `${number}%`
-//     return percentage
-// }
 
 function getMatch(a, b) {
     var matches = [];
@@ -245,7 +235,7 @@ function setStopsDisplay(action, stopIdList) {
 
     let countstops = stopIdList.length;
     for (i = 0; i < countstops; i++) {
-        let stopItem = document.querySelector('.stop' + slugStr(getParentStopId(stopIdList[i])));
+        let stopItem = document.querySelector('.stop' + getParentStopId(stopIdList[i]));
         switch (action) {
             case 'hover':
                 stopItem.classList.add('hlStop');
@@ -530,7 +520,7 @@ function getChildrenStop(stopIdList) {
 }
 //get parent stops for stops (para is a stop id)
 function getParentStopId(stopId) {
-    stop = allData.stop.find(d => d.stop_id == stopId)
+    let stop = allData.stop.find(d => d.stop_id == stopId)
     let parentStopId = stop.parent_station ? stop.parent_station : stop.stop_id;
     return parentStopId
 }

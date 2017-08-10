@@ -177,7 +177,7 @@ function drawStops() {
     for (i = 0; i < countStops; i++) {
         let stop = stops[i]
 
-        let stopMarker = L.circle([stop.stop_lat, stop.stop_lon], { radius: stopRadius.default, className: 'stop stop' + slugStr(stop.stop_id), pane: 'stops' })
+        let stopMarker = L.circle([stop.stop_lat, stop.stop_lon], { radius: stopRadius.default, className: 'stop stop' + stop.stop_id, pane: 'stops' })
             .on('mouseover', function() {
                 setTimeout(function() {
                     //get info of the stop
@@ -199,7 +199,7 @@ function drawStops() {
                 populateSelectionByStop(e.originalEvent.shiftKey, stop.stop_id)
             })
             .addTo(map);
-        stopMarkers.push({ id: slugStr(stop.stop_id), marker: stopMarker })
+        stopMarkers.push({ id: stop.stop_id, marker: stopMarker })
     }
 
 }
@@ -291,7 +291,7 @@ function drawRoutes() {
                 }
             })
             .addTo(map);
-        routeMarkers.push({ id: slugStr(route.key), marker: routeMarker })
+        routeMarkers.push({ id: route.key, marker: routeMarker })
     }
 }
 

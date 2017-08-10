@@ -99,19 +99,28 @@ function unifyPercentage(data) {
     }
     return newData.toFixed(2)
 }
+//replace space to _, replace / to #
+function slugStr(str) {
+    str = str.replace(/\s/g, '_').replace(/\//g, 'ODX');
+    return str
+}
+function unslugStr(str) {
+    str = str.replace(/_/g, ' ').replace(/ODX/g, '/');
+    return str
+}
 
 function parse(d) {
     return {
-        stop_id: d.stop_id,
+        stop_id: slugStr(d.stop_id),
         shape_id: d.shape_id,
-        route_id: d.route_id
+        route_id: slugStr(d.route_id)
     }
 
 }
 
 function parseStop(d) {
     return {
-        stop_id: d.stop_id,
+        stop_id: slugStr(d.stop_id),
         stop_name: d.stop_name,
         stop_lat: d.stop_lat,
         stop_lon: d.stop_lon,
@@ -123,7 +132,7 @@ function parseStop(d) {
 
 function parseTrip(d) {
     return {
-        route_id: d.route_id,
+        route_id: slugStr(d.route_id),
         service_id: d.service_id,
         trip_headsign: d.trip_headsign,
         direction_id: +d.direction_id,
@@ -134,7 +143,7 @@ function parseTrip(d) {
 
 function parseRoute(d) {
     return {
-        route_id: d.route_id,
+        route_id: slugStr(d.route_id),
         agency_id: d.agency_id,
         route_short_name: d.route_short_name,
         route_long_name: d.route_long_name,
@@ -158,21 +167,21 @@ function parseShape(d) {
 
 function parseshapeName(d) {
     return {
-        shape_id: d.shape_id2,
-        shape_name: d.route_id2 + d.variant,
+        shape_id: slugStr(d.shape_id2),
+        shape_name: slugStr(d.route_id2) + d.variant,
     }
 }
 
 function parseNonODXroute(d) {
     return {
-        route_id: d.gtfs_route_id,
+        route_id: slugStr(d.gtfs_route_id),
     }
 }
 
 function parseRouteSummary(d) {
     if (d.data_node == 'No ODX or Service Delivery Policy Data Available') return
     return {
-        route_id: d.gtfs_route_id,
+        route_id: slugStr(d.gtfs_route_id),
         data_node: d.data_node,
         route_category: d.route_category,
         cost_effectiveness_rank: d.cost_effectiveness_rank,
