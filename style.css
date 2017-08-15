@@ -170,13 +170,6 @@ nav {
 
 
 
-
-
-
-
-
-
-
 /* MAP */
 
 #mapContainer {
@@ -333,7 +326,7 @@ nav {
 
 
 
-/* Leaflet CUSTOM CONTROL -- BACK TO BOSTON BUTTON */
+/* Leaflet CUSTOM CONTROL */
 
 .leaflet-control-custom {
     font-size: 16px;

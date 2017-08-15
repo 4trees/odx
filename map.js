@@ -114,11 +114,11 @@ var TAZslayerMap = L.Control.extend({
         container.innerHTML = `
  
         <a title = "Select by TAZ" role="button">
-        <input type="checkbox" name="TAZs" id="showTAZ" onchange="toggleTAZs(this)"><label for="showTAZ"><img src="../images/taz.svg"></label>
+        <input type="checkbox" name="TAZs" id="showTAZ" onchange="toggleTAZs(this)"><label for="showTAZ"><img src="images/taz.svg"></label>
         </a>
 
         <a title = "Select by cluster" role="button">
-        <input type="checkbox" name="TAZs" id="showCluster" onchange="toggleTAZs(this)"><label for="showCluster"><img src="../images/cluster.svg"></label>
+        <input type="checkbox" name="TAZs" id="showCluster" onchange="toggleTAZs(this)"><label for="showCluster"><img src="images/cluster.svg"></label>
         </a>
         `
         return container;
