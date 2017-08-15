@@ -47,7 +47,7 @@ function togglefilteredRoutes() {
     showSubway()
 }
 
-function toggleVariantsBox(e) {
+function toggleBox(e) {
     // console.log(document.querySelector(e))
     e.parentElement.classList.toggle('open');
 }
@@ -426,9 +426,9 @@ function routePopup(location, route, stopLength) {
 }
 //update popup for the draw selection or cluster selection
 //drawSelection is an array of stop ids
-//geo is false/true 
-function selectionPopup(layer, drawSelection,geo) {
-    let location = layer.getBounds().getCenter()
+//mouse is mouse latlng (optional)
+function selectionPopup(layer, drawSelection,mouse) {
+	let location = mouse ? [mouse.lat, mouse.lng] : layer.getBounds().getCenter()
     let isHiddenNew, isHiddenLimit, isHiddenAdd, hint;
     let overlapStops = drawSelection.filter(stop => display.selectedStops.includes(stop))
     let overlapStopsCount = overlapStops.length
@@ -463,17 +463,17 @@ function selectionPopup(layer, drawSelection,geo) {
 
     document.querySelector('#replaceDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(drawSelection, 'replace');
-        if(!geo){layer.remove()};
+        if(!mouse){layer.remove()};
         map.closePopup();
     })
     document.querySelector('#addDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(drawSelection, 'add');
-        if(!geo){layer.remove()};
+        if(!mouse){layer.remove()};
         map.closePopup();
     })
     document.querySelector('#limitDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(overlapStops, 'replace');
-        if(!geo){layer.remove()};
+        if(!mouse){layer.remove()};
         map.closePopup();
     })
 
@@ -638,6 +638,8 @@ function updateSelection() {
 }
 
 function updateMap() {
+	//reset the filtered variants box
+	updateFilteredVariants()
     //highlight the selection stops and filtered routes
     d3.selectAll('.selectStop').classed('selectStop', false)
     d3.selectAll('.selectRoute').classed('selectRoute', false).style('stroke', '#666');

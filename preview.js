@@ -1,14 +1,16 @@
 // testing data
 const odx = [
-    { type: 'o', count: 31300, list: [{ stop_id: '70002', count: 13400 }, { stop_id: '70007', count: 10300 }, { stop_id: '8824', count: 6500 }, { stop_id: '88335', count: 1100 }] },
-    { type: 'x', count: 7800, list: [{ stop_id: '3683', count: 4300 }, { stop_id: '70007', count: 2200 }, { stop_id: '23835', count: 1300 }] },
-    { type: 'd', count: 11230, list: [{ stop_id: '8820', count: 5620 }, { stop_id: '87619', count: 3610 }, { stop_id: '70124', count: 2100 }, { stop_id: '36961', count: 100 }] }
+    { type: 'o', count: 31300 },
+    { type: 'x', count: 7800 },
+    { type: 'd', count: 11230 }
 ]
+const od = { "destination_inference_rate": 50, "data": [{ "id": "70002", "journey_count": 31300 }, { "id": "70007", "journey_count": 30300 }, { "id": "8824", "journey_count": 3100 }] }
 const transfer = [{ from: '9', to: '1', count: 32000 }, { from: '43', to: '44', count: 7000 }, { from: '95', to: '1', count: 6300 }, { from: '39', to: '110', count: 4500 }, { from: '55', to: '66', count: 3000 }, { from: 'Green-E', to: 'Red', count: 2300 }]
 const routesummary = { route_id: '9', data_note: 'No Service Delivery Policy Metrics Available', route_category: 'Key bus', cost_effectiveness_rank: 32, crowding_metric: .83, reliability_metric: .72, span_of_service_metric: 'Y', frequency_metric: 'N', perc_low_income_riders: 0, perc_minority_riders: 1, perc_vulnerable_fare_riders: .1, perc_1_ride_journeys: .68, perc_2_ride_journeys: .2, perc_3_ride_journeys: .1, perc_4more_ride_journeys: .02, average_daily_boardings: 32324 }
 
 // global setting for preview
 var w = d3.select('#previewContainer').node().clientWidth - 30;
+var isShowODType
 
 var fullWidthScale = d3.scaleLinear()
     .range([0, w])
@@ -41,6 +43,8 @@ var odxPairs = d3.scaleOrdinal()
 
 // update the content
 function updatepreview() {
+    // remove the od analysis mode whenever change the selection
+    hideOD()
     if (display == '' || display.selectedStops.length == 0) {
         document.querySelector('#preview').classList.add('hidden');
         document.querySelector('#emptyHint').innerHTML = noSelection;
@@ -215,8 +219,6 @@ function clearODXMarker() {
 }
 
 function updateOdx(data) {
-    //remove the clusters
-    clusterLayer.clearLayers();
     //update the barchart
     fullWidthLabelScale.domain([0, d3.max(data, d => d.count)])
     let updateodx = d3.select('#odx').select('svg')
@@ -241,50 +243,10 @@ function updateOdx(data) {
         .attr('cursor', 'pointer')
         .on('click', function(d) {
             if (d.type == 'x') { return }
-            //remove previews markers
-            d3.selectAll('.odxStop').remove()
-            d3.selectAll('.hlStop').classed('hlStop', false)
-            //get new markers data
-            const stopList = d.list.map(e => e.stop_id)
-            const stops = allData.stop.filter(e => stopList.includes(e.stop_id))
-            RadiusForODX.domain([0, d3.max(d.list, e => e.count)])
-            const stopCount = stops.length
-            const fillColor = colorForODX(odxPairs(d.type))
-            let markers = []
-            for (i = 0; i < stopCount; i++) {
-                let stop = stops[i]
+            //show cluster by defuat
+            showOD()
+            isShowODType = d.type
 
-                //draw markers
-                let radius = RadiusForODX(d.list.find(e => e.stop_id == stop.stop_id).count)
-                let odxMarker = L.circle([stop.stop_lat, stop.stop_lon], { radius: stopRadius.default, weight: radius, className: 'odxStop odx' + stop.stop_id, color: fillColor })
-                    .on('mouseover', function() {
-                        //highlight the stop
-                        setStopsDisplay('hover', [stop.stop_id])
-
-                    })
-                    .on('mouseout', function() {
-                        setStopsDisplay('default', [stop.stop_id])
-                    })
-                markers.push(odxMarker)
-            }
-            //show the stops on the map and center the view of them
-            const group = new L.featureGroup(markers).addTo(map);;
-            map.fitBounds(group.getBounds());
-            //show clusters on the map
-            // var clusterLayer = new L.geoJSON(allData.clusters, {
-            //     style: function (feature) { return { fillColor: ClusterColor(Math.random() * 100), fillOpacity: .5, color: "#333", opacity: .6, weight: 1 } },
-            //     onEachFeature: function (feature,layer){layer.on('mouseover', e => console.log( getInsideMarkers(layer)))}
-            // })
-            // clusterLayer.options.pane = 'cluster';
-            // clusterLayer.addTo(map);
-            clusterLayer.addData(allData.clusters);
-            // clusterLayer.setStyle(feature => {return {fillColor:ClusterColor(feature.properties.fid),fillOpacity:.8,color:"#333",opacity:.6,weight:1}})
-            clusterLayer.setStyle(feature => {return { fillColor: ClusterColor(Math.random() * 100), fillOpacity: .5, color: "#333", opacity: .6, weight: 1 }})
-            // clusterLayer.options.onEachFeature = function (feature, layer) {console.log(feature,layer)}
-            // clusterLayer.on('mouseover', function(d) { d => { console.log(d) } })
-            clusterLayer.eachLayer(function(layer) {
-                layer.on('mouseover', e => {let clusterSelection = getInsideMarkers(layer,true); selectionPopup(layer, clusterSelection,true)})
-            });
         })
     odCheckpoint.append('text')
         .attr('class', 'checkpoint')
@@ -422,4 +384,90 @@ function showVariants(e) {
         //hide and set them to default
         setShapesDisplay('default', [variants])
     }
+}
+
+function showOD() {
+    //remove previous view
+    hideOD()
+    //clear the TAZs mode on the map
+    clusterLayer.clearLayers()
+    tazLayer.clearLayers()
+
+    const checkedOne = document.querySelector('input[name="odAnalysis"]:checked').id;
+    //show legend box
+    document.querySelector('.leaflet-legend-box').classList.remove('hidden')
+    switch (checkedOne) {
+        case 'showByStop':
+            showByStop()
+            break
+        case 'showByCluster':
+            showByCluster()
+            break
+        case 'showByTAZ':
+            showByTAZ()
+            break
+    }
+}
+
+function hideOD() {
+    document.querySelector('.leaflet-legend-box').classList.add('hidden')
+    //remove previews markers
+    d3.selectAll('.odxStop').remove()
+    d3.selectAll('.hlStop').classed('hlStop', false)
+    //remove legend map visualization
+    odTazLayer.clearLayers()
+    odClusterLayer.clearLayers()
+}
+
+function showByStop() {
+
+    //get new markers data
+    const odData = od
+    const stopList = odData.data.map(d => slugStr(d.id))
+    const stops = allData.stop.filter(d => stopList.includes(d.stop_id))
+
+    RadiusForODX.domain([0, d3.max(odData.data, d => d.journey_count)])
+    const stopCount = stops.length
+    const fillColor = colorForODX(odxPairs(isShowODType))
+    let markers = []
+    for (i = 0; i < stopCount; i++) {
+        let stop = stops[i]
+
+        //draw markers
+        let radius = RadiusForODX(odData.data.find(d => d.id == stop.stop_id).journey_count)
+        let odxMarker = L.circle([stop.stop_lat, stop.stop_lon], { radius: stopRadius.default, weight: radius, className: 'odxStop odx' + stop.stop_id, color: fillColor })
+            .on('mouseover', function() {
+                //highlight the stop
+                setStopsDisplay('hover', [stop.stop_id])
+
+            })
+            .on('mouseout', function() {
+                setStopsDisplay('default', [stop.stop_id])
+            })
+        markers.push(odxMarker)
+    }
+    //show the stops on the map and center the view of them
+    const group = new L.featureGroup(markers).addTo(map);
+    map.fitBounds(group.getBounds());
+
+}
+
+function showByCluster() {
+    //request data
+    const odData = od
+    if (odClusterLayer.getLayers().length == 0) {
+        // clusterLayer.setStyle(feature => {return {fillColor:ClusterColor(feature.properties.fid),fillOpacity:.8,color:"#333",opacity:.6,weight:1}})
+        odClusterLayer.addData(allData.clusters);
+    }
+    odClusterLayer.setStyle(feature => { return { fillColor: ClusterColor(Math.random() * 100), fillOpacity: .5, color: "#333", opacity: .6, weight: 1 } })
+}
+
+function showByTAZ() {
+    //request data
+    const odData = od
+    if (odTazLayer.getLayers().length == 0) {
+        // clusterLayer.setStyle(feature => {return {fillColor:ClusterColor(feature.properties.fid),fillOpacity:.8,color:"#333",opacity:.6,weight:1}})
+        odTazLayer.addData(allData.TAZ);
+    }
+    odTazLayer.setStyle(feature => { return { fillColor: ClusterColor(Math.random() * 100), fillOpacity: .5, color: "#333", opacity: .6, weight: 1 } })
 }

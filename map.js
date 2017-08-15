@@ -10,25 +10,7 @@ L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x
 // dark_nolabels,
 // dark_only_labels
 
-//reset map view
-var resetMap = L.Control.extend({
-    options: {
-        position: 'bottomright'
-    },
-    onAdd: function(map) {
-        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-        container.innerHTML = '<a title = "Back to Boston" role="button"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></a>'
-        container.onclick = function() {
-            map.setView(new L.LatLng(42.351486, -71.066829), 15);
 
-        }
-        return container;
-    },
-});
-map.addControl(new resetMap());
-
-//set the zoomcontrol's position
-map.zoomControl.setPosition('bottomright')
 
 //search on the map
 var searchMap = L.Control.extend({
@@ -61,44 +43,52 @@ var VlayerMap = L.Control.extend({
     onAdd: function(map) {
         var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
         container.innerHTML = `
-        <a title = "Show all variants" role="button">
-        <input type="checkbox" name="showallVariants" id="showallVariants"><label for="showallVariants"><i class="fa fa-road" aria-hidden="true"></i></label>
-        </a>`
-        container.onclick = function() {
-            toggleVariants()
-        }
+        <div class="dropdown">
+        <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" onclick="toggleBox(this)" ><i class="fa fa-eye" aria-hidden="true"></i></a>
+        <ul class="dropdown-menu pull-right box">
+            <li>
+            <a title = "Show all variants" role="button" class="custom-botton">
+            <input type="checkbox" name="showallVariants" id="showallVariants" onclick="toggleVariants()"><label for="showallVariants">All Variants</label>
+            </a>
+            </li>
+            <li>
+            <a title = "Show/Hidden filtered routes" role="button" class="custom-botton" onclick="togglefilteredRoutes()">
+            <input type="checkbox" name="filteredRoutes" id="filteredRoutes" checked><label for="filteredRoutes">Routes <i class="fa fa-filter light" aria-hidden="true"></i></label>
+            </a>
+            </li>
+            <li class="dropup">
+            <a title = "Show/Hidden filtered variants" class="dropdown-toggle custom-botton" role="button" onclick="toggleBox(this)" aria-haspopup="true" aria-expanded="false"><i class="fa fa-list-ul" aria-hidden="true"></i> Variants</a>
+            <ul class="dropdown-menu scroll scrollbar scrollNormal pull-right" id="variantsList">Select a route firsts</ul>
+            </li>
+        </ul>
+        </div>`
         return container;
     },
 });
 map.addControl(new VlayerMap());
-//Conditioned visual map layer
-var conditionedlayerMap = L.Control.extend({
-    options: {
-        position: 'bottomleft'
-    },
-    onAdd: function(map) {
-        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-        container.innerHTML = `
-        <div class="dropup">
-        <a title = "Show/Hidden filtered variants" class="dropdown-toggle" role="button" onclick="toggleVariantsBox(this)" aria-haspopup="true" aria-expanded="false">V</a>
-        <ul class="dropdown-menu scroll scrollbar scrollNormal" id="variantsList">Select a route firsts</ul>
-        </div>
-        <div>
-        <a title = "Show/Hidden filtered routes" role="button" onclick="togglefilteredRoutes()">
-        <input type="checkbox" name="filteredRoutes" id="filteredRoutes" checked><label for="filteredRoutes">R</label>
-        </a>
-        </div>`
-        return container;
-    },
-
-});
-map.addControl(new conditionedlayerMap());
+//stop scroll map when scroll the list of variants on the map
 var VariantDropdown = L.DomUtil.get('variantsList');
 L.DomEvent.on(VariantDropdown, 'mousewheel', L.DomEvent.stopPropagation);
 
-//add clusters
-var clusterLayer = L.geoJSON().addTo(map);
-clusterLayer.options.pane = 'cluster';
+//set the zoomcontrol's position
+map.zoomControl.setPosition('bottomright')
+//reset map view
+var resetMap = L.Control.extend({
+    options: {
+        position: 'bottomright'
+    },
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+        container.innerHTML = '<a title = "Back to Boston" role="button"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></a>'
+        container.onclick = function() {
+            map.setView(new L.LatLng(42.351486, -71.066829), 15);
+
+        }
+        return container;
+    },
+});
+map.addControl(new resetMap());
+
 
 //set a drawcontrol
 var drawnItems = new L.FeatureGroup();
@@ -113,6 +103,83 @@ var drawControl = new L.Control.Draw({
     position: 'topright'
 });
 map.addControl(drawControl)
+
+//TAZs visual map layer
+var TAZslayerMap = L.Control.extend({
+    options: {
+        position: 'topright'
+    },
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom imageButton');
+        container.innerHTML = `
+ 
+        <a title = "Select by TAZ" role="button">
+        <input type="checkbox" name="TAZs" id="showTAZ" onchange="toggleTAZs(this)"><label for="showTAZ"><img src="../images/taz.svg"></label>
+        </a>
+
+        <a title = "Select by cluster" role="button">
+        <input type="checkbox" name="TAZs" id="showCluster" onchange="toggleTAZs(this)"><label for="showCluster"><img src="../images/cluster.svg"></label>
+        </a>
+        `
+        return container;
+    },
+
+});
+map.addControl(new TAZslayerMap());
+
+//add TAZs for selectable-action from map
+var clusterLayer = L.geoJSON();
+clusterLayer.options.pane = 'TAZs';
+clusterLayer.addTo(map)
+var tazLayer = L.geoJSON();
+tazLayer.options.pane = 'TAZs';
+tazLayer.addTo(map)
+
+//add TAZs for view from preview panel
+var odClusterLayer = L.geoJSON();
+odClusterLayer.options.pane = 'odTAZs';
+odClusterLayer.addTo(map)
+var odTazLayer = L.geoJSON();
+odTazLayer.options.pane = 'odTAZs';
+odTazLayer.addTo(map)
+
+
+
+//add legend on the map, default is hidden
+var legend = L.Control.extend({
+    options: {
+        position: 'bottomleft'
+    },
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-legend-box hidden');
+        container.innerHTML = `
+        <div>
+            <h5>Where do people go?</h5>
+            <p><small>Destination reference rate: 0.3</small></p>
+            <ul class="radio-group">
+            <li class="radio" title = "Cluster perspective">
+                <input type="radio" name="odAnalysis" id="showByCluster" onchange="showOD()" checked>
+                <label for="showByCluster">Cluster</label>
+            </li>
+            <li class="radio" title = "TAZ perspective">
+                <input type="radio" name="odAnalysis" id="showByTAZ" onchange="showOD()">
+                <label for="showByTAZ">TAZ</label>
+            </li>
+            <li class="radio" title = "Stop perspective">
+                <input type="radio" name="odAnalysis" id="showByStop" onchange="showOD()">
+                <label for="showByStop">Stop</label>
+            </li>
+            </ul>
+            <svg></svg>
+        </div>
+        `
+        return container;
+    },
+
+});
+map.addControl(new legend());
+
+
 
 
 //create a popup
@@ -139,29 +206,40 @@ var drawPanes = map.createPane('draw');
 drawPanes.style.zIndex = 555;
 drawPanes.style.pointerEvents = 'none';
 //create panes for cluster 
-var clusterPanes = map.createPane('cluster');
-clusterPanes.style.zIndex = 390;
-clusterPanes.style.pointerEvents = 'none';
+var tazsPanes = map.createPane('TAZs');
+tazsPanes.style.zIndex = 390;
+tazsPanes.style.pointerEvents = 'none';
+//create panes for cluster 
+var odTazsPanes = map.createPane('odTAZs');
+odTazsPanes.style.zIndex = 380;
+odTazsPanes.style.pointerEvents = 'none';
 
 
 //TOOLTIP EDIT
 map.on('draw:created', function(e) {
-    
-    let layer = e.layer;console.log(layer)
+
+    let layer = e.layer;
     let drawSelection = getInsideMarkers(layer)
     if (drawSelection.length == 0) return
 
     drawnItems.addLayer(layer)
-    selectionPopup(layer, drawSelection,false)
-    layer.on('mouseover', function() { selectionPopup(layer, drawSelection,false) })
+    selectionPopup(layer, drawSelection, false)
+    layer.on('mouseover', function() { selectionPopup(layer, drawSelection, false) })
 });
 //add a cover layer when drawing to avoid other events fire
 map.on('draw:drawstart', function(e) {
     document.querySelector('.leaflet-popup-pane').classList.add('hidden')
+    if (L.DomUtil.get('.leaflet-TAZs-pane')) {
+        const clusters = L.DomUtil.get('.leaflet-TAZs-pane');
+        L.DomEvent.on(clusters, 'mouseover', L.DomEvent.stopPropagation);
+    }
 })
 map.on('draw:drawstop', function(e) {
     document.querySelector('.leaflet-popup-pane').classList.remove('hidden')
 })
+
+
+
 
 //GLOBAL SIZE
 var stopRadius = { default: 14, select: 28 }
@@ -299,14 +377,67 @@ function showSubway() {
     setRoutesDisplay('subway', subwayLines)
 }
 
+function drawTAZs(name) {
+    hideOD()
+    let layers, tazData, isCluster
+    switch (name) {
+        case 'TAZ':
+            layers = tazLayer
+            tazData = allData.TAZ
+            isCluster = false
+            break
+        case 'cluster':
+            layers = clusterLayer
+            tazData = allData.clusters
+            isCluster = true
+            break
+    }
 
+    layers.addData(tazData);
+    layers.eachLayer(function(layer) {
+        layer.on('mouseover', e => {
+            let clusterSelection = getInsideMarkers(layer, isCluster);
+            selectionPopup(layer, clusterSelection, e.latlng)
+            e.target.setStyle({ fillColor: '#F06EAA', fillOpacity: .2, color: "#F06EAA", opacity: .6, weight: 2 })
+        }).on('mouseout', e => {
+            e.target.setStyle({ fillColor: '#666', fillOpacity: .2, color: "#333", opacity: .6, weight: 1 })
+        })
+    });
+    layers.setStyle(feature => { return { fillColor: '#666', fillOpacity: .2, color: "#333", opacity: .6, weight: 1 } })
 
-function isMarkerInsidePolygon(marker, poly,geo) {
+}
+
+function toggleTAZs(e) {
+    const checkedTAZ = Array.from(document.querySelectorAll('input[name="TAZs"]:checked'))
+    const CountChecked = checkedTAZ.length
+    let newCheckedTAZ
+    if (CountChecked == 0) {
+        clusterLayer.clearLayers()
+        tazLayer.clearLayers()
+    } else {
+        newCheckedTAZ = CountChecked == 1 ? checkedTAZ[0].id : e.id;
+        switch (newCheckedTAZ) {
+            case 'showTAZ':
+                drawTAZs('TAZ')
+                document.querySelector('#showCluster').checked = false;
+                clusterLayer.clearLayers()
+                break
+            case 'showCluster':
+                drawTAZs('cluster')
+                document.querySelector('#showTAZ').checked = false;
+                tazLayer.clearLayers()
+                break
+        }
+    }
+}
+//isCluster is true/false, because cluster.geojson is a multipolygon, and MA.geojson is polygon.
+function isMarkerInsidePolygon(marker, poly, isCluster) {
     var inside = false;
     var x = marker.getLatLng().lat,
         y = marker.getLatLng().lng;
     for (var ii = 0; ii < poly.getLatLngs().length; ii++) {
-        var polyPoints = geo ? poly.getLatLngs()[ii][0] : poly.getLatLngs()[ii];
+        //cluster file is 'multipolygon', so need [0] to access to coordinates
+        var polyPoints = isCluster ? poly.getLatLngs()[0][ii] : poly.getLatLngs()[ii]
         for (var i = 0, j = polyPoints.length - 1; i < polyPoints.length; j = i++) {
             var xi = polyPoints[i].lat,
                 yi = polyPoints[i].lng;
@@ -320,12 +451,12 @@ function isMarkerInsidePolygon(marker, poly,geo) {
     return inside;
 };
 //geo is true/false
-function getInsideMarkers(layer,geo) {
+function getInsideMarkers(layer, isCluster) {
     let insideMarkers = []
     let countMarkers = stopMarkers.length
 
     for (i = 0; i < countMarkers; i++) {
-        let isInside = isMarkerInsidePolygon(stopMarkers[i].marker, layer,geo)
+        let isInside = isMarkerInsidePolygon(stopMarkers[i].marker, layer, isCluster)
         if (isInside) {
             // console.log('found!'),console.log(stopMarkers[i])
             let foundStopId = stopMarkers[i].marker.options.className.split(' ')[1].replace('stop', '')
