@@ -10,7 +10,8 @@ L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x
 // dark_nolabels,
 // dark_only_labels
 
-
+//Global variable for TURF - used to calculate markers inside polygons
+// var bbox = turf.bbox(features);
 
 //search on the map
 var searchMap = L.Control.extend({
@@ -47,18 +48,23 @@ var VlayerMap = L.Control.extend({
         <a class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" onclick="toggleBox(this)" ><i class="fa fa-eye" aria-hidden="true"></i></a>
         <ul class="dropdown-menu pull-right box">
             <li>
-            <a title = "Show all variants" role="button" class="custom-botton">
-            <input type="checkbox" name="showallVariants" id="showallVariants" onclick="toggleVariants()"><label for="showallVariants">All Variants</label>
+            <a title = "Show/Hide all variants" role="button" class="custom-botton">
+            <input type="checkbox" name="showallVariants" id="showallVariants" onchange="toggleVariants()"><label for="showallVariants">All Variants</label>
             </a>
             </li>
             <li>
-            <a title = "Show/Hidden filtered routes" role="button" class="custom-botton" onclick="togglefilteredRoutes()">
-            <input type="checkbox" name="filteredRoutes" id="filteredRoutes" checked><label for="filteredRoutes">Routes <i class="fa fa-filter light" aria-hidden="true"></i></label>
+            <a title = "Show/Hide all routes" role="button" class="custom-botton" >
+            <input type="checkbox" name="showallRoutes" id="showallRoutes" checked onchange="toggleRoutes()"><label for="showallRoutes">All Routes</label>
+            </a>
+            </li>
+            <li>
+            <a title = "Show/Hide filtered routes" role="button" class="custom-botton" >
+            <input type="checkbox" name="filteredRoutes" id="filteredRoutes" checked onchange="togglefilteredRoutes()"><label for="filteredRoutes">Routes <i class="fa fa-filter light" aria-hidden="true"></i></label>
             </a>
             </li>
             <li class="dropup">
-            <a title = "Show/Hidden filtered variants" class="dropdown-toggle custom-botton" role="button" onclick="toggleBox(this)" aria-haspopup="true" aria-expanded="false"><i class="fa fa-list-ul" aria-hidden="true"></i> Variants</a>
-            <ul class="dropdown-menu scroll scrollbar scrollNormal pull-right" id="variantsList">Select a route firsts</ul>
+            <a title = "Show/Hide filtered variants" class="dropdown-toggle custom-botton" role="button" onclick="toggleBox(this)" aria-haspopup="true" aria-expanded="false"><i class="fa fa-list-ul" aria-hidden="true"></i> Variants</a>
+            <ul class="dropdown-menu scroll scrollbar scrollNormal pull-right" id="variantsList">Select a route first</ul>
             </li>
         </ul>
         </div>`
@@ -219,7 +225,7 @@ odTazsPanes.style.pointerEvents = 'none';
 map.on('draw:created', function(e) {
 
     let layer = e.layer;
-    let drawSelection = getInsideMarkers(layer)
+    let drawSelection = getInsideMarkers(layer, false)
     if (drawSelection.length == 0) return
 
     drawnItems.addLayer(layer)
@@ -430,7 +436,7 @@ function toggleTAZs(e) {
         }
     }
 }
-//isCluster is true/false, because cluster.geojson is a multipolygon, and MA.geojson is polygon.
+// isCluster is true/false, because cluster.geojson is a multipolygon, and MA.geojson is polygon.
 function isMarkerInsidePolygon(marker, poly, isCluster) {
     var inside = false;
     var x = marker.getLatLng().lat,
@@ -450,7 +456,29 @@ function isMarkerInsidePolygon(marker, poly, isCluster) {
     }
     return inside;
 };
-//geo is true/false
+// function isMarkerInsidePolygon(marker, poly, isCluster) {
+
+//     // console.log(poly.getLatLngs().map(d => console.log(d)).toString())
+//     var polys = poly.getLatLngs().map(d => d.map(n => Object.values(n)))
+//     if (isCluster) {
+//         polys[0][0].push(polys[0][0][0])
+//         polys = polys[0]
+//     } else {
+//         polys[0].push(polys[0][0])
+//     }
+
+//     console.log(polys)
+//     // console.log(polys.push(polys[0]))
+//     var x = marker.getLatLng().lat,
+//         y = marker.getLatLng().lng;
+
+//     var point = turf.point(Object.values(marker.getLatLng())),
+//         polygon = turf.polygon(polys);
+
+//     return turf.inside(point, polygon)
+// }
+
+//isCluster is true/false
 function getInsideMarkers(layer, isCluster) {
     let insideMarkers = []
     let countMarkers = stopMarkers.length

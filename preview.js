@@ -134,30 +134,45 @@ function updateRouteDetail() {
     if (dataFornowRoute) {
 
         routeDetail.querySelector('.routeCategory').innerHTML = dataFornowRoute.route_category;
+        let crowding, ifCrowdingPass = ''
+        if (dataFornowRoute.crowding_metric) {
+            crowding = dataFornowRoute.crowding_metric + '%'
+            ifCrowdingPass = metrics.find(d => d.metric == 'Crowding').rate <= dataFornowRoute.crowding_metric ? 'pass' : 'fail'
+        } else {
+            crowding = '-'
+        }
+        let reliability, ifReliabilityPass = ''
+        if (dataFornowRoute.reliability_metric) {
+            reliability = dataFornowRoute.reliability_metric + '%'
+            ifReliabilityPass = metrics.find(d => d.metric == 'Reliability' && d.route_type == dataFornowRoute.route_category).rate <= dataFornowRoute.reliability_metric ? 'pass' : 'fail'
+        } else {
+            reliability = '-'
+        }
+
         routeDetail.querySelector('#displayRouteDetail').innerHTML = `
         <div style="width:${w / 2}px">
-            <p class="indicator">Cost effectiveness<br>rank</p><p class="h6">${dataFornowRoute.cost_effectiveness_rank?dataFornowRoute.cost_effectiveness_rank:'-'}<p>
+            <p class="indicator help" title="Rank of 1 provides the most benefit per net operating dollar, rank of 166 the least.">Cost effectiveness<br>rank</p><p class="h6">${dataFornowRoute.cost_effectiveness_rank?dataFornowRoute.cost_effectiveness_rank:'-'}<p>
         </div>
         <div style="width:${w / 2}px">
             <p class="indicator">Average daily<br>boardings</p><p class="h6">${dataFornowRoute.average_daily_boardings?numberWithCommas(dataFornowRoute.average_daily_boardings):'-'}<p>
         </div>
         <div style="width:${w / 4}px">
-            <p class="indicator">Crowding</p><p class="h6">${dataFornowRoute.crowding_metric?(dataFornowRoute.crowding_metric+'%'):'-'}<p>
+            <p class="indicator help" title="Percent of passenger time on uncrowded buses.">Crowding</p><p class="h6 ${ifCrowdingPass}">${crowding}<p>
         </div>
         <div style="width:${w / 4}px">
-            <p class="indicator">Reliability</p><p class="h6">${dataFornowRoute.reliability_metric?(dataFornowRoute.reliability_metric+'%'):'-'}<p>
+            <p class="indicator help" title="Percent of timepoint crossings that meet reliability standards.">Reliability</p><p class="h6 ${ifReliabilityPass}">${reliability}<p>
         </div>
         <div style="width:${w / 4}px">
-            <p class="indicator">Span</p><p class="h6">${dataFornowRoute.span_of_service_metric?dataFornowRoute.span_of_service_metric:'-'}<p>
+            <p class="indicator help" title="Routes fail if trips do not cover the expected span of service.">Span</p><p class="h6 ${dataFornowRoute.span_of_service_metric == 'Pass' ? 'pass' : 'fail'}">${dataFornowRoute.span_of_service_metric?dataFornowRoute.span_of_service_metric:'-'}<p>
         </div>
         <div style="width:${w / 4}px">
-            <p class="indicator">Frequency</p><p class="h6">${dataFornowRoute.frequency_metric?dataFornowRoute.frequency_metric:'-'}<p>
+            <p class="indicator help" title="Routes fail if any time period does not meet the expected frequency or headway.">Frequency</p><p class="h6 ${dataFornowRoute.frequency_metric == 'Pass' ? 'pass' : 'fail'}">${dataFornowRoute.frequency_metric?dataFornowRoute.frequency_metric:'-'}<p>
         </div>
         <div style="width:${w}px">
             <p class="indicator">Journey stage<span></span></p><svg id="routeJourney"></svg>
         </div>
         <div style="width:${w}px">
-            <p class="indicator">Rider type<span></span></p><svg id="routeRiders"></svg>
+            <p class="indicator help" title="Vulnerable fares: includes TAP, Blind, Senior, Youth, and Student">Rider type<span></span></p><svg id="routeRiders"></svg>
         </div>
     `
         if (dataFornowRoute.perc_1_ride_journeys) {

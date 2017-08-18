@@ -37,15 +37,27 @@ function toggleVariants() {
     }
 }
 const showFilteredRoutes = document.querySelector('input[name=filteredRoutes]')
+const showallRoutes = document.querySelector('input[name=showallRoutes]')
 
 function togglefilteredRoutes() {
     if (showFilteredRoutes.checked) {
+    	d3.selectAll('.selectRoute').classed('hidden', false)
         setRoutesDisplay('select', display.filter.routefilter)
     } else {
+		toggleRoutes()
         d3.selectAll('.selectRoute').classed('selectRoute', false).style('stroke', '#666');
     }
     showSubway()
 }
+
+function toggleRoutes() {
+    if (showallRoutes.checked) {
+        d3.selectAll('.route').classed('hidden', false)
+    } else {
+       d3.selectAll('.route').classed('hidden', true)
+    }
+}
+
 
 function toggleBox(e) {
     // console.log(document.querySelector(e))

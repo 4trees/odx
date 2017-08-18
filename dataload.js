@@ -6,11 +6,10 @@ var stopsUrl = './data/stops.txt',
     shapestoprouteUrl = './data/route_shape_stop.csv',
     shapename = './data/shape-id_route-variant_lookup_fall16.csv',
     nonODXrouteUrl = './data/gtfs_route_ids_not_in_odx.csv',
-    routeSummaryUrl = './data/route_summary_data.csv';
-clusterUrl = './data/clusters.geojson';
-
-// clusterUrl = './data/CTPS_TAZ_2012_POLYM_Project_.geojson';
-TAZrUrl = './data/CTPS_TAZ_2012_POLYM_Project_.geojson';
+    routeSummaryUrl = './data/route_summary_data.csv',
+    clusterUrl = './data/clusters.geojson',
+    TAZrUrl = './data/CTPS_TAZ_2012_POLYM_Project_.geojson',
+    metricUrl = './data/sdp_route_metric_standards.csv';
 
 
 d3.queue()
@@ -24,16 +23,17 @@ d3.queue()
     .defer(d3.csv, routeSummaryUrl, parseRouteSummary)
     .defer(d3.json, clusterUrl)
     .defer(d3.json, TAZrUrl)
+    .defer(d3.csv, metricUrl,parseMetric)
     .await(dataloaded);
 
-var allShapesData, allShapes, shapeStopRoute, variantsName, stopAndRoute, subwayLines, nonRouteList, routeSummary;
+var allShapesData, allShapes, shapeStopRoute, variantsName, stopAndRoute, subwayLines, nonRouteList, routeSummary,metrics;
 var allData = {},
     allNest = {};
 
-function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes, summary, clusters, TAZ) {
+function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes, summary, clusters, TAZ, metric) {
     allData.clusters = clusters;
     allData.TAZ = TAZ;
-    console.log(allData.TAZ)
+    metrics = metric;
     //nest shape data by shape id
     allShapes = d3.nest()
         .key(d => d.shape_id)
@@ -203,6 +203,14 @@ function parseRouteSummary(d) {
         perc_2_ride_journeys: d.perc_2_ride_journeys != '' ? unifyPercentage(d.perc_2_ride_journeys) : '',
         perc_3_ride_journeys: d.perc_3_ride_journeys != '' ? unifyPercentage(d.perc_3_ride_journeys) : '',
         perc_4more_ride_journeys: d.perc_4more_ride_journeys != '' ? unifyPercentage(d.perc_4more_ride_journeys) : '',
-        average_daily_boardings: d.average_daily_boardings,
+        average_daily_boardings: Math.ceil(+d.average_daily_boardings),
     }
+}
+
+function parseMetric(d){
+  return {
+    metric: d.Metric,
+    route_type: d['Route Type'],
+    rate: unifyPercentage(d['Pass Rate'])
+  }
 }

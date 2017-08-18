@@ -1,0 +1,7 @@
+Metric,Route Type,Pass Rate
+Crowding,N/A,92%
+Reliability,Local,75%
+Reliability,Key Bus,80%
+Reliability,Commuter,75%
+Reliability,Express,75%
+Reliability,Community,75%
