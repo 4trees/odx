@@ -53,6 +53,11 @@ var VlayerMap = L.Control.extend({
             </a>
             </li>
             <li>
+            <a title = "Show/Hide all stops" role="button" class="custom-botton">
+            <input type="checkbox" name="showallStops" id="showallStops" checked onchange="toggleStops()"><label for="showallStops">All Stops</label>
+            </a>
+            </li>
+            <li>
             <a title = "Show/Hide all routes" role="button" class="custom-botton" >
             <input type="checkbox" name="showallRoutes" id="showallRoutes" checked onchange="toggleRoutes()"><label for="showallRoutes">All Routes</label>
             </a>
@@ -160,8 +165,8 @@ var legend = L.Control.extend({
         var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-legend-box hidden');
         container.innerHTML = `
         <div>
-            <h5>Where do people go?</h5>
-            <p><small>Destination reference rate: 0.3</small></p>
+            <h5 id="odTitle"></h5>
+            <p><small id="refRate"></small></p>
             <ul class="radio-group">
             <li class="radio" title = "Cluster perspective">
                 <input type="radio" name="odAnalysis" id="showByCluster" onchange="showOD()" checked>
@@ -176,7 +181,7 @@ var legend = L.Control.extend({
                 <label for="showByStop">Stop</label>
             </li>
             </ul>
-            <svg></svg>
+            <svg id="legend"></svg>
         </div>
         `
         return container;

@@ -418,7 +418,9 @@ nav {
     background-color: #fff;
     padding: 10px;
 }
-
+.leaflet-legend-box svg{
+    width: 100%;
+}
 
 
 
@@ -554,14 +556,6 @@ nav {
 .checkpoint {
     fill: #fff;
 }
-
-
-
-
-
-
-
-
 
 
 /*search*/

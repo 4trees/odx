@@ -40,7 +40,7 @@ function displayMatches() {
         <span class="type">${item.type}</span></p>
         <p><small>${children}</small></p>
       </li>
-    `;
+     `;
     }).join('');
     const hintText = matchArray.length > 10 ? '<li class="text-center">show at most 10 results</li>' : ''
     suggestions.innerHTML = html + hintText;

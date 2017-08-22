@@ -11,7 +11,7 @@ drawRectangle.setAttribute('title', 'Draw a rectangle to select stops')
 var selectionHisory = [];
 var display = { 'selectedStops': [], 'filter': { 'routefilter': [], 'datePeriod': [], 'timePeriod': [], 'fareUserType': [], 'fareMethod': [] } }
 
-var ClusterColor = d3.scaleLinear().domain([0,100]).range(['#f6da91','#f69590'])
+var ClusterColor = d3.scaleLinear().domain([0, 100]).range(['#f6da91', '#f69590'])
 
 //hint
 var noDataForRoute = 'No ODX data for this route'
@@ -36,15 +36,26 @@ function toggleVariants() {
         d3.selectAll('.shape').classed('hidden', true)
     }
 }
+const showallStops = document.querySelector('input[name=showallStops]')
+
+function toggleStops() {
+    if (showallStops.checked) {
+        d3.selectAll('.stop').classed('hidden', false)
+    } else {
+        d3.selectAll('.stop').classed('hidden', true)
+        d3.selectAll('.selectStop').classed('hidden', false)
+    }
+}
+
 const showFilteredRoutes = document.querySelector('input[name=filteredRoutes]')
 const showallRoutes = document.querySelector('input[name=showallRoutes]')
 
 function togglefilteredRoutes() {
     if (showFilteredRoutes.checked) {
-    	d3.selectAll('.selectRoute').classed('hidden', false)
+        d3.selectAll('.selectRoute').classed('hidden', false)
         setRoutesDisplay('select', display.filter.routefilter)
     } else {
-		toggleRoutes()
+        toggleRoutes()
         d3.selectAll('.selectRoute').classed('selectRoute', false).style('stroke', '#666');
     }
     showSubway()
@@ -54,7 +65,8 @@ function toggleRoutes() {
     if (showallRoutes.checked) {
         d3.selectAll('.route').classed('hidden', false)
     } else {
-       d3.selectAll('.route').classed('hidden', true)
+        d3.selectAll('.route').classed('hidden', true)
+        d3.selectAll('.selectRoute').classed('hidden', false)
     }
 }
 
@@ -193,8 +205,10 @@ function drawBubbleChart(plot, data) {
         })
     enter.append('circle').attr('class', 'outer').attr('r', r).attr('cx', (d, i) => w / 4 * i + w / 10).attr('cy', r)
         .style('fill', '#333').style('stroke', '#787878').style('stroke-width', 1).style('stroke-dasharray', '2,3')
-    enter.append('circle').attr('class', 'inner').attr('r', d => (scaleR(d.value) < 1 && scaleR(d.value) > 0) ? 1 : scaleR(d.value)).attr('cx', (d, i) => w / 4 * i + w / 10).attr('cy', r)
-        .attr("fill", d => stackcolor(d.key));
+    enter.append('circle').attr('class', 'inner').attr('cx', (d, i) => w / 4 * i + w / 10).attr('cy', r)
+        .attr("fill", d => stackcolor(d.key))
+        .transition().duration(1000)
+        .attr('r', d => (scaleR(d.value) < 1 && scaleR(d.value) > 0) ? 1 : scaleR(d.value))
     enter.append('text').attr('class', 'inner').attr('x', (d, i) => w / 4 * i + w / 10).attr('y', r * 2 + 10).style('font-size', '10px').style('fill', '#fff')
         .text(d => `${d.value}%`).style('text-anchor', 'middle');
 }
@@ -233,6 +247,48 @@ function drawPointLineChart(plot, data) {
     enter.append('circle').attr('r', 6).attr('stroke', d => pointlinecolor(d.key)).attr('fill', '#333').attr('stroke-width', '1')
     enter.append('text').text(d => d.key.slice(0, 1).toUpperCase()).style('text-anchor', 'middle')
         .attr('transform', 'translate(0,3)').attr('fill', d => pointlinecolor(d.key))
+}
+
+function drawBarLegend(colorScale, min, max) {
+    const legend = d3.select('#legend').attr('height', 80)
+    const legendW = legend.node().getBoundingClientRect().width
+    //reset the defs
+    legend.node().innerHTML = `
+        <defs>
+        <linearGradient id="Gradient">
+        <stop stop-color="${colorScale(min)}" offset="0%"/>
+        <stop stop-color="${colorScale(max)}" offset="100%"/>
+        </linearGradient>
+        </defs>
+    `
+    //remove the previous legend diagram
+    legend.selectAll('g').remove()
+    const legendGroup = legend.append('g').attr('transform','translate(0, 20)')
+    legendGroup.append('rect')
+        .attr('width', legendW)
+        .attr('height', 15)
+        .attr('y', 10)
+        .attr('fill', 'url(#Gradient)')
+    legendGroup.append('text').text('Uses').attr('class', 'odxCount').attr('x', legendW / 2).style('text-anchor', 'middle')
+    legendGroup.append('text').text(numberWithCommas(min)).attr('class', 'odxCount').attr('y', 40)
+    legendGroup.append('text').text(numberWithCommas(max)).attr('x', legendW).attr('class', 'odxCount').style('text-anchor', 'end').attr('y', 40)
+
+}
+
+function drawCircleLegend(color,min, max,minR,maxR) {
+    const fixedMin = minR * .4
+    const fixedMax = maxR * .4
+    const legend = d3.select('#legend').attr('height', 100)
+    const legendW = legend.node().getBoundingClientRect().width
+    //remove the previous legend diagram
+    legend.selectAll('g').remove()
+    const legendGroup = legend.append('g').attr('transform',`translate(0, ${fixedMax})`)
+    legendGroup.append('text').text('Uses').attr('class', 'odxCount').attr('x', legendW / 2).style('text-anchor', 'middle')
+    legendGroup.append('circle').attr('r',fixedMin).style('fill',color).attr('cx',fixedMin + 10).attr('cy',fixedMax + 10)
+    legendGroup.append('circle').attr('r',(fixedMin + fixedMax) / 2).style('fill',color).attr('cx',legendW / 2 - 5).attr('cy',fixedMax + 10)
+    legendGroup.append('circle').attr('r',fixedMax).style('fill',color).attr('cx',legendW - fixedMax - 10).attr('cy',fixedMax + 10)
+    legendGroup.append('text').text(numberWithCommas(min)).attr('class', 'odxCount').attr('y', fixedMax * 2.9).attr('x', 10)
+    legendGroup.append('text').text(numberWithCommas(max)).attr('class', 'odxCount').attr('y', fixedMax * 2.9).attr('x', legendW - fixedMax - 10).style('text-anchor', 'middle')
 }
 
 function showNoSummaryData(plot) {
@@ -370,11 +426,11 @@ function stopPopup(stop, childrenStops, touchRoutes) {
     let hint = touchRoutes[0].every(d => nonRouteList.includes(d)) ? noDataForStop : getHint(stop.stop_id, 'stop')
     popup.setLatLng([stop.stop_lat, stop.stop_lon])
         .setContent(`
-			<h5>${stop.stop_name}</h5> 
-			${children}
-			<hr><div id="routeListInPoP" class=\"routeList\"></div>
-			<p class="hint">${hint}</p>
-		`)
+            <h5>${stop.stop_name}</h5> 
+            ${children}
+            <hr><div id="routeListInPoP" class=\"routeList\"></div>
+            <p class="hint">${hint}</p>
+        `)
         .openOn(map);
     let updateRoute = d3.select('#routeListInPoP').selectAll('.routelabel').data(touchRoutes[1])
     let enterRoute = updateRoute.enter().append('div').attr('class', 'routelabel')
@@ -408,9 +464,9 @@ function stopPopup(stop, childrenStops, touchRoutes) {
 function shapePopup(location, shapeInfo) {
     popup.setLatLng(location)
         .setContent(`
-    		<h5>${shapeInfo[0]}</h5>
-    		<hr>
-    		<p>${shapeInfo[1]}</p>
+            <h5>${shapeInfo[0]}</h5>
+            <hr>
+            <p>${shapeInfo[1]}</p>
         `)
         .openOn(map);
 }
@@ -421,17 +477,17 @@ function routePopup(location, route, stopLength) {
     if (location) {
         popup.setLatLng(location)
             .setContent(`
-	    		<h5>${routeName}</h5>
-	    		<hr>
-	    		<p>${stopLength} stop(s)</p>
-	    		<p class="hint">${hint}</p>
-	        `)
+                <h5>${routeName}</h5>
+                <hr>
+                <p>${stopLength} stop(s)</p>
+                <p class="hint">${hint}</p>
+            `)
             .openOn(map);
     } else {
         popup.setLatLng(map.getCenter())
             .setContent(`
-	    		<h5>${noDataForRoute}</h5>
-	        `)
+                <h5>${noDataForRoute}</h5>
+            `)
             .openOn(map);
     }
 
@@ -439,8 +495,8 @@ function routePopup(location, route, stopLength) {
 //update popup for the draw selection or cluster selection
 //drawSelection is an array of stop ids
 //mouse is mouse latlng (optional)
-function selectionPopup(layer, drawSelection,mouse) {
-	let location = mouse ? [mouse.lat, mouse.lng] : layer.getBounds().getCenter()
+function selectionPopup(layer, drawSelection, mouse) {
+    let location = mouse ? [mouse.lat, mouse.lng] : layer.getBounds().getCenter()
     let isHiddenNew, isHiddenLimit, isHiddenAdd, hint;
     let overlapStops = drawSelection.filter(stop => display.selectedStops.includes(stop))
     let overlapStopsCount = overlapStops.length
@@ -456,36 +512,36 @@ function selectionPopup(layer, drawSelection,mouse) {
 
     popup.setLatLng(location)
         .setContent(`
-        	<div>
-	        	<h5><strong>${drawSelection.length}</strong> stop(s) in this area</h5>
-	        	<hr>
-	        	<p class="hint">${hint}</p>
-	        </div>
-	        <div class="${isHiddenNew}">	        	
-	        	<a id="replaceDraw" class="btn btn-default btn-xs">Set all as new selection</a>
-	        	<a id="addDraw" class="btn btn-default btn-xs ${isHiddenAdd}" >Add all to selection</a>
-	        </div>
-    		<div class="${isHiddenLimit}">
-	    		<h5><strong>${overlapStopsCount}</strong> stop(s) in current selection</h5>
-	    		<hr>		
-	    		<a id="limitDraw" class="btn btn-default btn-xs">Limit selection to them</a>
-    		</div>
+            <div>
+                <h5><strong>${drawSelection.length}</strong> stop(s) in this area</h5>
+                <hr>
+                <p class="hint">${hint}</p>
+            </div>
+            <div class="${isHiddenNew}">                
+                <a id="replaceDraw" class="btn btn-default btn-xs">Set all as new selection</a>
+                <a id="addDraw" class="btn btn-default btn-xs ${isHiddenAdd}" >Add all to selection</a>
+            </div>
+            <div class="${isHiddenLimit}">
+                <h5><strong>${overlapStopsCount}</strong> stop(s) in current selection</h5>
+                <hr>        
+                <a id="limitDraw" class="btn btn-default btn-xs">Limit selection to them</a>
+            </div>
         `)
         .openOn(map);
 
     document.querySelector('#replaceDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(drawSelection, 'replace');
-        if(!mouse){layer.remove()};
+        if (!mouse) { layer.remove() };
         map.closePopup();
     })
     document.querySelector('#addDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(drawSelection, 'add');
-        if(!mouse){layer.remove()};
+        if (!mouse) { layer.remove() };
         map.closePopup();
     })
     document.querySelector('#limitDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(overlapStops, 'replace');
-        if(!mouse){layer.remove()};
+        if (!mouse) { layer.remove() };
         map.closePopup();
     })
 
@@ -650,8 +706,9 @@ function updateSelection() {
 }
 
 function updateMap() {
-	//reset the filtered variants box
-	updateFilteredVariants()
+
+    //reset the filtered variants box
+    updateFilteredVariants()
     //highlight the selection stops and filtered routes
     d3.selectAll('.selectStop').classed('selectStop', false)
     d3.selectAll('.selectRoute').classed('selectRoute', false).style('stroke', '#666');
@@ -662,7 +719,11 @@ function updateMap() {
     //hidden highlight variants, reshow routes and subway
     d3.selectAll('.hlShape').classed('hidden', true)
     d3.selectAll('.route').classed('hidden', false)
-
+    //synic the display setting
+    toggleVariants()
+    toggleStops()
+    toggleRoutes()
+    togglefilteredRoutes()
 }
 
 

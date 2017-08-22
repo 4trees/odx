@@ -4,7 +4,8 @@ const odx = [
     { type: 'x', count: 7800 },
     { type: 'd', count: 11230 }
 ]
-const od = { "destination_inference_rate": 50, "data": [{ "id": "70002", "journey_count": 31300 }, { "id": "70007", "journey_count": 30300 }, { "id": "8824", "journey_count": 3100 }] }
+
+const od = { "destination_inference_rate": 0.5, "data": [{ "id": "70002", "journey_count": 31300 }, { "id": "70007", "journey_count": 30300 }, { "id": "8824", "journey_count": 3100 }] }
 const transfer = [{ from: '9', to: '1', count: 32000 }, { from: '43', to: '44', count: 7000 }, { from: '95', to: '1', count: 6300 }, { from: '39', to: '110', count: 4500 }, { from: '55', to: '66', count: 3000 }, { from: 'Green-E', to: 'Red', count: 2300 }]
 const routesummary = { route_id: '9', data_note: 'No Service Delivery Policy Metrics Available', route_category: 'Key bus', cost_effectiveness_rank: 32, crowding_metric: .83, reliability_metric: .72, span_of_service_metric: 'Y', frequency_metric: 'N', perc_low_income_riders: 0, perc_minority_riders: 1, perc_vulnerable_fare_riders: .1, perc_1_ride_journeys: .68, perc_2_ride_journeys: .2, perc_3_ride_journeys: .1, perc_4more_ride_journeys: .02, average_daily_boardings: 32324 }
 
@@ -45,6 +46,7 @@ var odxPairs = d3.scaleOrdinal()
 function updatepreview() {
     // remove the od analysis mode whenever change the selection
     hideOD()
+
     if (display == '' || display.selectedStops.length == 0) {
         document.querySelector('#preview').classList.add('hidden');
         document.querySelector('#emptyHint').innerHTML = noSelection;
@@ -259,8 +261,8 @@ function updateOdx(data) {
         .on('click', function(d) {
             if (d.type == 'x') { return }
             //show cluster by defuat
-            showOD()
             isShowODType = d.type
+            showOD()
 
         })
     odCheckpoint.append('text')
@@ -277,6 +279,7 @@ function updateOdx(data) {
 
     let mergeodx = updateodx.merge(enterodx)
     mergeodx.select('rect')
+        .transition().duration(1000)
         .attr('width', d => fullWidthLabelScale(d.count))
     mergeodx.select('.odxCount')
         .attr('x', d => 4 + fullWidthLabelScale(d.count))
@@ -410,7 +413,13 @@ function showOD() {
 
     const checkedOne = document.querySelector('input[name="odAnalysis"]:checked').id;
     //show legend box
-    document.querySelector('.leaflet-legend-box').classList.remove('hidden')
+    const legendBox = document.querySelector('.leaflet-legend-box')
+    legendBox.classList.remove('hidden')
+    const isShowOrigin = isShowODType == 'o' 
+    legendBox.querySelector('#odTitle').innerHTML = isShowOrigin ? 'Where do people go?' : 'Where do people come from?'
+    legendBox.querySelector('#refRate').innerHTML = isShowOrigin ? '' : `destination inference rate: ${od.destination_inference_rate}`
+    
+
     switch (checkedOne) {
         case 'showByStop':
             showByStop()
@@ -441,7 +450,9 @@ function showByStop() {
     const stopList = odData.data.map(d => slugStr(d.id))
     const stops = allData.stop.filter(d => stopList.includes(d.stop_id))
 
-    RadiusForODX.domain([0, d3.max(odData.data, d => d.journey_count)])
+    const max = d3.max(odData.data, d => d.journey_count)
+    const min = d3.min(odData.data, d => d.journey_count)
+    RadiusForODX.domain([0, max])
     const stopCount = stops.length
     const fillColor = colorForODX(odxPairs(isShowODType))
     let markers = []
@@ -465,6 +476,7 @@ function showByStop() {
     const group = new L.featureGroup(markers).addTo(map);
     map.fitBounds(group.getBounds());
 
+    drawCircleLegend(fillColor,min,max,RadiusForODX(min),RadiusForODX(max))
 }
 
 function showByCluster() {
@@ -475,6 +487,8 @@ function showByCluster() {
         odClusterLayer.addData(allData.clusters);
     }
     odClusterLayer.setStyle(feature => { return { fillColor: ClusterColor(Math.random() * 100), fillOpacity: .5, color: "#333", opacity: .6, weight: 1 } })
+
+    drawBarLegend(ClusterColor,0,100)
 }
 
 function showByTAZ() {
@@ -485,4 +499,5 @@ function showByTAZ() {
         odTazLayer.addData(allData.TAZ);
     }
     odTazLayer.setStyle(feature => { return { fillColor: ClusterColor(Math.random() * 100), fillOpacity: .5, color: "#333", opacity: .6, weight: 1 } })
+    drawBarLegend(ClusterColor,0,100)
 }
