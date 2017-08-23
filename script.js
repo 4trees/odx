@@ -59,6 +59,7 @@ function togglefilteredRoutes() {
         d3.selectAll('.selectRoute').classed('selectRoute', false).style('stroke', '#666');
     }
     showSubway()
+    toggleRoutes()
 }
 
 function toggleRoutes() {
@@ -695,6 +696,7 @@ function populateSelectionByDraw(data, action) {
 }
 
 function updateSelection() {
+    console.log(display.selectedStops,display.filter)
     //populate selection history
     let saveStops = Array.from(display.selectedStops)
     let saveFilter = Object.assign({}, display.filter)
@@ -713,17 +715,18 @@ function updateMap() {
     d3.selectAll('.selectStop').classed('selectStop', false)
     d3.selectAll('.selectRoute').classed('selectRoute', false).style('stroke', '#666');
     showSubway()
-    if (display.selectedStops.length == 0) return
-    setStopsDisplay('select', display.selectedStops)
-    if (showFilteredRoutes.checked) { setRoutesDisplay('select', display.filter.routefilter) }
-    //hidden highlight variants, reshow routes and subway
-    d3.selectAll('.hlShape').classed('hidden', true)
-    d3.selectAll('.route').classed('hidden', false)
     //synic the display setting
     toggleVariants()
     toggleStops()
     toggleRoutes()
     togglefilteredRoutes()
+    if (display.selectedStops.length == 0) return
+    setStopsDisplay('select', display.selectedStops)
+    if (showFilteredRoutes.checked) { setRoutesDisplay('select', display.filter.routefilter) }
+    //hidden highlight variants, reshow routes and subway
+    d3.selectAll('.hlShape').classed('hidden', true)
+    // d3.selectAll('.route').classed('hidden', false)
+
 }
 
 
