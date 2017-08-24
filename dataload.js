@@ -221,7 +221,7 @@ function parseMetric(d) {
 
 function parseTAZstop(d) {
     return {
-        stop_id: d.stop_id,
+        stop_id: slugStr(d.stop_id),
         taz_id: +d.TAZ,
     }
 }

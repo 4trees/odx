@@ -264,7 +264,7 @@ function drawBarLegend(colorScale, min, max) {
     `
     //remove the previous legend diagram
     legend.selectAll('g').remove()
-    const legendGroup = legend.append('g').attr('transform','translate(0, 20)')
+    const legendGroup = legend.append('g').attr('transform', 'translate(0, 20)')
     legendGroup.append('rect')
         .attr('width', legendW)
         .attr('height', 15)
@@ -276,18 +276,18 @@ function drawBarLegend(colorScale, min, max) {
 
 }
 
-function drawCircleLegend(color,min, max,minR,maxR) {
+function drawCircleLegend(color, min, max, minR, maxR) {
     const fixedMin = minR * .4
     const fixedMax = maxR * .4
     const legend = d3.select('#legend').attr('height', 100)
     const legendW = legend.node().getBoundingClientRect().width
     //remove the previous legend diagram
     legend.selectAll('g').remove()
-    const legendGroup = legend.append('g').attr('transform',`translate(0, ${fixedMax})`)
+    const legendGroup = legend.append('g').attr('transform', `translate(0, ${fixedMax})`)
     legendGroup.append('text').text('Uses').attr('class', 'odxCount').attr('x', legendW / 2).style('text-anchor', 'middle')
-    legendGroup.append('circle').attr('r',fixedMin).style('fill',color).attr('cx',fixedMin + 10).attr('cy',fixedMax + 10)
-    legendGroup.append('circle').attr('r',(fixedMin + fixedMax) / 2).style('fill',color).attr('cx',legendW / 2 - 5).attr('cy',fixedMax + 10)
-    legendGroup.append('circle').attr('r',fixedMax).style('fill',color).attr('cx',legendW - fixedMax - 10).attr('cy',fixedMax + 10)
+    legendGroup.append('circle').attr('r', fixedMin).style('fill', color).attr('cx', fixedMin + 10).attr('cy', fixedMax + 10)
+    legendGroup.append('circle').attr('r', (fixedMin + fixedMax) / 2).style('fill', color).attr('cx', legendW / 2 - 5).attr('cy', fixedMax + 10)
+    legendGroup.append('circle').attr('r', fixedMax).style('fill', color).attr('cx', legendW - fixedMax - 10).attr('cy', fixedMax + 10)
     legendGroup.append('text').text(numberWithCommas(min)).attr('class', 'odxCount').attr('y', fixedMax * 2.9).attr('x', 10)
     legendGroup.append('text').text(numberWithCommas(max)).attr('class', 'odxCount').attr('y', fixedMax * 2.9).attr('x', legendW - fixedMax - 10).style('text-anchor', 'middle')
 }
@@ -548,18 +548,22 @@ function drawPopup(layer, drawSelection) {
 
 }
 
-function TAZPopup(layerId, clusterSelection, mouse,isTAZ){
+function TAZPopup(layerId, clusterSelection, mouse, isTAZ) {
     let location = [mouse.lat, mouse.lng]
     let hint;
     let title = isTAZ ? `TAZ ${layerId}` : 'Cluster'
-    let overlapStops = clusterSelection.filter(stop => display.selectedStops.includes(stop))
-    let overlapStopsCount = overlapStops.length
+    let ifAllseletedStops = clusterSelection.every(stop => display.selectedStops.includes(stop))
+    // let overlapStopsCount = overlapStops.length
     let touchRoutes = getRelationships(getIdlist(getChildrenStop(clusterSelection), 'stop'), 'stop_route')[0]
 
     //if all the stops are touching no-odx data routes, hide set as new option and give a hint
     let ifnodataArea = touchRoutes.every(d => nonRouteList.includes(d))
+    if (ifnodataArea) {
+        hint = noDataForArea
+    } else {
+        hint = ifAllseletedStops ? 'Shift click to <strong>remove</strong> all the stops' : 'Shift click to <strong>add</strong> all the stops'
+    }
 
-    hint = ifnodataArea ? noDataForArea : 'Shift click to <strong>add</strong> stops'
 
     popup.setLatLng(location)
         .setContent(`
@@ -618,7 +622,13 @@ function getChildrenStop(stopIdList) {
 //get parent stops for stops (para is a stop id)
 function getParentStopId(stopId) {
     let stop = allData.stop.find(d => d.stop_id == stopId)
-    let parentStopId = stop.parent_station ? stop.parent_station : stop.stop_id;
+    let parentStopId
+    if (stop) {
+        parentStopId = stop.parent_station ? stop.parent_station : stop.stop_id;
+    } else {
+        parentStopId = stopId;
+    }
+
     return parentStopId
 }
 
@@ -720,11 +730,19 @@ function populateSelectionByDraw(data, action) {
             display.filter.routefilter = []
             updateSelection()
             break
+        case 'remove':
+            display.selectedStops = display.selectedStops.filter(stop => !data.includes(stop))
+            //if there's any route in filter, remove all the touching routes of this stop from the filter 
+            let touchingRouteIdList = getRelationships(getIdlist(getChildrenStop(data), 'stop'), 'stop_route')[0]
+            if (display.filter.routefilter.length > 0) {
+                display.filter.routefilter = display.filter.routefilter.filter(route => !touchingRouteIdList.includes(route))
+            }
+            updateSelection()
     }
 }
 
 function updateSelection() {
-    console.log(display.selectedStops,display.filter)
+    console.log(display.selectedStops, display.filter)
     //populate selection history
     let saveStops = Array.from(display.selectedStops)
     let saveFilter = Object.assign({}, display.filter)
@@ -754,6 +772,16 @@ function updateMap() {
     //hidden highlight variants, reshow routes and subway
     d3.selectAll('.hlShape').classed('hidden', true)
     // d3.selectAll('.route').classed('hidden', false)
+    if (document.querySelector('#showTAZ').checked) {
+        clusterLayer.clearLayers()
+        tazLayer.clearLayers()
+        drawTAZs('TAZ')
+    }
+    if (document.querySelector('#showCluster').checked) {
+        clusterLayer.clearLayers()
+        tazLayer.clearLayers()
+        drawTAZs('cluster')
+    }
 
 }
 

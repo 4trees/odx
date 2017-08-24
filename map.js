@@ -405,32 +405,56 @@ function drawTAZs(name) {
     }
 
     layers.addData(tazData);
+    // layers.setStyle(feature => { 
+
+    //     return { fillColor: '#666', fillOpacity: .2, color: "#333", opacity: .6, weight: 1 } 
+    // })
     layers.eachLayer(function(layer) {
+        setTAZstyle(layer)
         layer.on('mouseover', e => {
 
             let clusterSelection = replaceChildrenStop(TAZstops.filter(taz => taz.taz_id == e.target.feature.properties.TAZ).map(stop => stop.stop_id))
-
-            TAZPopup(e.target.feature.properties.TAZ, clusterSelection, e.latlng,isTAZ)
+            e.target.setStyle({ fillColor: '#F06EAA', fillOpacity: .2, color: "#F06EAA", opacity: .6, weight: 2 })
+            TAZPopup(e.target.feature.properties.TAZ, clusterSelection, e.latlng, isTAZ)
             //highlight the stops on the route
             setStopsDisplay('hover', clusterSelection)
-            e.target.setStyle({ fillColor: '#F06EAA', fillOpacity: .2, color: "#F06EAA", opacity: .6, weight: 2 })
+
         }).on('mouseout', e => {
             let clusterSelection = replaceChildrenStop(TAZstops.filter(taz => taz.taz_id == e.target.feature.properties.TAZ).map(stop => stop.stop_id))
             setStopsDisplay('default', clusterSelection)
-            e.target.setStyle({ fillColor: '#666', fillOpacity: .2, color: "#333", opacity: .6, weight: 1 })
+            setTAZstyle(layer)
         }).on('click', e => {
-            console.log(e)
+
             let clusterSelection = replaceChildrenStop(TAZstops.filter(taz => taz.taz_id == e.target.feature.properties.TAZ).map(stop => stop.stop_id))
             if (clusterSelection.length != 0) {
                 if (e.originalEvent.shiftKey) {
-                    populateSelectionByDraw(clusterSelection, 'add')
+                    if (clusterSelection.every(stop => display.selectedStops.includes(stop))) {
+                        populateSelectionByDraw(clusterSelection, 'remove')
+                        e.target.setStyle({ fillColor: '#666', fillOpacity: .2, color: "#333", opacity: .6, weight: 1 })
+                    } else {
+                        populateSelectionByDraw(clusterSelection, 'add')
+                        e.target.setStyle({ fillColor: '#F06EAA', fillOpacity: .2, color: "#F06EAA", opacity: .6, weight: 2 })
+                    }
                 } else {
                     populateSelectionByDraw(clusterSelection, 'replace')
+                    e.target.setStyle({ fillColor: '#F06EAA', fillOpacity: .2, color: "#F06EAA", opacity: .6, weight: 2 })
                 }
             }
+            
         })
     });
-    layers.setStyle(feature => { return { fillColor: '#666', fillOpacity: .2, color: "#333", opacity: .6, weight: 1 } })
+
+
+}
+
+function setTAZstyle(layer) {
+
+    const clusterSelection = TAZstops.filter(taz => taz.taz_id == layer.feature.properties.TAZ)
+    let color = '#666';
+    if (clusterSelection.length != 0) {
+        color = replaceChildrenStop(clusterSelection.map(stop => stop.stop_id)).every(d => display.selectedStops.includes(d)) ? '#F06EAA' : '#666'
+    }
+    layer.setStyle({ fillColor: color, fillOpacity: .2, color: "#333", opacity: .6, weight: 1 })
 
 }
 
