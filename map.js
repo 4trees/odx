@@ -407,7 +407,10 @@ function drawTAZs(name) {
     layers.addData(tazData);
     layers.eachLayer(function(layer) {
         layer.on('mouseover', e => {
-            let clusterSelection = getInsideMarkers(layer, isCluster);
+            // let clusterSelection = getInsideMarkers(layer, isCluster);
+            console.log(e.target)
+            let clusterSelection = replaceChildrenStop(TAZstops.filter(taz => taz.taz_id == e.target.feature.properties.TAZ).map(stop => stop.stop_id))
+            console.log(e.target.feature.properties.TAZ,clusterSelection)
             selectionPopup(layer, clusterSelection, e.latlng)
             e.target.setStyle({ fillColor: '#F06EAA', fillOpacity: .2, color: "#F06EAA", opacity: .6, weight: 2 })
         }).on('mouseout', e => {

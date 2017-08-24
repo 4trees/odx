@@ -9,7 +9,8 @@ var stopsUrl = './data/stops.txt',
     routeSummaryUrl = './data/route_summary_data.csv',
     clusterUrl = './data/clusters.geojson',
     TAZrUrl = './data/CTPS_TAZ_2012_POLYM_Project_.geojson',
-    metricUrl = './data/sdp_route_metric_standards.csv';
+    metricUrl = './data/sdp_route_metric_standards.csv',
+    TAZstopUrl = './data/TAZ_stop_allocation.csv';
 
 
 d3.queue()
@@ -23,17 +24,20 @@ d3.queue()
     .defer(d3.csv, routeSummaryUrl, parseRouteSummary)
     .defer(d3.json, clusterUrl)
     .defer(d3.json, TAZrUrl)
-    .defer(d3.csv, metricUrl,parseMetric)
+    .defer(d3.csv, metricUrl, parseMetric)
+    .defer(d3.csv, TAZstopUrl, parseTAZstop)
     .await(dataloaded);
 
-var allShapesData, allShapes, shapeStopRoute, variantsName, stopAndRoute, subwayLines, nonRouteList, routeSummary,metrics;
+var allShapesData, allShapes, shapeStopRoute, variantsName, stopAndRoute, subwayLines, nonRouteList, routeSummary, metrics;
 var allData = {},
     allNest = {};
 
-function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes, summary, clusters, TAZ, metric) {
+function dataloaded(err, variants, stops, shapes, trips, routes, shapestoproute, nonODXroutes, summary, clusters, TAZ, metric,TAZstop) {
     allData.clusters = clusters;
     allData.TAZ = TAZ;
     metrics = metric;
+    TAZstops = TAZstop;
+
     //nest shape data by shape id
     allShapes = d3.nest()
         .key(d => d.shape_id)
@@ -207,10 +211,17 @@ function parseRouteSummary(d) {
     }
 }
 
-function parseMetric(d){
-  return {
-    metric: d.Metric,
-    route_type: d['Route Type'],
-    rate: unifyPercentage(d['Pass Rate'])
-  }
+function parseMetric(d) {
+    return {
+        metric: d.Metric,
+        route_type: d['Route Type'],
+        rate: unifyPercentage(d['Pass Rate'])
+    }
+}
+
+function parseTAZstop(d) {
+    return {
+        stop_id: d.stop_id,
+        taz_id: +d.TAZ,
+    }
 }
