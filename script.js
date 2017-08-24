@@ -496,8 +496,8 @@ function routePopup(location, route, stopLength) {
 //update popup for the draw selection or cluster selection
 //drawSelection is an array of stop ids
 //mouse is mouse latlng (optional)
-function selectionPopup(layer, drawSelection, mouse) {
-    let location = mouse ? [mouse.lat, mouse.lng] : layer.getBounds().getCenter()
+function drawPopup(layer, drawSelection) {
+    let location = layer.getBounds().getCenter()
     let isHiddenNew, isHiddenLimit, isHiddenAdd, hint;
     let overlapStops = drawSelection.filter(stop => display.selectedStops.includes(stop))
     let overlapStopsCount = overlapStops.length
@@ -532,19 +532,47 @@ function selectionPopup(layer, drawSelection, mouse) {
 
     document.querySelector('#replaceDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(drawSelection, 'replace');
-        if (!mouse) { layer.remove() };
+        layer.remove()
         map.closePopup();
     })
     document.querySelector('#addDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(drawSelection, 'add');
-        if (!mouse) { layer.remove() };
+        layer.remove()
         map.closePopup();
     })
     document.querySelector('#limitDraw').addEventListener('click', function(d) {
         populateSelectionByDraw(overlapStops, 'replace');
-        if (!mouse) { layer.remove() };
+        layer.remove()
         map.closePopup();
     })
+
+}
+
+function TAZPopup(layerId, clusterSelection, mouse,isTAZ){
+    let location = [mouse.lat, mouse.lng]
+    let hint;
+    let title = isTAZ ? `TAZ ${layerId}` : 'Cluster'
+    let overlapStops = clusterSelection.filter(stop => display.selectedStops.includes(stop))
+    let overlapStopsCount = overlapStops.length
+    let touchRoutes = getRelationships(getIdlist(getChildrenStop(clusterSelection), 'stop'), 'stop_route')[0]
+
+    //if all the stops are touching no-odx data routes, hide set as new option and give a hint
+    let ifnodataArea = touchRoutes.every(d => nonRouteList.includes(d))
+
+    hint = ifnodataArea ? noDataForArea : 'Shift click to <strong>add</strong> stops'
+
+    popup.setLatLng(location)
+        .setContent(`
+            <div>
+                <h5>${title}</h5>
+                <hr>
+                <p><strong>${clusterSelection.length}</strong> stop(s) in this area</p>
+                <p class="hint">${hint}</p>
+            </div>
+
+        `)
+        .openOn(map);
+
 
 }
 
@@ -680,7 +708,7 @@ function populateSelectionByRoute(key, routeId) {
     }
 
 }
-
+//data is an array of ids
 function populateSelectionByDraw(data, action) {
     switch (action) {
         case 'add':

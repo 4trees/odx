@@ -234,8 +234,8 @@ map.on('draw:created', function(e) {
     if (drawSelection.length == 0) return
 
     drawnItems.addLayer(layer)
-    selectionPopup(layer, drawSelection, false)
-    layer.on('mouseover', function() { selectionPopup(layer, drawSelection, false) })
+    drawPopup(layer, drawSelection)
+    layer.on('mouseover', function() { drawPopup(layer, drawSelection) })
 });
 //add a cover layer when drawing to avoid other events fire
 map.on('draw:drawstart', function(e) {
@@ -395,26 +395,39 @@ function drawTAZs(name) {
         case 'TAZ':
             layers = tazLayer
             tazData = allData.TAZ
-            isCluster = false
+            isTAZ = true
             break
         case 'cluster':
             layers = clusterLayer
             tazData = allData.clusters
-            isCluster = true
+            isTAZ = false
             break
     }
 
     layers.addData(tazData);
     layers.eachLayer(function(layer) {
         layer.on('mouseover', e => {
-            // let clusterSelection = getInsideMarkers(layer, isCluster);
-            console.log(e.target)
+
             let clusterSelection = replaceChildrenStop(TAZstops.filter(taz => taz.taz_id == e.target.feature.properties.TAZ).map(stop => stop.stop_id))
-            console.log(e.target.feature.properties.TAZ,clusterSelection)
-            selectionPopup(layer, clusterSelection, e.latlng)
+
+            TAZPopup(e.target.feature.properties.TAZ, clusterSelection, e.latlng,isTAZ)
+            //highlight the stops on the route
+            setStopsDisplay('hover', clusterSelection)
             e.target.setStyle({ fillColor: '#F06EAA', fillOpacity: .2, color: "#F06EAA", opacity: .6, weight: 2 })
         }).on('mouseout', e => {
+            let clusterSelection = replaceChildrenStop(TAZstops.filter(taz => taz.taz_id == e.target.feature.properties.TAZ).map(stop => stop.stop_id))
+            setStopsDisplay('default', clusterSelection)
             e.target.setStyle({ fillColor: '#666', fillOpacity: .2, color: "#333", opacity: .6, weight: 1 })
+        }).on('click', e => {
+            console.log(e)
+            let clusterSelection = replaceChildrenStop(TAZstops.filter(taz => taz.taz_id == e.target.feature.properties.TAZ).map(stop => stop.stop_id))
+            if (clusterSelection.length != 0) {
+                if (e.originalEvent.shiftKey) {
+                    populateSelectionByDraw(clusterSelection, 'add')
+                } else {
+                    populateSelectionByDraw(clusterSelection, 'replace')
+                }
+            }
         })
     });
     layers.setStyle(feature => { return { fillColor: '#666', fillOpacity: .2, color: "#333", opacity: .6, weight: 1 } })
